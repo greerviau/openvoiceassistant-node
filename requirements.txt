@@ -1,0 +1,4 @@
+pydub
+speechrecognition
+sounddevice
+paho
