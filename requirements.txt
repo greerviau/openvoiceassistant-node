@@ -1,4 +1,4 @@
 pydub
 speechrecognition
 sounddevice
-paho
+numpy
