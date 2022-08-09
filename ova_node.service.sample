@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Open Voice Assistant Node
+After=multi-user.target
+
+[Service]
+ExecStart=/home/pi/openvoiceassistant_node/start_node.sh
+User=user
+
+[Install]
+WantedBy=multi-user.target
