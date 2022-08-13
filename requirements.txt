@@ -2,3 +2,4 @@ pydub
 speechrecognition
 sounddevice
 numpy
+scapy
