@@ -9,6 +9,7 @@ import pydub
 from pydub.playback import play
 import time
 import threading
+from io import BytesIO
 
 
 class Node:
@@ -87,42 +88,40 @@ class Node:
                     buffer.pop(0)
             
             if done:
-                if len(frames) > 63:
-                    print('\nSaving...')
-                    wf = wave.open('output.wav', 'wb')
-                    wf.setnchannels(self.CHANNELS)
-                    wf.setsampwidth(self.paudio.get_sample_size(self.FORMAT))
-                    wf.setframerate(self.RATE)
-                    wf.writeframes(b''.join(frames))
-                    wf.close()
-                    print('Saved')
+                if len(frames) > 40:
+                    with BytesIO() as wave_file:
+                        wf = wave.open(wave_file, 'wb')
+                        wf.setnchannels(self.CHANNELS)
+                        wf.setsampwidth(self.paudio.get_sample_size(self.FORMAT))
+                        wf.setframerate(self.RATE)
+                        wf.writeframes(b''.join(frames))
+                        wf.close()
+                        raw = wave_file.getvalue()
+
+                    raw_base64 = base64.b64encode(raw).decode('utf-8')
+
+                    payload = {'samplerate': self.RATE, 'callback': '', 'audio_file': raw_base64, 'room_id': '1', 'engaged': True}
+                    response = requests.post(
+                        f'http://{self.hub_api_uri}/respond_to_audio',
+                        json=payload
+                    )
+
+                    if response.status_code == 200:
+                        understanding = response.json()
+
+                        self.__log(understanding['command'])
+                        audio_data = understanding['audio_data']
+                        audio_buffer = base64.b64decode(audio_data)
+                        audio = np.frombuffer(audio_buffer, dtype=np.int16)
+
+                        audio_segment = pydub.AudioSegment(
+                            audio.tobytes(), 
+                            frame_rate=22050,
+                            sample_width=audio.dtype.itemsize, 
+                            channels=1
+                        )
+                        play(audio_segment)
 
                 frames = []
                 buffer = []
                 done = False
-                
-                '''
-                raw_base64 = base64.b64encode(raw).decode('utf-8')
-
-                payload = {'samplerate': sample_rate, 'callback': '', 'audio_file': raw_base64, 'room_id': '1', 'engaged': True}
-                response = requests.post(
-                    f'http://{self.hub_api_uri}/respond_to_audio',
-                    json=payload
-                )
-
-                if response.status_code == 200:
-                    understanding = response.json()
-
-                    self.__log(understanding['command'])
-                    audio_data = understanding['audio_data']
-                    audio_buffer = base64.b64decode(audio_data)
-                    audio = np.frombuffer(audio_buffer, dtype=np.int16)
-
-                    audio_segment = pydub.AudioSegment(
-                        audio.tobytes(), 
-                        frame_rate=22050,
-                        sample_width=audio.dtype.itemsize, 
-                        channels=1
-                    )
-                    play(audio_segment)
-                '''
