@@ -3,3 +3,4 @@ speechrecognition
 sounddevice
 numpy
 scapy
+webrtcvad
