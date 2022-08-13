@@ -1,11 +1,15 @@
 import speech_recognition as sr
+import pyaudio
+import webrtcvad
 import base64
 import requests
 import numpy as np
+import wave
 import pydub
 from pydub.playback import play
 import time
 import threading
+
 
 class Node:
     def __init__(self, mic_index, hub_api_uri, cli, debug):
@@ -14,6 +18,27 @@ class Node:
         self.hub_api_uri = hub_api_uri
         self.cli = cli
         self.debug = debug
+        
+
+        self.vad = webrtcvad.Vad()
+        self.vad.set_mode(3)
+
+        self.paudio = pyaudio.PyAudio()
+
+        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
+        if self.paudio.is_format_supported(48000,  # Sample rate
+                                input_device=devinfo['index'],
+                                input_channels=devinfo['maxInputChannels'],
+                                input_format=pyaudio.paInt16):
+            print('Supported')
+        else:
+            print('Not supported')
+
+        self.INTERVAL = 30   # ms
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = 1
+        self.RATE = 48000
+        self.CHUNK = int(self.RATE * self.INTERVAL / 1000) 
 
         self.running = True
 
@@ -26,18 +51,58 @@ class Node:
         self.mainloop()
 
     def mainloop(self):
+        stream = self.paudio.open(format=self.FORMAT,
+                channels=self.CHANNELS,
+                input_device_index = self.mic_index,
+                rate=self.RATE,
+                input=True,
+                frames_per_buffer=self.CHUNK)
+
+        buffer = []
+        frames = []
+        voice_detected = False
+        done = False
         while self.running:
-            with sr.Microphone(device_index=self.mic_index) as source:
-                self.recog.adjust_for_ambient_noise(source, duration=0.5)
-                self.__log('Say something!')
-                audio = self.recog.listen(source)
-                self.__log('Heard sending to hub')
-                sample_rate = audio.sample_rate
-                raw = audio.get_wav_data()
+            data = stream.read(self.CHUNK)
+            if self.vad.is_speech(data, self.RATE):
+                print('\rRecording...   ', end='')
+                voice_detected = True
+                if len(buffer) > 0:
+                    frames.extend(buffer)
+                    buffer = []
+                else:
+                    frames.append(data)
+            elif voice_detected:
+                print('\rRecording...   ', end='')
+                buffer.append(data)
+                if len(buffer) > 20:
+                    frames.extend(buffer)
+                    buffer = []
+                    done = True
+                    voice_detected = False
+            else:
+                print('\rListening...   ', end='')
+                buffer.append(data)
+                if len(buffer) > 10:
+                    buffer.pop(0)
+            
+            if done:
+                if len(frames) > 63:
+                    print('\nSaving...')
+                    wf = wave.open('output.wav', 'wb')
+                    wf.setnchannels(self.CHANNELS)
+                    wf.setsampwidth(self.paudio.get_sample_size(self.FORMAT))
+                    wf.setframerate(self.RATE)
+                    wf.writeframes(b''.join(frames))
+                    wf.close()
+                    print('Saved')
 
+                frames = []
+                buffer = []
+                done = False
+                
+                '''
                 raw_base64 = base64.b64encode(raw).decode('utf-8')
-
-                start_time = time.time()
 
                 payload = {'samplerate': sample_rate, 'callback': '', 'audio_file': raw_base64, 'room_id': '1', 'engaged': True}
                 response = requests.post(
@@ -47,9 +112,6 @@ class Node:
 
                 if response.status_code == 200:
                     understanding = response.json()
-                    time_sent = understanding['time_sent']
-                    self.__log(f'Response delay: {time.time() - time_sent}')
-                    self.__log(f'Overall delay: {time.time() - start_time}')
 
                     self.__log(understanding['command'])
                     audio_data = understanding['audio_data']
@@ -63,3 +125,4 @@ class Node:
                         channels=1
                     )
                     play(audio_segment)
+                '''
