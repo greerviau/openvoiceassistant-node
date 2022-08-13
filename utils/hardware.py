@@ -3,6 +3,7 @@ import sounddevice as sd
 
 def select_mic(mic_tag):
     microphones = sr.Microphone.list_microphone_names()
+    print(microphones)
     try:
         mic_index = [idx for idx, element in enumerate(microphones) if mic_tag in element.lower()][0]
     except:
