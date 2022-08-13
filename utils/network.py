@@ -13,15 +13,20 @@ def get_subnet(ip):
     return '.'.join(ip.split('.')[:2]) + '.0.0/24'
 
 def scan_for_hub(subnet, port):
-    while True:
+    run = True
+    while run:
         devices = net_scan(subnet)
         for device in devices:
             ip = device['ip']
             print('Testing ip ', ip)
             try:
                 response = requests.get(f'http://{ip}:{port}/is_alive', timeout=5)
+                response.raise_for_status()
                 print('Hub Found')
                 return ip
+            except KeyboardInterrupt:
+                run = False
+                break
             except:
                 pass
 
