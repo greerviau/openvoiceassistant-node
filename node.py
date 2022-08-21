@@ -13,8 +13,9 @@ from io import BytesIO
 
 
 class Node:
-    def __init__(self, mic_index, hub_api_uri, cli, debug):
+    def __init__(self, node_id, mic_index, hub_api_uri, cli, debug):
         self.recog = sr.Recognizer()
+        self.node_id = node_id
         self.mic_index = mic_index
         self.hub_api_uri = hub_api_uri
         self.cli = cli
@@ -43,7 +44,7 @@ class Node:
 
         self.running = True
 
-    def __log(self, text, end='\n'):
+    def __log(self, text='', end='\n'):
         if self.debug:
             print(text, end=end)
 
@@ -59,6 +60,8 @@ class Node:
                 input=True,
                 frames_per_buffer=self.CHUNK)
 
+        last_time_engaged = time.time()
+
         buffer = []
         frames = []
         voice_detected = False
@@ -66,7 +69,7 @@ class Node:
         while self.running:
             data = stream.read(self.CHUNK)
             if self.vad.is_speech(data, self.RATE):
-                print('\rRecording...   ', end='')
+                self.__log('\rRecording...   ', end='')
                 voice_detected = True
                 if len(buffer) > 0:
                     frames.extend(buffer)
@@ -74,7 +77,7 @@ class Node:
                 else:
                     frames.append(data)
             elif voice_detected:
-                print('\rRecording...   ', end='')
+                self.__log('\rRecording...   ', end='')
                 buffer.append(data)
                 if len(buffer) > 20:
                     frames.extend(buffer)
@@ -82,13 +85,14 @@ class Node:
                     done = True
                     voice_detected = False
             else:
-                print('\rListening...   ', end='')
+                self.__log('\rListening...   ', end='')
                 buffer.append(data)
                 if len(buffer) > 10:
                     buffer.pop(0)
             
             if done:
                 if len(frames) > 40:
+                    self.__log()
                     with BytesIO() as wave_file:
                         wf = wave.open(wave_file, 'wb')
                         wf.setnchannels(self.CHANNELS)
@@ -100,17 +104,53 @@ class Node:
 
                     raw_base64 = base64.b64encode(raw).decode('utf-8')
 
-                    payload = {'samplerate': self.RATE, 'callback': '', 'audio_file': raw_base64, 'room_id': '1', 'engaged': True}
-                    response = requests.post(
-                        f'http://{self.hub_api_uri}/respond_to_audio',
-                        json=payload
-                    )
+                    time_sent = time.time()
 
-                    if response.status_code == 200:
-                        understanding = response.json()
+                    payload = {
+                        'audio_file': raw_base64, 
+                        'samplerate': self.RATE, 
+                        'callback': '', 
+                        'node_id': self.node_id, 
+                        'last_time_engaged': last_time_engaged,
+                        'time_sent': time_sent
+                    }
 
-                        self.__log(understanding['command'])
-                        audio_data = understanding['audio_data']
+                    try:
+                        respond_response = requests.post(
+                            f'{self.hub_api_uri}/respond_to_audio',
+                            json=payload
+                        )
+                    except:
+                        self.__log('Lost connection to HUB')
+                        connect = False
+                        while not connect:
+                            try:
+                                retry_response = requests.get(
+                                    self.hub_api_uri,
+                                    json=payload
+                                )
+                                if retry_response.status_code == 200:
+                                    connect = True
+                                    self.__log('\nConnected')
+                                else:
+                                    raise
+                            except:
+                                self.__log('\rRetrying...', end='')
+                                time.sleep(1)
+                            
+                        continue
+
+                    if respond_response.status_code == 200:
+
+                        last_time_engaged = time_sent
+
+                        context = respond_response.json()
+
+                        if 'callout' in context:
+                            callout = context['callout']
+
+                        self.__log(context['command'])
+                        audio_data = context['audio_data']
                         audio_buffer = base64.b64decode(audio_data)
                         audio = np.frombuffer(audio_buffer, dtype=np.int16)
 
