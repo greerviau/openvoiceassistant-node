@@ -4,3 +4,4 @@ sounddevice
 numpy
 scapy
 webrtcvad
+flask
