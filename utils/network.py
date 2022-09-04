@@ -20,7 +20,7 @@ def scan_for_hub(subnet, port):
             ip = device['ip']
             print('Testing ip ', ip)
             try:
-                response = requests.get(f'http://{ip}:{port}/ova_api', timeout=5)
+                response = requests.get(f'http://{ip}:{port}/api', timeout=5)
                 response.raise_for_status()
                 print('Hub Found')
                 return ip

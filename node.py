@@ -8,7 +8,6 @@ import wave
 import pydub
 from pydub.playback import play
 import time
-import threading
 from io import BytesIO
 
 

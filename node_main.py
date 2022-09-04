@@ -24,7 +24,7 @@ def run_node(node_id, mic_tag, hub_ip, hub_port, cli, debug):
     if not hub_ip:
         hub_ip = scan_for_hub(get_subnet(ip), hub_port)
     
-    hub_api_uri = f'http://{hub_ip}:{hub_port}/ova_api'
+    hub_api_uri = f'http://{hub_ip}:{hub_port}/api'
 
     sync_data = {
         'ip': ip,
@@ -50,6 +50,14 @@ def run_node(node_id, mic_tag, hub_ip, hub_port, cli, debug):
         return {}, 200
 
     @app.route('/api/status', methods=['GET'])
+    def index():
+        return {}, 200
+
+    @app.route('/api/config', methods=['GET'])
+    def index():
+        return {}, 200
+
+    @app.route('/api/config', methods=['PUT'])
     def index():
         return {}, 200
 
