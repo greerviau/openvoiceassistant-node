@@ -57,6 +57,8 @@ class Node:
                 rate=self.RATE,
                 input=True,
                 frames_per_buffer=self.CHUNK)
+        
+        print('Microphone stream started')
 
         last_time_engaged = time.time()
 
@@ -89,6 +91,7 @@ class Node:
                     buffer.pop(0)
             
             if done:
+                print('Done')
                 if len(frames) > 40:
                     self.__log()
                     with BytesIO() as wave_file:
@@ -149,13 +152,14 @@ class Node:
 
                         self.__log(context['command'])
                         audio_data = context['audio_data']
-                        audio_buffer = base64.b64decode(audio_data)
-                        audio = np.frombuffer(audio_buffer, dtype=np.int16)
+                        sample_rate = context['sample_rate']
+                        sample_width = context['sample_width']
+                        audio_bytes = base64.b64decode(audio_data)
 
                         audio_segment = pydub.AudioSegment(
-                            audio.tobytes(), 
-                            frame_rate=22050,
-                            sample_width=audio.dtype.itemsize, 
+                            audio_bytes, 
+                            frame_rate=sample_rate,
+                            sample_width=sample_width, 
                             channels=1
                         )
                         play(audio_segment)

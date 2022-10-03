@@ -9,10 +9,10 @@ def get_local_ip():
     s.close()
     return ip
 
-def get_subnet(ip):
+def get_subnet(ip: str):
     return '.'.join(ip.split('.')[:2]) + '.0.0/24'
 
-def scan_for_hub(subnet, port):
+def scan_for_hub(subnet: str, port: int):
     run = True
     while run:
         devices = net_scan(subnet)
@@ -30,7 +30,7 @@ def scan_for_hub(subnet, port):
             except:
                 pass
 
-def net_scan(subnet):
+def net_scan(subnet: str):
     arp_req_frame = scapy.ARP(pdst = subnet)
 
     broadcast_ether_frame = scapy.Ether(dst = "ff:ff:ff:ff:ff:ff")

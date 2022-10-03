@@ -1,9 +1,10 @@
 import speech_recognition as sr 
 import sounddevice as sd
 
-def select_mic(mic_tag):
+def select_mic(mic_tag: str):
     microphones = sr.Microphone.list_microphone_names()
-    print(microphones)
+    for i, microphone in enumerate(microphones):
+        print(f'{i} {microphone}')
     try:
         mic_index = [idx for idx, element in enumerate(microphones) if mic_tag in element.lower()][0]
     except:
@@ -12,7 +13,7 @@ def select_mic(mic_tag):
     print('Microphone: ', mic)
     return mic_index, mic
 
-def get_samplerate(mic_index):
+def get_samplerate(mic_index: int):
     mic_info = sd.query_devices(mic_index, 'input')
     samplerate = int(mic_info['default_samplerate'])
     return samplerate

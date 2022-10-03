@@ -7,47 +7,52 @@ import requests
 import flask
 import threading
 
-from managers.config_manager import ConfigManager
+from config import Configuration
 
 @click.command()
 @click.option('--debug', is_flag=True)
 def run_node(debug):
 
-    config_manager = ConfigManager()
+    config = Configuration()
 
-    if not config_manager.get('device_ip'):
-        config_manager.set('device_ip', value = get_local_ip())
+    if not config.get('device_ip'):
+        device_ip = config.setkey('device_ip', value = get_local_ip())
+    else:
+        device_ip = config.get('device_ip')
 
-    if not config_manager.get('web_port'):
-        config_manager.set('web_port', value = 5001)
+    if not config.get('web_port'):
+        web_port = config.setkey('web_port', value = 5005)
+    else:
+        web_port = config.get('web_port')
 
-    if not config_manager.get('hub_port'):
-        config_manager.set('hub_port', value = 5001)
+    if not config.get('hub_port'):
+        hub_port = config.setkey('hub_port', value = 5001)
+    else:
+        hub_port = config.get('hub_port')
 
-    if not config_manager.get('hub_ip'):
-        config_manager.set('hub_ip', value = scan_for_hub(get_subnet(device_ip), hub_port))
+    if not config.get('hub_ip'):
+        hub_ip = config.setkey('hub_ip', value = scan_for_hub(get_subnet(device_ip), hub_port))
+    else:
+        hub_ip = config.get('hub_ip')
 
-    if not config_manager.get('hub_api_url'):
-        config_manager.set('hub_api_url', value = f'http://{hub_ip}:{hub_port}/api')
+    if not config.get('hub_api_url'):
+        hub_api_url = config.setkey('hub_api_url', value = f'http://{hub_ip}:{hub_port}/api')
+    else:
+        hub_api_url = config.get('hub_api_url')
 
-    if not config_manager.get('mic_tag'):
+    if not config.get('mic_tag'):
         ind, tag = select_mic('microphone')
-        config_manager.set('mic_tag', value = tag)
-        config_manager.set('mic_index', value = ind)
-    
-    device_ip = config_manager.get('device_ip')
-    web_port = config_manager.get('web_port')
-    hub_port = config_manager.get('hub_port')
-    hub_ip = config_manager.get('hub_ip')
-    hub_api_url = config_manager.get('hub_api_url')
-    mic_tag = config_manager.get('mic_tag')
-    mic_index = config_manager.get('mic_index')
+        mic_tag = config.setkey('mic_tag', value = tag)
+        mic_index = config.setkey('mic_index', value = ind)
+    else:
+        mic_tag = config.get('mic_tag')
+        mic_index = config.get('mic_index')
 
-    if not config_manager.get('node_id'):
+    if not config.get('node_id'):
         _ = device_ip.split('.')[-1]
-        config_manager.set('node_id', value=f'new_node_{_}')
-
-    node_id = config_manager.get('node_id')
+        node_id = config.setkey('node_id', value=f'new_node_{_}')
+    else:
+        node_id = config.get('node_id')
 
     sync_data = {
         'ip': device_ip,
@@ -56,15 +61,18 @@ def run_node(debug):
         'node_id': node_id
     }
     try:
-        response = requests.get(f'{hub_api_url}/node/sync', json=sync_data)
+        response = requests.put(f'{hub_api_url}/node/sync', json=sync_data)
         if response.status_code != 200:
+            print(response.json())
             raise
     except:
         raise RuntimeError('HUB Sync Failed')
 
     node = Node(node_id, mic_index, hub_api_url, debug)
-    node_thread = threading.Thread(target=node.start)
-    node_thread.start()
+    node.start()
+    #node_thread = threading.Thread(target=node.start)
+    #node_thread.setDaemon(True)
+    #node_thread.start()
 
     app = flask.Flask('Node')
 
@@ -88,7 +96,7 @@ def run_node(debug):
     def restart():
         return {}, 200
 
-    app.run(host='0.0.0.0', port=web_port, debug=debug)
+    #app.run(host='0.0.0.0', port=web_port, debug=debug)
 
 if __name__ == '__main__':
     run_node()
