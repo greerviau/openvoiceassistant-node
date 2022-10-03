@@ -1,6 +1,7 @@
-import scapy.all as scapy
 import requests
 import socket
+import ipaddress
+import scapy.all as scapy
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -10,7 +11,7 @@ def get_local_ip():
     return ip
 
 def get_subnet(ip: str):
-    return '.'.join(ip.split('.')[:2]) + '.0.0/24'
+    return str(ipaddress.ip_network(f'{ip}/255.255.255.0', strict=False))
 
 def scan_for_hub(subnet: str, port: int):
     run = True
@@ -24,10 +25,7 @@ def scan_for_hub(subnet: str, port: int):
                 response.raise_for_status()
                 print('Hub Found')
                 return ip
-            except KeyboardInterrupt:
-                run = False
-                break
-            except:
+            except requests.exceptions.ConnectionError as e:
                 pass
 
 def net_scan(subnet: str):
