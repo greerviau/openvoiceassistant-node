@@ -19,9 +19,10 @@ def scan_for_hub(subnet: str, port: int):
         devices = net_scan(subnet)
         for device in devices:
             ip = device['ip']
-            print('Testing ip ', ip)
+            url = f'http://{ip}:{port}/api'
+            print('Testing: ', url)
             try:
-                response = requests.get(f'http://{ip}:{port}/api', timeout=5)
+                response = requests.get(url, timeout=5)
                 response.raise_for_status()
                 print('Hub Found')
                 return ip

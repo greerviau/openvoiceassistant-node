@@ -5,7 +5,7 @@ import typing
 DEFAULT_CONFIG = {
     "node_id": "",
     "device_ip": "",
-    "web_port": 5001,
+    "web_port": 0,
     "hub_ip": "",
     "hub_port": 0,
     "mic_tag": "",
