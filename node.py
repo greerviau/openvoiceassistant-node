@@ -77,7 +77,7 @@ class Node:
         voice_detected = False
         done = False
         while self.running:
-            data = stream.read(self.CHUNK)
+            data = stream.read(self.CHUNK, exception_on_overflow=False)
             if self.vad.is_speech(data, self.RATE):
                 self.__log('\rRecording...   ', end='')
                 voice_detected = True
@@ -128,7 +128,7 @@ class Node:
 
                     try:
                         respond_response = requests.post(
-                            f'{self.hub_api_uri}/respond_to_audio',
+                            f'{self.hub_api_uri}/respond/audio',
                             json=payload
                         )
                     except:
