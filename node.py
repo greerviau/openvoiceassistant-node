@@ -164,6 +164,8 @@ class Node:
                         audio_data = context['audio_data']
                         sample_rate = context['sample_rate']
                         sample_width = context['sample_width']
+                        print('Samplerate: ', sample_rate)
+                        print('Samplewidth: ', sample_width)
                         audio_bytes = base64.b64decode(audio_data)
 
                         audio_segment = pydub.AudioSegment(
