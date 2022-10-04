@@ -26,11 +26,9 @@ class Node:
         
         self.paudio = pyaudio.PyAudio()
 
-        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
-
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = devinfo['maxInputChannels']
+        self.CHANNELS = 1
 
         supported_rates = [48000, 32000, 16000, 8000]
         self.RATE = None
