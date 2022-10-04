@@ -174,6 +174,7 @@ class Node:
                             sample_width=sample_width, 
                             channels=1
                         )
+                        audio_segment.export('response.wav', format='wav')
                         play(audio_segment)
 
                 frames = []
