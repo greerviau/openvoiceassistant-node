@@ -7,6 +7,7 @@ import numpy as np
 import wave
 import pydub
 from pydub.playback import play
+from playsound import playsound
 import time
 from io import BytesIO
 
@@ -175,7 +176,10 @@ class Node:
                             channels=1
                         )
                         audio_segment.export('response.wav', format='wav')
-                        play(audio_segment)
+                        try:
+                            play(audio_segment)
+                        except:
+                            playsound('response.wav')
 
                 frames = []
                 buffer = []
