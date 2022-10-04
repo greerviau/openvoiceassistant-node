@@ -44,6 +44,12 @@ class Node:
 
         self.CHUNK = int(self.RATE * self.INTERVAL / 1000) 
 
+        print('Mic Settings')
+        print('Interval: ', self.INTERVAL)
+        print('Channels: ', self.CHANNELS)
+        print('Samplerate: ', self.RATE)
+        print('Chunk Size: ', self.CHUNK)
+
         self.running = True
 
     def __log(self, text='', end='\n'):
