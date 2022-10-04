@@ -26,7 +26,7 @@ def run_node(debug):
         web_port = config.get('web_port')
 
     if not config.get('hub_port'):
-        hub_port = config.setkey('hub_port', value = 5001)
+        hub_port = config.setkey('hub_port', value = 5010)
     else:
         hub_port = config.get('hub_port')
 
