@@ -25,19 +25,23 @@ class Node:
 
         self.paudio = pyaudio.PyAudio()
 
-        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
-        if self.paudio.is_format_supported(48000,  # Sample rate
-                                input_device=devinfo['index'],
-                                input_channels=1,
-                                input_format=pyaudio.paInt16):
-            print('Supported')
-        else:
-            print('Not supported')
-
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
-        self.RATE = 48000
+
+        supported_rates = [48000, 32000, 16000, 8000]
+
+        self.RATE = None
+        for rate in supported_rates:
+            if self.paudio.is_format_supported(rate,  # Sample rate
+                                input_device=self.mic_index,
+                                input_channels=self.CHANNELS,
+                                input_format=self.FORMAT):
+                self.RATE = rate
+
+        if self.RATE is None:
+            raise RuntimeError('Failed to set samplerate')
+
         self.CHUNK = int(self.RATE * self.INTERVAL / 1000) 
 
         self.running = True
