@@ -28,7 +28,7 @@ class Node:
         devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
         if self.paudio.is_format_supported(48000,  # Sample rate
                                 input_device=devinfo['index'],
-                                input_channels=devinfo['maxInputChannels'],
+                                input_channels=1,
                                 input_format=pyaudio.paInt16):
             print('Supported')
         else:
