@@ -23,9 +23,10 @@ class Node:
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(3)
 
-        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
-
+        
         self.paudio = pyaudio.PyAudio()
+
+        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
 
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
