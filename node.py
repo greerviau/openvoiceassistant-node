@@ -37,6 +37,7 @@ class Node:
         for rate in supported_rates:
             if self.paudio.is_format_supported(rate, input_device=devinfo['index'], input_channels=self.CHANNELS, input_format=self.FORMAT):
                 self.RATE = rate
+                break
 
         if self.RATE is None:
             raise RuntimeError('Failed to set samplerate')
