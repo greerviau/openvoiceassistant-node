@@ -23,20 +23,18 @@ class Node:
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(3)
 
+        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
+
         self.paudio = pyaudio.PyAudio()
 
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = 1
+        self.CHANNELS = devinfo['maxInputChannels']
 
         supported_rates = [48000, 32000, 16000, 8000]
-
         self.RATE = None
         for rate in supported_rates:
-            if self.paudio.is_format_supported(rate,  # Sample rate
-                                input_device=self.mic_index,
-                                input_channels=self.CHANNELS,
-                                input_format=self.FORMAT):
+            if self.paudio.is_format_supported(rate, input_device=self.mic_index, input_channels=self.CHANNELS, input_format=self.FORMAT):
                 self.RATE = rate
 
         if self.RATE is None:
