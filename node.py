@@ -98,9 +98,9 @@ class Node:
                     buffer.pop(0)
             
             if done:
-                print('Done')
+                self.__log('Done')
                 if len(frames) > 40:
-                    self.__log()
+                    self.__log('Sending audio')
                     with BytesIO() as wave_file:
                         wf = wave.open(wave_file, 'wb')
                         wf.setnchannels(self.CHANNELS)
