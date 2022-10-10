@@ -117,10 +117,10 @@ class Node:
                     time_sent = time.time()
 
                     payload = {
-                        'audio_data': raw_base64, 
-                        'text_command': '',
-                        'samplerate': self.RATE, 
-                        'callback': '', 
+                        'command_audio_data': raw_base64, 
+                        'command_text': '',
+                        'command_sample_rate': self.RATE, 
+                        'node_callback': '', 
                         'node_id': self.node_id, 
                         'engage': False,
                         'last_time_engaged': last_time_engaged,
@@ -162,17 +162,17 @@ class Node:
                             callout = context['callout']
 
                         self.__log(context['command'])
-                        audio_data = context['audio_data']
-                        sample_rate = context['sample_rate']
-                        sample_width = context['sample_width']
-                        print('Samplerate: ', sample_rate)
-                        print('Samplewidth: ', sample_width)
-                        audio_bytes = base64.b64decode(audio_data)
+                        response_audio_data = context['response_audio_data']
+                        response_sample_rate = context['response_sample_rate']
+                        response_sample_width = context['response_sample_width']
+                        print('Samplerate: ', response_sample_rate)
+                        print('Samplewidth: ', response_sample_width)
+                        audio_bytes = base64.b64decode(response_audio_data)
 
                         audio_segment = pydub.AudioSegment(
                             audio_bytes, 
-                            frame_rate=sample_rate,
-                            sample_width=sample_width, 
+                            frame_rate=response_sample_rate,
+                            sample_width=response_sample_width, 
                             channels=1
                         )
                         audio_segment.export('response.wav', format='wav')
