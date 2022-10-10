@@ -1,4 +1,3 @@
-import speech_recognition as sr
 import pyaudio
 import webrtcvad
 import base64
@@ -14,16 +13,13 @@ from io import BytesIO
 
 class Node:
     def __init__(self, node_id, mic_index, hub_api_uri, debug):
-        self.recog = sr.Recognizer()
         self.node_id = node_id
         self.mic_index = mic_index
         self.hub_api_uri = hub_api_uri
         self.debug = debug
-        
 
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(3)
-
         
         self.paudio = pyaudio.PyAudio()
 
