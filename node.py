@@ -28,6 +28,7 @@ class Node:
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
+        self.SAMPLEWIDTH = self.paudio.get_sample_size(self.FORMAT)
 
         supported_rates = [48000, 32000, 16000, 8000]
         self.RATE = None
@@ -101,21 +102,22 @@ class Node:
                 self.__log('Done')
                 if len(frames) > 40:
                     self.__log('Sending audio')
-                    with BytesIO() as wave_file:
-                        wf = wave.open(wave_file, 'wb')
-                        wf.setnchannels(self.CHANNELS)
-                        wf.setsampwidth(self.paudio.get_sample_size(self.FORMAT))
-                        wf.setframerate(self.RATE)
-                        wf.writeframes(b''.join(frames))
-                        wf.close()
-                        raw = wave_file.getvalue()
 
-                    raw_base64 = base64.b64encode(raw).decode('utf-8')
+                    audio_data = b''.join(frames)
+
+                    wf = wave.open('command.wav', 'wb')
+                    wf.setnchannels(self.CHANNELS)
+                    wf.setsampwidth(self.SAMPLEWIDTH)
+                    wf.setframerate(self.RATE)
+                    wf.writeframes(audio_data)
+                    wf.close()
+
+                    raw_base64 = base64.b64encode(audio_data).decode('utf-8')
 
                     time_sent = time.time()
 
                     payload = {
-                        'audio_file': raw_base64, 
+                        'audio_data': raw_base64, 
                         'text_command': '',
                         'samplerate': self.RATE, 
                         'callback': '', 
