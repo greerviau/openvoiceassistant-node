@@ -116,9 +116,11 @@ class Node:
 
                     payload = {
                         'audio_file': raw_base64, 
+                        'text_command': '',
                         'samplerate': self.RATE, 
                         'callback': '', 
                         'node_id': self.node_id, 
+                        'engage': False,
                         'last_time_engaged': last_time_engaged,
                         'time_sent': time_sent
                     }
