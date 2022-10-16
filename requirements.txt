@@ -1,4 +1,7 @@
 pydub
+pyaudio
+requests
+playsound
 speechrecognition
 sounddevice
 numpy
