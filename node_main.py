@@ -68,12 +68,6 @@ def run_node(debug):
     except:
         raise RuntimeError('HUB Sync Failed')
 
-    node = Node(node_id, mic_index, hub_api_url, debug)
-    node.start()
-    #node_thread = threading.Thread(target=node.start)
-    #node_thread.setDaemon(True)
-    #node_thread.start()
-
     app = flask.Flask('Node')
 
     @app.route('/api/', methods=['GET'])
@@ -96,7 +90,15 @@ def run_node(debug):
     def restart():
         return {}, 200
 
+
+    web_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=web_port))
+    web_thread.setDaemon(True)
+    web_thread.start()
+
     #app.run(host='0.0.0.0', port=web_port, debug=debug)
+
+    node = Node(node_id, mic_index, hub_api_url, debug)
+    node.start()
 
 if __name__ == '__main__':
     run_node()
