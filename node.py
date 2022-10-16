@@ -10,7 +10,7 @@ from playsound import playsound
 import time
 from io import BytesIO
 
-from utils import noisereduce
+#from utils import noisereduce
 
 
 class Node:
@@ -32,7 +32,7 @@ class Node:
         self.CHANNELS = 1
         self.SAMPLE_WIDTH = self.paudio.get_sample_size(self.FORMAT)
 
-        supported_rates = [48000, 32000, 16000, 8000]
+        supported_rates = [16000, 48000, 32000, 8000]
         self.SAMPLE_RATE = None
         for rate in supported_rates:
             if self.paudio.is_format_supported(rate, input_device=devinfo['index'], input_channels=self.CHANNELS, input_format=self.FORMAT):
@@ -78,10 +78,10 @@ class Node:
         done = False
         while self.running:
             data = stream.read(self.CHUNK, exception_on_overflow=False)
-            audio_data = np.fromstring(data, dtype=np.int16)
-            reduce_noise = noisereduce.reduce_noise(y=audio_data, sr=self.SAMPLE_RATE)
-            is_speech = self.vad.is_speech(reduce_noise.tobytes(), self.SAMPLE_RATE)
-            print('Is speech: ', is_speech)
+            #audio_data = np.fromstring(data, dtype=np.int16)
+            #reduce_noise = noisereduce.reduce_noise(y=audio_data, sr=self.SAMPLE_RATE)
+            is_speech = self.vad.is_speech(data, self.SAMPLE_RATE)
+            #print('Is speech: ', is_speech)
             if is_speech:
                 self.__log('\rRecording...   ', end='')
                 voice_detected = True
@@ -118,12 +118,12 @@ class Node:
                     wf.writeframes(audio_data)
                     wf.close()
 
-                    raw_base64 = base64.b64encode(audio_data).decode('utf-8')
+                    audio_data_str = audio_data.hex()
 
                     time_sent = time.time()
 
                     payload = {
-                        'command_audio_data_b64': raw_base64, 
+                        'command_audio_data_str': audio_data_str, 
                         'command_audio_sample_rate': self.SAMPLE_RATE, 
                         'command_audio_sample_width': self.SAMPLE_WIDTH, 
                         'command_audio_channels': self.CHANNELS, 
@@ -140,7 +140,8 @@ class Node:
                             f'{self.hub_api_uri}/respond/audio',
                             json=payload
                         )
-                    except:
+                    except Exception as e:
+                        self.__log(repr(e))
                         self.__log('Lost connection to HUB')
                         connect = False
                         while not connect:
@@ -166,16 +167,17 @@ class Node:
 
                         context = respond_response.json()
 
-                        if 'callout' in context:
-                            callout = context['callout']
+                        print('TTTranscribe: ', context['time_to_transcribe'])
+                        print('TTUnderstand: ', context['time_to_understand'])
+                        print('TTSynth: ', context['time_to_synthesize'])
 
-                        self.__log(context['command'])
-                        response_audio_data_b64 = context['response_audio_data_b64']
+                        print('Command: ', context['command'])
+                        response_audio_data_str = context['response_audio_data_str']
                         response_sample_rate = context['response_sample_rate']
                         response_sample_width = context['response_sample_width']
                         print('Samplerate: ', response_sample_rate)
                         print('Samplewidth: ', response_sample_width)
-                        audio_bytes = base64.b64decode(response_audio_data_b64.encode('utf-8'))
+                        audio_bytes = bytes.fromhex(response_audio_data_str)
 
                         audio_segment = pydub.AudioSegment(
                             audio_bytes, 
@@ -188,6 +190,8 @@ class Node:
                             play(audio_segment)
                         except:
                             playsound('response.wav')
+                    else:
+                        print('Hub did not respond')
 
                 frames = []
                 buffer = []
