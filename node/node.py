@@ -10,15 +10,29 @@ import simpleaudio as sa
 import time
 from io import BytesIO
 
+from .config import Configuration
+
 #from utils import noisereduce
 
 
 class Node:
-    def __init__(self, node_id, mic_index, hub_api_uri, debug):
-        self.node_id = node_id
-        self.mic_index = mic_index
-        self.hub_api_uri = hub_api_uri
+    def __init__(self, config: Configuration, debug: bool):
+        self.set_config(config)
         self.debug = debug
+
+    def start(self):
+        print('Starting node')
+        self.running = True
+        self.mainloop()
+
+    def stop(self):
+        self.running = False
+
+    def set_config(self, config: Configuration):
+        self.config = config
+        self.node_id = config.get('node_id')
+        self.mic_index = config.get('mic_index')
+        self.hub_api_uri = config.get('hub_api_url')
 
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(3)
@@ -50,19 +64,6 @@ class Node:
         print('Samplerate: ', self.SAMPLE_RATE)
         print('Chunk Size: ', self.CHUNK)
 
-        self.running = True
-
-    def __log(self, text='', end='\n'):
-        if self.debug:
-            print(text, end=end)
-
-    def start(self):
-        print('Starting node')
-        self.mainloop()
-
-    def stop(self):
-        self.running = False
-
     def mainloop(self):
         stream = self.paudio.open(format=self.FORMAT,
                 channels=self.CHANNELS,
@@ -86,7 +87,7 @@ class Node:
             is_speech = self.vad.is_speech(data, self.SAMPLE_RATE)
             #print('Is speech: ', is_speech)
             if is_speech:
-                self.__log('\rRecording...   ', end='')
+                print('\rRecording...   ', end='')
                 voice_detected = True
                 if len(buffer) > 0:
                     frames.extend(buffer)
@@ -94,7 +95,7 @@ class Node:
                 else:
                     frames.append(data)
             elif voice_detected:
-                self.__log('\rRecording...   ', end='')
+                print('\rRecording...   ', end='')
                 buffer.append(data)
                 if len(buffer) > 20:
                     frames.extend(buffer)
@@ -102,15 +103,15 @@ class Node:
                     done = True
                     voice_detected = False
             else:
-                self.__log('\rListening...   ', end='')
+                print('\rListening...   ', end='')
                 buffer.append(data)
                 if len(buffer) > 10:
                     buffer.pop(0)
             
             if done:
-                self.__log('Done')
+                print('Done')
                 if len(frames) > 40:
-                    self.__log('Sending audio')
+                    print('Sending audio')
 
                     audio_data = b''.join(frames)
 
@@ -144,8 +145,8 @@ class Node:
                             json=payload
                         )
                     except Exception as e:
-                        self.__log(repr(e))
-                        self.__log('Lost connection to HUB')
+                        print(repr(e))
+                        print('Lost connection to HUB')
                         connect = False
                         while not connect:
                             try:
@@ -155,11 +156,11 @@ class Node:
                                 )
                                 if retry_response.status_code == 200:
                                     connect = True
-                                    self.__log('\nConnected')
+                                    print('\nConnected')
                                 else:
                                     raise
                             except:
-                                self.__log('\rRetrying...', end='')
+                                print('\rRetrying...', end='')
                                 time.sleep(1)
                             
                         continue
@@ -202,3 +203,5 @@ class Node:
                 frames = []
                 buffer = []
                 done = False
+                
+        print('Mainloop end')
