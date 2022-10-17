@@ -7,17 +7,21 @@ def list_microphones() -> typing.List[str]:
     mics = sr.Microphone.list_microphone_names()
     mic_list = [f'{i}: {microphone}' for i, microphone in enumerate(mics)]
 
-def select_mic(mic_tag: str) -> typing.Tuple[int, str]:
+def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
     microphones = sr.Microphone.list_microphone_names()
     for i, microphone in enumerate(microphones):
         print(f'{i} {microphone}')
     try:
-        mic_index = [idx for idx, element in enumerate(microphones) if mic_tag in element.lower()][0]
+        if isinstance(mic, str):
+            mic_index = [idx for idx, element in enumerate(microphones) if mic in element.lower()][0]
+        else:
+            mic_index = mic
+        
+        mic_tag = microphones[mic_index]
     except:
         raise RuntimeError('Mic does not exist')
-    mic = microphones[mic_index]
-    print('Microphone: ', mic)
-    return mic_index, mic
+    print('Microphone: ', mic_tag)
+    return mic_index, mic_tag
 
 def get_samplerate(mic_index: int) -> int:
     mic_info = sd.query_devices(mic_index, 'input')

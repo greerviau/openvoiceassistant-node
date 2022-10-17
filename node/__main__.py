@@ -19,13 +19,15 @@ def run_node(debug, web_port):
     node_name = config.get('node_name')
     device_ip = config.get('device_ip')
     hub_api_url = config.get('hub_api_url')
+    mic_index = config.get('mic_index')
 
-    sync_data = {
+    sync_data = {        
+        'node_id': node_id,
+        'node_name': node_name,
         'ip': device_ip,
         'port': web_port,
         'address': f'http://{device_ip}:{web_port}/api',
-        'node_id': node_id,
-        'node_name': node_name
+        'mic_index': mic_index
     }
     try:
         response = requests.put(f'{hub_api_url}/node/sync', json=sync_data)
