@@ -40,7 +40,7 @@ def run_node(debug):
     else:
         hub_api_url = config.get('hub_api_url')
 
-    if not config.get('mic_tag'):
+    if config.get('mic_index') < 0:
         ind, tag = select_mic('microphone')
         mic_tag = config.setkey('mic_tag', value = tag)
         mic_index = config.setkey('mic_index', value = ind)
@@ -94,8 +94,6 @@ def run_node(debug):
     web_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=web_port))
     web_thread.setDaemon(True)
     web_thread.start()
-
-    #app.run(host='0.0.0.0', port=web_port, debug=debug)
 
     node = Node(node_id, mic_index, hub_api_url, debug)
     node.start()
