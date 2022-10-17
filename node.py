@@ -6,7 +6,7 @@ import numpy as np
 import wave
 import pydub
 from pydub.playback import play
-from playsound import playsound
+import simpleaudio as sa
 import time
 from io import BytesIO
 
@@ -186,10 +186,13 @@ class Node:
                             channels=1
                         )
                         audio_segment.export('response.wav', format='wav')
+                        
                         try:
                             play(audio_segment)
                         except:
-                            playsound('response.wav')
+                            wave_obj = sa.WaveObject.from_wave_file("response.wav")
+                            play_obj = wave_obj.play()
+                            play_obj.wait_done()
                     else:
                         print('Hub did not respond')
 
