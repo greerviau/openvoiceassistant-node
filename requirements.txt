@@ -1,14 +1,10 @@
 pydub
 pyaudio
 requests
-playsound
 speechrecognition
 sounddevice
 numpy
-scapy
 webrtcvad
 flask
-pygobject
-playsound
-pygame
 simpleaudio
+uuid
