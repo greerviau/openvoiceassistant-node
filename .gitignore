@@ -155,3 +155,4 @@ cython_debug/
 config.json
 command.wav
 response.wav
+test.wav
