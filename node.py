@@ -60,6 +60,9 @@ class Node:
         print('Starting node')
         self.mainloop()
 
+    def stop(self):
+        self.running = False
+
     def mainloop(self):
         stream = self.paudio.open(format=self.FORMAT,
                 channels=self.CHANNELS,
