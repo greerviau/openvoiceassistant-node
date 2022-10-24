@@ -20,17 +20,18 @@ def run_node(debug, web_port):
     device_ip = config.get('device_ip')
     hub_api_url = config.get('hub_api_url')
     mic_index = config.get('mic_index')
+    min_audio_sample_length = config.get('min_audio_sample_length')
+    vad_sensitivity = config.get('vad_sensitivity')
 
     sync_data = {        
-        'node_id': node_id,
         'node_name': node_name,
-        'device_ip': device_ip,
-        'web_port': web_port,
-        'hub_api_url': f'http://{device_ip}:{web_port}/api',
-        'mic_index': mic_index
+        'node_api_url': f'http://{device_ip}:{web_port}/api',
+        'mic_index': mic_index,
+        'min_audio_sample_length': min_audio_sample_length,
+        'vad_sensitivity': vad_sensitivity
     }
     try:
-        response = requests.put(f'{hub_api_url}/node/sync', json=sync_data)
+        response = requests.put(f'{hub_api_url}/node/sync/{node_id}', json=sync_data)
         if response.status_code != 200:
             print(response.json())
             raise

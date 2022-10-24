@@ -8,6 +8,14 @@ import multiprocessing
 import subprocess
 
 
+def get_my_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+
 def pinger(job_q, results_q):
     DEVNULL = open(os.devnull, 'w')
     while True:
@@ -18,23 +26,15 @@ def pinger(job_q, results_q):
             break
 
         try:
-            subprocess.check_call(['ping', '-c1', ip],
-                                  stdout=DEVNULL)
+            subprocess.check_call(['ping', ip], stdout=DEVNULL)
             results_q.put(ip)
             print(f'{ip} alive')
         except:
             pass
 
 
-def get_my_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    ip = s.getsockname()[0]
-    s.close()
-    return ip
-
-
 def map_network(my_ip: str, pool_size=255):
+    print('Mapping network')
     
     ip_list = list()
     
@@ -51,7 +51,7 @@ def map_network(my_ip: str, pool_size=255):
     for p in pool:
         p.start()
     
-    # cue hte ping processes
+    # queue the ping processes
     for i in range(1, 255):
         jobs.put(base_ip + '{0}'.format(i))
     
@@ -61,7 +61,7 @@ def map_network(my_ip: str, pool_size=255):
     for p in pool:
         p.join()
     
-    # collect he results
+    # collect the results
     while not results.empty():
         ip = results.get()
         ip_list.append(ip)
@@ -75,6 +75,7 @@ def get_subnet(ip: str):
 
 def scan_for_hub(my_ip: str, port: int):
     run = True
+    print('Scanning for HUB')
     while run:
         devices = map_network(my_ip)
         for device in devices:

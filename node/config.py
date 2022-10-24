@@ -67,7 +67,7 @@ class Configuration:
             "mic_tag": tag,
             "mic_index": ind,
             "min_audio_sample_length": 1,
-            "vad_sensetivity": 3
+            "vad_sensitivity": 3
         }
 
     def __repr__(self) -> typing.Dict:

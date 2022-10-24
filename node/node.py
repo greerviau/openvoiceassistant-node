@@ -18,7 +18,8 @@ from .utils.hardware import get_input_channels
 
 class Node:
     def __init__(self, config: Configuration, debug: bool):
-        self.set_config(config)
+        self.config = config
+        self.set_config()
         self.debug = debug
 
     def start(self):
@@ -29,15 +30,20 @@ class Node:
     def stop(self):
         self.running = False
 
-    def set_config(self, config: Configuration):
-        self.config = config
-        self.node_id = config.get('node_id')
-        self.mic_index = config.get('mic_index')
-        mic_tag = config.get('mic_tag')
-        self.hub_api_uri = config.get('hub_api_url')
-        vad_sensitivity = config.get('vad_sensetivity')
+    def restart(self):
+        self.stop()
+        print('Restarting node...')
+        self.set_config()
+        self.start()
 
-        min_audio_sample_length = config.get('min_audio_sample_length')
+    def set_config(self):
+        self.node_id = self.config.get('node_id')
+        self.mic_index = self.config.get('mic_index')
+        mic_tag = self.config.get('mic_tag')
+        self.hub_api_uri = self.config.get('hub_api_url')
+        vad_sensitivity = self.config.get('vad_sensetivity')
+
+        min_audio_sample_length = self.config.get('min_audio_sample_length')
 
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(vad_sensitivity)
