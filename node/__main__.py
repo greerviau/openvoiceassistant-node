@@ -24,9 +24,9 @@ def run_node(debug, web_port):
     sync_data = {        
         'node_id': node_id,
         'node_name': node_name,
-        'ip': device_ip,
-        'port': web_port,
-        'address': f'http://{device_ip}:{web_port}/api',
+        'device_ip': device_ip,
+        'web_port': web_port,
+        'hub_api_url': f'http://{device_ip}:{web_port}/api',
         'mic_index': mic_index
     }
     try:
