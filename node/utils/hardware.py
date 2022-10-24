@@ -27,3 +27,8 @@ def get_samplerate(mic_index: int) -> int:
     mic_info = sd.query_devices(mic_index, 'input')
     samplerate = int(mic_info['default_samplerate'])
     return samplerate
+
+def get_input_channels(mic_index: int) -> int:
+    mic_info = sd.query_devices(mic_index, 'input')
+    channels = int(mic_info['max_input_channels'])
+    return channels

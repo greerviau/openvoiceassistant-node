@@ -1,3 +1,4 @@
+from abc import get_cache_token
 import pyaudio
 import webrtcvad
 import base64
@@ -5,12 +6,12 @@ import requests
 import numpy as np
 import wave
 import pydub
-from pydub.playback import play
 import simpleaudio as sa
 import time
 from io import BytesIO
 
 from .config import Configuration
+from .utils.hardware import get_input_channels
 
 #from utils import noisereduce
 
@@ -32,10 +33,14 @@ class Node:
         self.config = config
         self.node_id = config.get('node_id')
         self.mic_index = config.get('mic_index')
+        mic_tag = config.get('mic_tag')
         self.hub_api_uri = config.get('hub_api_url')
+        vad_sensitivity = config.get('vad_sensetivity')
+
+        min_audio_sample_length = config.get('min_audio_sample_length')
 
         self.vad = webrtcvad.Vad()
-        self.vad.set_mode(3)
+        self.vad.set_mode(vad_sensitivity)
         
         self.paudio = pyaudio.PyAudio()
 
@@ -43,26 +48,37 @@ class Node:
 
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = 1
+        self.CHANNELS = get_input_channels(self.mic_index)
         self.SAMPLE_WIDTH = self.paudio.get_sample_size(self.FORMAT)
 
-        supported_rates = [16000, 48000, 32000, 8000]
+        self.MIN_SAMPLE_FRAMES = int(min_audio_sample_length * 1000 / self.INTERVAL)
+
+        supported_rates = [16000, 48000, 32000, 8000]   # Try 16000 first because avoids downsampling on HUB for transcription
         self.SAMPLE_RATE = None
         for rate in supported_rates:
-            if self.paudio.is_format_supported(rate, input_device=devinfo['index'], input_channels=self.CHANNELS, input_format=self.FORMAT):
-                self.SAMPLE_RATE = rate
-                break
+            try:
+                if self.paudio.is_format_supported(
+                        rate, 
+                        input_device=devinfo['index'], 
+                        input_channels=self.CHANNELS, 
+                        input_format=self.FORMAT):
+                    self.SAMPLE_RATE = rate
+                    break
+            except ValueError:
+                pass
 
         if self.SAMPLE_RATE is None:
             raise RuntimeError('Failed to set samplerate')
 
         self.CHUNK = int(self.SAMPLE_RATE * self.INTERVAL / 1000) 
 
-        print('Mic Settings')
+        print('Settings')
+        print('Selected Mic: ', mic_tag)
         print('Interval: ', self.INTERVAL)
         print('Channels: ', self.CHANNELS)
         print('Samplerate: ', self.SAMPLE_RATE)
         print('Chunk Size: ', self.CHUNK)
+        print('Min Sample Frames: ', self.MIN_SAMPLE_FRAMES)
 
     def mainloop(self):
         stream = self.paudio.open(format=self.FORMAT,
@@ -76,10 +92,7 @@ class Node:
 
         last_time_engaged = time.time()
 
-        buffer = []
         frames = []
-        voice_detected = False
-        done = False
         while self.running:
             data = stream.read(self.CHUNK, exception_on_overflow=False)
             #audio_data = np.fromstring(data, dtype=np.int16)
@@ -88,29 +101,10 @@ class Node:
             #print('Is speech: ', is_speech)
             if is_speech:
                 print('\rRecording...   ', end='')
-                voice_detected = True
-                if len(buffer) > 0:
-                    frames.extend(buffer)
-                    buffer = []
-                else:
-                    frames.append(data)
-            elif voice_detected:
-                print('\rRecording...   ', end='')
-                buffer.append(data)
-                if len(buffer) > 20:
-                    frames.extend(buffer)
-                    buffer = []
-                    done = True
-                    voice_detected = False
+                frames.append(data)
             else:
-                print('\rListening...   ', end='')
-                buffer.append(data)
-                if len(buffer) > 10:
-                    buffer.pop(0)
-            
-            if done:
-                print('Done')
-                if len(frames) > 40:
+                frames.append(data)
+                if len(frames) > self.MIN_SAMPLE_FRAMES:
                     print('Sending audio')
 
                     audio_data = b''.join(frames)
@@ -192,16 +186,15 @@ class Node:
                         audio_segment.export('response.wav', format='wav')
                         
                         try:
-                            play(audio_segment)
+                            pydub.play(audio_segment)
                         except:
                             wave_obj = sa.WaveObject.from_wave_file("response.wav")
                             play_obj = wave_obj.play()
                             play_obj.wait_done()
                     else:
                         print('Hub did not respond')
-
+                else:
+                    print('\rListening...   ', end='')
                 frames = []
-                buffer = []
-                done = False
                 
         print('Mainloop end')

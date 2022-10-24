@@ -65,7 +65,9 @@ class Configuration:
             "hub_port": hub_port,
             "hub_api_url": f'http://{hub_ip}:{hub_port}/api',
             "mic_tag": tag,
-            "mic_index": ind
+            "mic_index": ind,
+            "min_audio_sample_length": 1,
+            "vad_sensetivity": 3
         }
 
     def __repr__(self) -> typing.Dict:
