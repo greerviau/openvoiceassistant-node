@@ -61,10 +61,7 @@ class Configuration:
             "node_id": node_id,
             "node_name": node_id,
             "device_ip": device_ip,
-            "hub_ip": hub_ip,
-            "hub_port": hub_port,
             "hub_api_url": f'http://{hub_ip}:{hub_port}/api',
-            "mic_tag": tag,
             "mic_index": ind,
             "min_audio_sample_length": 1,
             "vad_sensitivity": 3

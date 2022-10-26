@@ -26,11 +26,16 @@ def pinger(job_q, results_q):
             break
 
         try:
-            subprocess.check_call(['ping', ip], stdout=DEVNULL)
+            subprocess.check_call(['ping', '-c1', ip], stdout=DEVNULL)
             results_q.put(ip)
             print(f'{ip} alive')
         except:
-            pass
+            try:
+                subprocess.check_call(['ping', ip], stdout=DEVNULL)
+                results_q.put(ip)
+                print(f'{ip} alive')
+            except:
+                pass
 
 
 def map_network(my_ip: str, pool_size=255):

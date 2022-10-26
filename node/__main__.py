@@ -30,8 +30,9 @@ def run_node(debug, web_port):
         'min_audio_sample_length': min_audio_sample_length,
         'vad_sensitivity': vad_sensitivity
     }
+    print(sync_data)
     try:
-        response = requests.put(f'{hub_api_url}/node/sync/{node_id}', json=sync_data)
+        response = requests.put(f'{hub_api_url}/node/config/{node_id}?sync_down=false', json=sync_data)
         if response.status_code != 200:
             print(response.json())
             raise
