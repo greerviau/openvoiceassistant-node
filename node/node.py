@@ -55,7 +55,7 @@ class Node:
 
         self.INTERVAL = 30   # ms
         self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = get_input_channels(self.mic_index)
+        self.CHANNELS = 1
         self.SAMPLE_WIDTH = self.paudio.get_sample_size(self.FORMAT)
 
         self.MIN_SAMPLE_FRAMES = int(min_audio_sample_length * 1000 / self.INTERVAL)
