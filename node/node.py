@@ -41,7 +41,7 @@ class Node:
         self.mic_index = self.config.get('mic_index')
         mic_tag = self.config.get('mic_tag')
         self.hub_api_uri = self.config.get('hub_api_url')
-        vad_sensitivity = self.config.get('vad_sensetivity')
+        vad_sensitivity = self.config.get('vad_sensitivity')
 
         min_audio_sample_length = self.config.get('min_audio_sample_length')
 
