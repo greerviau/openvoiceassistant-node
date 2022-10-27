@@ -24,6 +24,7 @@ def run_node(debug, web_port):
     vad_sensitivity = config.get('vad_sensitivity')
 
     sync_data = {        
+        'node_id': node_id,
         'node_name': node_name,
         'node_api_url': f'http://{device_ip}:{web_port}/api',
         'mic_index': mic_index,
@@ -32,7 +33,7 @@ def run_node(debug, web_port):
     }
     print(sync_data)
     try:
-        response = requests.put(f'{hub_api_url}/node/config/{node_id}?sync_down=false', json=sync_data)
+        response = requests.put(f'{hub_api_url}/node/sync', json=sync_data, timeout=5)
         if response.status_code != 200:
             print(response.json())
             raise
