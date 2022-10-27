@@ -20,6 +20,7 @@ def run_node(debug, web_port):
     device_ip = config.get('device_ip')
     hub_api_url = config.get('hub_api_url')
     mic_index = config.get('mic_index')
+    mic_tag = config.get('mic_tag')
     min_audio_sample_length = config.get('min_audio_sample_length')
     vad_sensitivity = config.get('vad_sensitivity')
 
@@ -31,7 +32,7 @@ def run_node(debug, web_port):
         'min_audio_sample_length': min_audio_sample_length,
         'vad_sensitivity': vad_sensitivity
     }
-    print(sync_data)
+
     try:
         response = requests.put(f'{hub_api_url}/node/sync', json=sync_data, timeout=5)
         if response.status_code != 200:

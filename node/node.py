@@ -11,7 +11,8 @@ import time
 from io import BytesIO
 
 from .config import Configuration
-from .utils.hardware import get_input_channels
+from .utils.hardware import get_input_channels, select_mic
+
 
 #from utils import noisereduce
 
@@ -39,11 +40,11 @@ class Node:
     def set_config(self):
         self.node_id = self.config.get('node_id')
         self.mic_index = self.config.get('mic_index')
-        mic_tag = self.config.get('mic_tag')
         self.hub_api_uri = self.config.get('hub_api_url')
         vad_sensitivity = self.config.get('vad_sensitivity')
-
         min_audio_sample_length = self.config.get('min_audio_sample_length')
+
+        _, mic_tag = select_mic(self.mic_index)
 
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(vad_sensitivity)
