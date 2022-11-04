@@ -46,7 +46,7 @@ def run_node(debug, web_port):
     app = create_app(node)
 
     web_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=web_port))
-    web_thread.setDaemon(True)
+    web_thread.daemon = True
     web_thread.start()
 
     node.start()

@@ -19,7 +19,7 @@ def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
         
         mic_tag = microphones[mic_index]
     except:
-        raise RuntimeError('Mic does not exist')
+        return 0, ''
     print('Microphone: ', mic_tag)
     return mic_index, mic_tag
 

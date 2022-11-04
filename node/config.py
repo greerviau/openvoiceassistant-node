@@ -2,6 +2,7 @@ import os
 import json
 import typing
 import uuid
+import random
 
 from .utils.hardware import select_mic
 from .utils.network import get_my_ip, scan_for_hub, get_subnet
@@ -54,8 +55,9 @@ class Configuration:
         device_ip = get_my_ip()
         hub_port = 5010
         hub_ip = scan_for_hub(device_ip, hub_port)
-        ind, tag = select_mic('microphone')
-        node_id = f'new_node_{uuid.uuid4().hex}'
+        ind, tag = select_mic('mic')
+        random.seed(device_ip)
+        node_id = f'new_node_{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}'
 
         return {
             "node_id": node_id,

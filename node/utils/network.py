@@ -25,13 +25,16 @@ def pinger(job_q, results_q):
         if ip is None:
             break
 
-        try:
-            subprocess.check_call(['ping', '-c1', ip], stdout=DEVNULL)
-            results_q.put(ip)
-            print(f'{ip} alive')
-        except:
+        if os.name != 'nt':
             try:
-                subprocess.check_call(['ping', ip], stdout=DEVNULL)
+                subprocess.check_call(['ping', '-c1', '-W1', ip], stdout=DEVNULL)
+                results_q.put(ip)
+                print(f'{ip} alive')
+            except:
+                pass
+        else:
+            try:
+                subprocess.check_call(['ping', 'n 1', 'w 1', ip], stdout=DEVNULL)
                 results_q.put(ip)
                 print(f'{ip} alive')
             except:
@@ -41,7 +44,7 @@ def pinger(job_q, results_q):
 def map_network(my_ip: str, pool_size=255):
     print('Mapping network')
     
-    ip_list = list()
+    ip_list = ['127.0.0.1']
     
     # get my IP and compose a base like 192.168.1.xxx
     ip_parts = my_ip.split('.')

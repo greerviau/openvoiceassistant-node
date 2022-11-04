@@ -99,9 +99,12 @@ class Node:
 
         last_time_engaged = time.time()
 
-        frames = []
+        buffer = []
         while self.running:
             data = stream.read(self.CHUNK, exception_on_overflow=False)
+            buffer.append(data)
+            if len(buffer) > 5:
+                buffer.pop(0)
             #audio_data = np.fromstring(data, dtype=np.int16)
             #reduce_noise = noisereduce.reduce_noise(y=audio_data, sr=self.SAMPLE_RATE)
             is_speech = self.vad.is_speech(data, self.SAMPLE_RATE)
@@ -192,16 +195,13 @@ class Node:
                         )
                         audio_segment.export('response.wav', format='wav')
                         
-                        try:
-                            pydub.play(audio_segment)
-                        except:
-                            wave_obj = sa.WaveObject.from_wave_file("response.wav")
-                            play_obj = wave_obj.play()
-                            play_obj.wait_done()
+                        wave_obj = sa.WaveObject.from_wave_file("response.wav")
+                        play_obj = wave_obj.play()
+                        play_obj.wait_done()
                     else:
                         print('Hub did not respond')
                 else:
                     print('\rListening...   ', end='')
-                frames = []
+                frames = [data]
                 
         print('Mainloop end')
