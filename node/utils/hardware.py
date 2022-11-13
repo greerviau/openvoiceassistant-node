@@ -6,11 +6,10 @@ import sounddevice as sd
 def list_microphones() -> typing.List[str]:
     mics = sr.Microphone.list_microphone_names()
     mic_list = [f'{i}: {microphone}' for i, microphone in enumerate(mics)]
+    return mic_list
 
 def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
     microphones = sr.Microphone.list_microphone_names()
-    for i, microphone in enumerate(microphones):
-        print(f'{i} {microphone}')
     try:
         if isinstance(mic, str):
             mic_index = [idx for idx, element in enumerate(microphones) if mic in element.lower()][0]
@@ -20,7 +19,7 @@ def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
         mic_tag = microphones[mic_index]
     except:
         return 0, ''
-    print('Microphone: ', mic_tag)
+        
     return mic_index, mic_tag
 
 def get_samplerate(mic_index: int) -> int:
