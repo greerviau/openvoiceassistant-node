@@ -6,4 +6,5 @@ class NodeConfig(typing.TypedDict):
     node_api_url: str
     mic_index: int
     min_audio_sample_length: int
+    audio_sample_buffer_length: int
     vad_sensitivity: int

@@ -4,8 +4,7 @@ import typing
 import uuid
 import random
 
-from .utils.hardware import select_mic
-from .utils.network import get_my_ip, scan_for_hub, get_subnet
+from .utils.network import get_my_ip, scan_for_hub
 
 class Configuration:
     def __init__(self):
@@ -16,6 +15,7 @@ class Configuration:
         self.load_config()
 
     def get(self, *keys: typing.List[str]):
+        keys = list(keys)
         dic = self.config.copy()
         for key in keys:
             try:
@@ -24,9 +24,9 @@ class Configuration:
                 return None
         return dic
 
-    def setkey(self, *keys: typing.List[str], value=None):
-        if value is None:
-            raise RuntimeError
+    def set(self, *keys: typing.List[typing.Any]):
+        keys = list(keys)
+        value = keys.pop(-1)
         d = self.config
         for key in keys[:-1]:
             d = d.setdefault(key, {})
@@ -42,7 +42,7 @@ class Configuration:
         with open(self.config_path, 'w') as config_file:
             config_file.write(json.dumps(self.config, indent=4))
 
-    def load_config(self) -> typing.Dict:  # TODO use TypedDict
+    def load_config(self) -> typing.Dict:
         if not os.path.exists(self.config_path):
             print('Loading default config')
             self.config = self.__default_config()
@@ -55,7 +55,7 @@ class Configuration:
         device_ip = get_my_ip()
         hub_port = 5010
         hub_ip = scan_for_hub(device_ip, hub_port)
-        ind, tag = select_mic('mic')
+        mic_index = 0
         random.seed(device_ip)
         node_id = f'new_node_{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}'
 
@@ -63,9 +63,10 @@ class Configuration:
             "node_id": node_id,
             "node_name": node_id,
             "device_ip": device_ip,
-            "hub_api_url": f'http://{hub_ip}:{hub_port}/api',
-            "mic_index": ind,
+            "hub_ip": hub_ip,
+            "mic_index": mic_index,
             "min_audio_sample_length": 1,
+            "audio_sample_buffer_length": 0.3,
             "vad_sensitivity": 3
         }
 
