@@ -8,7 +8,14 @@ import click
 @click.option('--channels', '-c', default=1, help='Number of input channels')
 @click.option('--durration', '-d', default=10, help='Recording durration in seconds')
 @click.option('--output', '-o', default='recording.wav', help='Output file name')
-def main(interval, samplerate, channels, durration, output):
+@click.option('--mic_index', '-m', default=0, help='Index of the mic to record with')
+@click.option('--list_mics', '-lm', is_flag=True, help='List microphones')
+def main(interval, samplerate, channels, durration, output, mic_index, list_mics):
+    if list_mics:
+        import sounddevice as sd
+        print(sd.query_devices())
+        return
+
     FORMAT = pyaudio.paInt16
 
     CHUNK = int(samplerate * interval / 1000)
@@ -17,6 +24,7 @@ def main(interval, samplerate, channels, durration, output):
 
     stream = p.open(format=FORMAT,
                     channels=channels,
+                    input_device_index = mic_index,
                     rate=samplerate,
                     input=True,
                     frames_per_buffer=CHUNK)

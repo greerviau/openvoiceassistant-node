@@ -13,6 +13,7 @@ from typing import List
 
 from .config import Configuration
 from .utils.hardware import list_microphones, select_mic
+from .utils.audio import play_audio_file
 #from .utils import noisereduce
 
 class Node:
@@ -118,7 +119,7 @@ class Node:
             'node_callback': '', 
             'node_id': self.node_id, 
             'engage': False,
-            'last_time_engaged': last_time_engaged,
+            'last_time_engaged': self.last_time_engaged,
             'time_sent': time_sent
         }
 
@@ -149,7 +150,7 @@ class Node:
 
         if respond_response.status_code == 200:
 
-            last_time_engaged = time_sent
+            self.last_time_engaged = time_sent
 
             context = respond_response.json()
 
@@ -173,9 +174,10 @@ class Node:
             )
             audio_segment.export('response.wav', format='wav')
             
-            wave_obj = sa.WaveObject.from_wave_file("response.wav")
-            play_obj = wave_obj.play()
-            play_obj.wait_done()
+            #wave_obj = sa.WaveObject.from_wave_file("response.wav")
+            #play_obj = wave_obj.play()
+            #play_obj.wait_done()
+            play_audio_file('response.wav')
         else:
             print('Hub did not respond')
 
@@ -189,7 +191,7 @@ class Node:
         
         print('Microphone stream started')
 
-        last_time_engaged = time.time()
+        self.last_time_engaged = time.time()
 
         buffer = []
         frames = []
@@ -217,7 +219,7 @@ class Node:
                 frames.append(data)
             elif len(frames) > 0:
                 if len(frames) > self.MIN_SAMPLE_FRAMES:
-                    
+                    self.process_audio(frames)
 
                 frames = []
                 print('Listening...')
