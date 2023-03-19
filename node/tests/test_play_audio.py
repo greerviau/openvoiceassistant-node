@@ -1,7 +1,6 @@
 import click
 import os
-from node.utils import hardware
-from node.utils import audio
+from node.utils import hardware, audio
 
 @click.command()
 @click.option('--file', '-f', help='File name')

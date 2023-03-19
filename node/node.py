@@ -1,24 +1,18 @@
-from abc import get_cache_token
-import pyaudio
-import webrtcvad
-import base64
 import requests
-import numpy as np
 import wave
 import pydub
-import simpleaudio as sa
 import time
-from io import BytesIO
 from typing import List
+import sounddevice as sd
 
-from .config import Configuration
-from .utils.hardware import list_microphones, select_mic
-from .utils.audio import play_audio_file
+from node import config
+from node.listener import VoskListener, WebRTCVADListener, SileroVADListener
+from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates
+from node.utils.audio import play_audio_file
 #from .utils import noisereduce
 
 class Node:
-    def __init__(self, config: Configuration, debug: bool):
-        self.config = config
+    def __init__(self, debug: bool):
         self.set_config()
         self.debug = debug
 
@@ -37,12 +31,12 @@ class Node:
         self.start()
 
     def set_config(self):
-        self.node_id = self.config.get('node_id')
-        self.mic_index = self.config.get('mic_index')
-        hub_ip = self.config.get('hub_ip')
-        vad_sensitivity = self.config.get('vad_sensitivity')
-        min_audio_sample_length = self.config.get('min_audio_sample_length')
-        audio_sample_buffer_length = self.config.get('audio_sample_buffer_length')
+        self.node_id = config.get('node_id')
+        self.mic_index = config.get('mic_index')
+        hub_ip = config.get('hub_ip')
+        sensitivity = config.get('sensitivity')
+        min_audio_sample_length = config.get('min_audio_sample_length')
+        audio_sample_buffer_length = config.get('audio_sample_buffer_length')
 
         self.hub_api_url = f'http://{hub_ip}:{5010}/api'
 
@@ -51,60 +45,26 @@ class Node:
         print('Available Microphones:')
         [print(mic) for mic in list_microphones()]
 
-        self.vad = webrtcvad.Vad()
-        self.vad.set_mode(vad_sensitivity)
-        
-        self.paudio = pyaudio.PyAudio()
+        #devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about
 
-        devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about.
+        #self.MIN_SAMPLE_FRAMES = int(min_audio_sample_length * 1000 / self.INTERVAL)
 
-        self.INTERVAL = 30   # ms
-        self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = 1
-        self.SAMPLE_WIDTH = self.paudio.get_sample_size(self.FORMAT)
+        #self.BUFFER_SIZE = int(audio_sample_buffer_length * 1000) / self.INTERVAL
 
-        self.MIN_SAMPLE_FRAMES = int(min_audio_sample_length * 1000 / self.INTERVAL)
+        samplerates = [16000, 48000, 32000, 8000]   # Try 16000 first because avoids downsampling on HUB for transcription
+        self.SAMPLERATE = 16000
 
-        self.BUFFER_SIZE = int(audio_sample_buffer_length * 1000) / self.INTERVAL
+        print(get_supported_samplerates(self.mic_index, samplerates))
 
-        supported_rates = [16000, 48000, 32000, 8000]   # Try 16000 first because avoids downsampling on HUB for transcription
-        self.SAMPLE_RATE = None
-        for rate in supported_rates:
-            try:
-                if self.paudio.is_format_supported(
-                        rate, 
-                        input_device=devinfo['index'], 
-                        input_channels=self.CHANNELS, 
-                        input_format=self.FORMAT):
-                    self.SAMPLE_RATE = rate
-                    break
-            except ValueError:
-                pass
-
-        if self.SAMPLE_RATE is None:
-            raise RuntimeError('Failed to set samplerate')
-
-        self.CHUNK = int(self.SAMPLE_RATE * self.INTERVAL / 1000) 
+        self.listener = VoskListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE)
 
         print('Settings')
         print('Selected Mic: ', mic_tag)
-        print('Interval: ', self.INTERVAL)
-        print('Channels: ', self.CHANNELS)
-        print('Samplerate: ', self.SAMPLE_RATE)
-        print('Chunk Size: ', self.CHUNK)
-        print('Min Sample Frames: ', self.MIN_SAMPLE_FRAMES)
+        print('Samplerate: ', self.SAMPLERATE)
+        #print('Min Sample Frames: ', self.MIN_SAMPLE_FRAMES)
 
-    def process_audio(self, frames: List[bytes]):
+    def process_audio(self, audio_data: bytes):
         print('Sending audio')
-
-        audio_data = b''.join(frames)
-
-        wf = wave.open('command.wav', 'wb')
-        wf.setnchannels(self.CHANNELS)
-        wf.setsampwidth(self.SAMPLE_WIDTH)
-        wf.setframerate(self.SAMPLE_RATE)
-        wf.writeframes(audio_data)
-        wf.close()
 
         audio_data_str = audio_data.hex()
 
@@ -112,9 +72,9 @@ class Node:
 
         payload = {
             'command_audio_data_str': audio_data_str, 
-            'command_audio_sample_rate': self.SAMPLE_RATE, 
-            'command_audio_sample_width': self.SAMPLE_WIDTH, 
-            'command_audio_channels': self.CHANNELS, 
+            'command_audio_sample_rate': self.SAMPLERATE, 
+            'command_audio_sample_width': 2, 
+            'command_audio_channels': 1, 
             'command_text': '',
             'node_callback': '', 
             'node_id': self.node_id, 
@@ -182,46 +142,12 @@ class Node:
             print('Hub did not respond')
 
     def mainloop(self):
-        stream = self.paudio.open(format=self.FORMAT,
-                channels=self.CHANNELS,
-                input_device_index = self.mic_index,
-                rate=self.SAMPLE_RATE,
-                input=True,
-                frames_per_buffer=self.CHUNK)
-        
         print('Microphone stream started')
 
         self.last_time_engaged = time.time()
-
-        buffer = []
-        frames = []
-        speech_detected_buffer = 0
         print('Listening...')
         while self.running:
-            data = stream.read(self.CHUNK, exception_on_overflow=False)
-            buffer.append(data)
-            if len(buffer) > (500/self.INTERVAL):
-                buffer.pop(0)
-            #audio_data = np.fromstring(data, dtype=np.int16)
-            #reduce_noise = noisereduce.reduce_noise(y=audio_data, sr=self.SAMPLE_RATE)
-            is_speech = self.vad.is_speech(data, self.SAMPLE_RATE)
-            #print('Is speech: ', is_speech)
-            if is_speech:
-                if speech_detected_buffer <= 0:
-                    frames = buffer
-                    buffer = []
-                    speech_detected_buffer = self.BUFFER_SIZE
-                    print('Recording...')
-                else:
-                    frames.append(data)
-            elif speech_detected_buffer > 0:
-                speech_detected_buffer -= 1
-                frames.append(data)
-            elif len(frames) > 0:
-                if len(frames) > self.MIN_SAMPLE_FRAMES:
-                    self.process_audio(frames)
-
-                frames = []
-                print('Listening...')
+            audio_data = self.listener.listen(False)
+            self.process_audio(audio_data)
                 
         print('Mainloop end')

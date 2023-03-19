@@ -1,6 +1,7 @@
 from typing import List, Dict, Tuple, Union
 
 import sounddevice as sd
+import pyaudio
 
 def find_devices(kind) -> List[Dict]:
     if kind not in ['input', 'output']:
@@ -50,6 +51,21 @@ def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
         return 0, ''
         
     return mic_index, mic_tag
+
+def get_supported_samplerates(mic_index: int, samplerates: List[int]):
+    paudio = pyaudio.PyAudio()
+    supported_samplerates = []
+    for fs in samplerates:
+        try:
+            if paudio.is_format_supported(
+                    fs, 
+                    input_device=mic_index, 
+                    input_channels=1, 
+                    input_format=pyaudio.paInt16):
+                supported_samplerates.append(fs)
+        except ValueError:
+            pass
+    return supported_samplerates
 
 def get_samplerate(mic_index: int) -> int:
     mic_info = sd.query_devices(mic_index, 'input')

@@ -4,10 +4,10 @@ import flask
 import threading
 import uuid
 
-from .node import Node
-from .config import Configuration
-from .utils.hardware import list_microphones
-from .schemas import NodeConfig
+from node import config
+from node.node import Node
+from node.utils.hardware import list_microphones
+from node.schemas import NodeConfig
 
 def create_app(node: Node):
 
@@ -23,15 +23,15 @@ def create_app(node: Node):
 
     @app.route('/api/config', methods=['GET'])
     def get_config() -> NodeConfig:
-        return node.config, 200
+        return config, 200
 
     @app.route('/api/config', methods=['PUT'])
     def put_config(node_id: str):
         node_config = flask.request.json
-        node.config.setkey('node_name', value=node_config.node_name)
-        node.config.setkey('mic_index', value=node_config.mic_index)
-        node.config.setkey('min_audio_sample_length', value=node_config.min_audio_sample_length)
-        node.config.setkey('vad_sensitivity', value=node_config.vad_sensitivity)
+        config.setkey('node_name', value=node_config.node_name)
+        config.setkey('mic_index', value=node_config.mic_index)
+        config.setkey('min_audio_sample_length', value=node_config.min_audio_sample_length)
+        config.setkey('vad_sensitivity', value=node_config.vad_sensitivity)
         node.restart()
         return node_config, 200
 
