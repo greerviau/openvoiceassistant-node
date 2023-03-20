@@ -69,7 +69,7 @@ def __default_config():
         "mic_index": mic_index,
         "min_audio_sample_length": 1,
         "audio_sample_buffer_length": 0.3,
-        "vad_sensitivity": 3
+        "sensitivity": 3
     }
 
 load_config()

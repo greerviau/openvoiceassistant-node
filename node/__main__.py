@@ -8,53 +8,59 @@ from node.web import create_app
 
 @click.command()
 @click.option('--debug', is_flag=True)
-def run_node(debug):
+@click.option('--no_sync', is_flag=True)
+def run_node(debug, no_sync):
 
-    # Run Startup Sync with HUB
+    if not no_sync:
 
-    print('Node Syncing with HUB...')
+        # Run Startup Sync with HUB
 
-    node_id = config.get('node_id')
-    node_name = config.get('node_name')
-    device_ip = config.get('device_ip')
-    hub_ip = config.get('hub_ip')
-    mic_index = config.get('mic_index')
-    min_audio_sample_length = config.get('min_audio_sample_length')
-    audio_sample_buffer_length = config.get('audio_sample_buffer_length')
-    sensitivity = config.get('sensitivity')
+        print('Node Syncing with HUB...')
 
-    hub_api_url = f'http://{hub_ip}:{5010}/api'
+        node_id = config.get('node_id')
+        node_name = config.get('node_name')
+        device_ip = config.get('device_ip')
+        hub_ip = config.get('hub_ip')
+        mic_index = config.get('mic_index')
+        speaker_index = config.get('speaker_index')
+        min_audio_sample_length = config.get('min_audio_sample_length')
+        audio_sample_buffer_length = config.get('audio_sample_buffer_length')
+        vad_sensitivity = config.get('vad_sensitivity')
 
-    sync_data = {        
-        'node_id': node_id,
-        'node_name': node_name,
-        'node_api_url': f'http://{device_ip}:{5005}/api',
-        'mic_index': mic_index,
-        'min_audio_sample_length': min_audio_sample_length,
-        'audio_sample_buffer_length': audio_sample_buffer_length,
-        'sensitivity': sensitivity
-    }
+        hub_api_url = f'http://{hub_ip}:{5010}/api'
 
-    try:
-        response = requests.put(f'{hub_api_url}/node/sync', json=sync_data, timeout=5)
-        if response.status_code != 200:
-            print(response.json())
-            response.raise_for_status()
+        sync_data = {        
+            'node_id': node_id,
+            'node_name': node_name,
+            'node_api_url': f'http://{device_ip}:{5005}/api',
+            'mic_index': mic_index,
+            'speaker_index': speaker_index,
+            'min_audio_sample_length': min_audio_sample_length,
+            'audio_sample_buffer_length': audio_sample_buffer_length,
+            'vad_sensitivity': vad_sensitivity
+        }
 
-        config_json = response.json()
-        print(config_json)
-        config.set('node_name', config_json['node_name'])
-        config.set('mic_index', config_json['mic_index'])
-        config.set('wake_word', config_json['wake_word'])
-        config.set('min_audio_sample_length', config_json['min_audio_sample_length'])
-        config.set('audio_sample_buffer_length', config_json['audio_sample_buffer_length'])
-        config.set('sensitivity', config_json['sensitivity'])
+        try:
+            response = requests.put(f'{hub_api_url}/node/sync', json=sync_data, timeout=5)
+            if response.status_code != 200:
+                print(response.json())
+                response.raise_for_status()
 
-    except Exception as e:
-        print(repr(e))
-        raise RuntimeError('HUB Sync Failed')
+            config_json = response.json()
+            print(config_json)
+            config.set('node_name', config_json['node_name'])
+            config.set('mic_index', config_json['mic_index'])
+            config.set('speaker_index', config_json['speaker_index'])
+            config.set('wake_word', config_json['wake_word'])
+            config.set('min_audio_sample_length', config_json['min_audio_sample_length'])
+            config.set('audio_sample_buffer_length', config_json['audio_sample_buffer_length'])
+            config.set('vad_sensitivity', config_json['vad_sensitivity'])
 
-    print('Sync Complete')
+        except Exception as e:
+            print(repr(e))
+            raise RuntimeError('HUB Sync Failed')
+
+        print('Sync Complete')
 
     node = Node(debug)
     

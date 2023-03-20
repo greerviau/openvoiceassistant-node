@@ -12,13 +12,13 @@ torch.set_num_threads(1)
 import torchaudio
 torchaudio.set_audio_backend("soundfile")
 from typing import List
-from node.utils import noisereduce
 
 class Listener:
-    def __init__(self, wake_word: str, device_idx: int, samplerate: int):
+    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int):
         self.wake_word = wake_word
         self.device_idx = device_idx
         self.samplerate = samplerate
+        self.sensitivity = sensitivity
         self.recording_file = "recording.wav"
         self.wave_file = None
         self.audio_frames = []
@@ -60,11 +60,10 @@ class Listener:
         return self.get_audio_data().hex()
 
 class VoskListener(Listener):
-    def __init__(self, wake_word: str, device_idx: int, samplerate: int):
-        super().__init__(wake_word, device_idx, samplerate)
+    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int):
+        super().__init__(wake_word, device_idx, samplerate, sensitivity)
         # Define the Vosk model and its configuration
-        model = vosk.Model("model")
-        self.rec = vosk.KaldiRecognizer(model, self.samplerate)
+        self.model = vosk.Model("model")
 
     def listen(self, engaged: bool):
 
@@ -79,45 +78,52 @@ class VoskListener(Listener):
             callback=self.callback, 
             blocksize=8000, 
             dtype="int16"):
-
+            
             while True:
                 try:
-                    # Get audio frames from the buffer
-                    frame = self.buffer.get()
+                    rec = vosk.KaldiRecognizer(self.model, self.samplerate)
+                    print('Listening...')
+                    while True:
+                            # Get audio frames from the buffer
+                            frame = self.buffer.get()
 
-                    # Add audio frames to the Vosk recognizer
-                    if self.rec.AcceptWaveform(frame):
-                        if recording_started:
-                            print('Recording stopped')
-                            final = json.loads(self.rec.Result())
-                            print(final)
-                            self.stop_recording()
-                            recording_started = False
-                            # Clear out the recording buffer
-                            #self.recording_buffer.clear()
-                            if self.wake_word in final or engaged:
-                                return self.get_audio_data()
-                    else:
-                        # Check if speech has started
-                        partial = json.loads(self.rec.PartialResult())
-                        print(partial)
-                        text = partial["partial"]
-                        # Check for hotword
-                        if not recording_started:
-                            self.reset_recording()
-                            # Write the recording buffer to the file
-                            #for f in self.recording_buffer:
-                            #    self.record_frame(f)
-                            recording_started = True
-                            print('Recording started...')
-                        
-                    # If we have detected the hotword start writing audio frames to file
-                    # If we havent detected the hotword, write audio frames to the buffer
-                    # The recording buffer avoids a cutoff at the begining of the recording
-                    if recording_started:
-                        self.record_frame(frame)
-                    #else:
-                    #    self.recording_buffer.append(frame)
+                            # Add audio frames to the Vosk recognizer
+                            if rec.AcceptWaveform(frame):
+                                final_text = ''
+                                if recording_started:
+                                    print('Recording stopped')
+                                    final = json.loads(rec.Result())
+                                    print(final)
+                                    final_text = final["text"]
+                                    self.stop_recording()
+                                    recording_started = False
+                                    # Clear out the recording buffer
+                                    self.recording_buffer.clear()
+                                if self.wake_word in final_text or engaged:
+                                    return self.get_audio_data()
+                                else:
+                                    print('Command did not engage')
+                                    break
+                            else:
+                                # Check if speech has started
+                                partial = json.loads(rec.PartialResult())
+                                partial_text = partial["partial"]
+                                # Check for hotword
+                                if not recording_started and partial_text not in ['', 'the']:
+                                    self.reset_recording()
+                                    # Write the recording buffer to the file
+                                    for f in self.recording_buffer:
+                                        self.record_frame(f)
+                                    recording_started = True
+                                    print('Recording started...')
+                                
+                            # If we have detected the hotword start writing audio frames to file
+                            # If we havent detected the hotword, write audio frames to the buffer
+                            # The recording buffer avoids a cutoff at the begining of the recording
+                            if recording_started:
+                                self.record_frame(frame)
+                            else:
+                                self.recording_buffer.append(frame)
 
                 except KeyboardInterrupt:
                     break
@@ -241,7 +247,8 @@ class SileroVADListener(Listener):
             channels=1,
             rate=self.samplerate,
             input=True,
-            frames_per_buffer=self.blocksize)
+            frames_per_buffer=self.blocksize,
+            input_device_index=self.device_idx)
 
         speech_detected = 0
 

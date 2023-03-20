@@ -7,7 +7,7 @@ import sounddevice as sd
 
 from node import config
 from node.listener import VoskListener, WebRTCVADListener, SileroVADListener
-from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates
+from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
 from node.utils.audio import play_audio_file
 #from .utils import noisereduce
 
@@ -32,18 +32,22 @@ class Node:
 
     def set_config(self):
         self.node_id = config.get('node_id')
+        self.node_name = config.get('node_name')
         self.mic_index = config.get('mic_index')
+        self.speaker_index = config.get('speaker_index')
         hub_ip = config.get('hub_ip')
-        sensitivity = config.get('sensitivity')
+        vad_sensitivity = config.get('vad_sensitivity')
         min_audio_sample_length = config.get('min_audio_sample_length')
         audio_sample_buffer_length = config.get('audio_sample_buffer_length')
 
+        print(f'Node Name: {self.node_name}')
+
         self.hub_api_url = f'http://{hub_ip}:{5010}/api'
-
-        _, mic_tag = select_mic(self.mic_index)
-
+        
         print('Available Microphones:')
         [print(mic) for mic in list_microphones()]
+
+        _, mic_tag = select_mic(self.mic_index)
 
         #devinfo = self.paudio.get_device_info_by_index(self.mic_index)  # Or whatever device you care about
 
@@ -56,11 +60,17 @@ class Node:
 
         print(get_supported_samplerates(self.mic_index, samplerates))
 
-        self.listener = VoskListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE)
+        self.listener = VoskListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity)
+
+        print('Available Speakers')
+        [print(speaker) for speaker in list_speakers()]
+
+        _, speaker_tag = select_speaker(self.speaker_index)
 
         print('Settings')
         print('Selected Mic: ', mic_tag)
         print('Samplerate: ', self.SAMPLERATE)
+        print('Speaker Mic: ', speaker_tag)
         #print('Min Sample Frames: ', self.MIN_SAMPLE_FRAMES)
 
     def process_audio(self, audio_data: bytes):
@@ -137,7 +147,7 @@ class Node:
             #wave_obj = sa.WaveObject.from_wave_file("response.wav")
             #play_obj = wave_obj.play()
             #play_obj.wait_done()
-            play_audio_file('response.wav')
+            play_audio_file('response.wav', device_idx=self.speaker_index)
         else:
             print('Hub did not respond')
 

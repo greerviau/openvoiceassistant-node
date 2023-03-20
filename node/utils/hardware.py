@@ -32,11 +32,11 @@ def list_microphones() -> List[str]:
 
 def list_speakers() -> List[str]:
     mics = find_speakers()
-    mic_list = []
+    speaker_list = []
     for i, info in enumerate(mics):
         name = info['name']
-        mic_list.append(f'{i}: {name}')
-    return mic_list
+        speaker_list.append(f'{i}: {name}')
+    return speaker_list
 
 def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
     microphones = list_microphones()
@@ -47,10 +47,24 @@ def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
             mic_index = mic
         
         mic_tag = microphones[mic_index]
-    except:
-        return 0, ''
+    except Exception as e:
+        raise RuntimeError(f'Microphone does not exist')
         
     return mic_index, mic_tag
+
+def select_speaker(speaker: Union[str, int]) -> Tuple[int, str]:
+    speakers = list_speakers()
+    try:
+        if isinstance(speaker, str):
+            speaker_index = [idx for idx, element in enumerate(speakers) if speaker in element.lower()][0]
+        else:
+            speaker_index = speaker
+        
+        speaker_tag = speakers[speaker_index]
+    except Exception as e:
+        raise RuntimeError(f'Microphone does not exist')
+        
+    return speaker_index, speaker_tag
 
 def get_supported_samplerates(mic_index: int, samplerates: List[int]):
     paudio = pyaudio.PyAudio()
