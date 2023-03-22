@@ -62,7 +62,7 @@ def select_speaker(speaker: Union[str, int]) -> Tuple[int, str]:
         
         speaker_tag = speakers[speaker_index]
     except Exception as e:
-        raise RuntimeError(f'Microphone does not exist')
+        raise RuntimeError(f'Speaker does not exist')
         
     return speaker_index, speaker_tag
 
