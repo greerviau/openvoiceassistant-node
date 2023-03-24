@@ -7,8 +7,8 @@ import sounddevice as sd
 
 from node import config
 from node.listener import VoskListener, WebRTCVADListener, SileroVADListener
+from node.audio_player import AudioPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
-from node.utils.audio import play_audio_file
 #from .utils import noisereduce
 
 class Node:
@@ -60,12 +60,14 @@ class Node:
 
         print(get_supported_samplerates(self.mic_index, samplerates))
 
-        self.listener = VoskListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity)
+        self.listener = VoskListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity, False)
 
         print('Available Speakers')
         [print(speaker) for speaker in list_speakers()]
 
         _, speaker_tag = select_speaker(self.speaker_index)
+
+        self.audio_player = AudioPlayer(self.speaker_index)
 
         print('Settings')
         print('Selected Mic: ', mic_tag)
@@ -124,30 +126,20 @@ class Node:
 
             context = respond_response.json()
 
+            print('Command: ', context['command'])
+            print('Response: ', context['response'])
             print('TTTranscribe: ', context['time_to_transcribe'])
             print('TTUnderstand: ', context['time_to_understand'])
             print('TTSynth: ', context['time_to_synthesize'])
 
-            print('Command: ', context['command'])
             response_audio_data_str = context['response_audio_data_str']
             response_sample_rate = context['response_sample_rate']
             response_sample_width = context['response_sample_width']
-            print('Samplerate: ', response_sample_rate)
-            print('Samplewidth: ', response_sample_width)
             audio_bytes = bytes.fromhex(response_audio_data_str)
 
-            audio_segment = pydub.AudioSegment(
-                audio_bytes, 
-                frame_rate=response_sample_rate,
-                sample_width=response_sample_width, 
-                channels=1
-            )
-            audio_segment.export('response.wav', format='wav')
-            
-            #wave_obj = sa.WaveObject.from_wave_file("response.wav")
-            #play_obj = wave_obj.play()
-            #play_obj.wait_done()
-            play_audio_file('response.wav', device_idx=self.speaker_index)
+            self.audio_player.play_audio(audio_bytes, 
+                                         response_sample_rate, 
+                                         response_sample_width)
         else:
             print('Hub did not respond')
 

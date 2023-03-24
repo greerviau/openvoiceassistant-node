@@ -14,11 +14,12 @@ torchaudio.set_audio_backend("soundfile")
 from typing import List
 
 class Listener:
-    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int):
+    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int, write_file: bool = True):
         self.wake_word = wake_word
         self.device_idx = device_idx
         self.samplerate = samplerate
         self.sensitivity = sensitivity
+        self.write_file = write_file
         self.recording_file = "recording.wav"
         self.wave_file = None
         self.audio_frames = []
@@ -34,12 +35,13 @@ class Listener:
         self.buffer.put(bytes(indata))
 
     def record_frame(self, audio_frame: bytes):
-        if self.wave_file is None:
-            self.wave_file = wave.open(self.recording_file, "wb")
-            self.wave_file.setnchannels(1)
-            self.wave_file.setsampwidth(2)
-            self.wave_file.setframerate(self.samplerate)
-        self.wave_file.writeframes(audio_frame)
+        if self.write_file:
+            if self.wave_file is None:
+                self.wave_file = wave.open(self.recording_file, "wb")
+                self.wave_file.setnchannels(1)
+                self.wave_file.setsampwidth(2)
+                self.wave_file.setframerate(self.samplerate)
+            self.wave_file.writeframes(audio_frame)
         self.audio_frames.append(audio_frame)
     
     def stop_recording(self):
@@ -60,7 +62,7 @@ class Listener:
         return self.get_audio_data().hex()
 
 class VoskListener(Listener):
-    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int):
+    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int, write_file: bool = True):
         super().__init__(wake_word, device_idx, samplerate, sensitivity)
         # Define the Vosk model and its configuration
         self.model = vosk.Model("model")
@@ -129,7 +131,7 @@ class VoskListener(Listener):
                     break
 
 class WebRTCVADListener(Listener):
-    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int):
+    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int, write_file: bool = True):
         super().__init__(wake_word, device_idx, samplerate)
 
         self.vad = webrtcvad.Vad()
@@ -199,7 +201,7 @@ class WebRTCVADListener(Listener):
                     break
 
 class SileroVADListener(Listener):
-    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int):
+    def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int, write_file: bool = True):
         super().__init__(wake_word, device_idx, samplerate)
 
         self.model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad',
