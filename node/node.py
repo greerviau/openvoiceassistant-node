@@ -76,7 +76,7 @@ class Node:
         #print('Min Sample Frames: ', self.MIN_SAMPLE_FRAMES)
 
     def process_audio(self, audio_data: bytes):
-        print('Sending audio')
+        print('Sending to server')
 
         audio_data_str = audio_data.hex()
 

@@ -12,19 +12,27 @@ class AudioPlayer:
         self.p = pyaudio.PyAudio()
 
 
-    def play_audio(self, audio_bytes: bytes, sample_rate: int, sample_width: int, interrupt: Tuple[bool] = [False]):
+    def play_audio(self, audio_bytes: bytes, sample_rate: int, sample_width: int, interrupt: Tuple[bool] = [False]):        
         try:
-            self.play_pyaudio(audio_bytes, interrupt=interrupt)
-            return
-        except Exception as e:
-            print('Failed to play with pyaduio')
-            print(repr(e))
-        
-        try:
-            self.play_pydub(audio_bytes, interrupt=interrupt)
+            self.play_pydub(audio_bytes, sample_rate, sample_width, interrupt=interrupt)
             return
         except Exception as e:
             print('Failed to play with pydub')
+            print(repr(e))
+
+        try:
+            audio_segment = pydub.AudioSegment(
+                audio_bytes, 
+                frame_rate=sample_rate,
+                sample_width=sample_width, 
+                channels=1
+            )
+            audio_segment.export('response.wav', format='wav')
+            
+            self.play_pyaudio('response.wav', interrupt=interrupt)
+            return
+        except Exception as e:
+            print('Failed to play with pyaduio')
             print(repr(e))
 
     def play_pydub(self, audio_bytes: bytes, sample_rate: int, sample_width: int, interrupt: Tuple[bool] = [False]):
@@ -36,7 +44,7 @@ class AudioPlayer:
         )
         play(audio)
 
-    def play_pyaudio(self, audio_bytes: bytes, interrupt: Tuple[bool] = [False]):
+    def play_pyaudio(self, file: str, interrupt: Tuple[bool] = [False]):
         CHUNK = 1024
 
         if not os.path.exists(file):
