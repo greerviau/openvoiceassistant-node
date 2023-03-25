@@ -133,8 +133,8 @@ class Node:
             print('TTSynth: ', context['time_to_synthesize'])
 
             response_audio_data_str = context['response_audio_data_str']
-            response_sample_rate = context['response_sample_rate']
-            response_sample_width = context['response_sample_width']
+            response_sample_rate = context['response_audio_sample_rate']
+            response_sample_width = context['response_audio_sample_width']
             audio_bytes = bytes.fromhex(response_audio_data_str)
 
             self.audio_player.play_audio(audio_bytes, 
