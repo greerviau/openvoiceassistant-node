@@ -6,7 +6,7 @@ from typing import List
 import sounddevice as sd
 
 from node import config
-from node.listener import VoskListener, WebRTCVADListener, SileroVADListener
+from node.listener import KaldiListener, WebRTCVADListener, SileroVADListener
 from node.audio_player import AudioPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
 #from .utils import noisereduce
@@ -40,8 +40,6 @@ class Node:
         min_audio_sample_length = config.get('min_audio_sample_length')
         audio_sample_buffer_length = config.get('audio_sample_buffer_length')
 
-        print(f'Node Name: {self.node_name}')
-
         self.hub_api_url = f'http://{hub_ip}:{5010}/api'
         
         print('Available Microphones:')
@@ -60,7 +58,9 @@ class Node:
 
         print(get_supported_samplerates(self.mic_index, samplerates))
 
-        self.listener = VoskListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity, False)
+        self.listener = KaldiListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity, False)
+
+        self.ENGAGED = True
 
         print('Available Speakers')
         [print(speaker) for speaker in list_speakers()]
@@ -69,11 +69,17 @@ class Node:
 
         self.audio_player = AudioPlayer(self.speaker_index)
 
+        print('Node Info')
+        print('\tID: ', self.node_name)
+        print('\tName: ', self.node_name)
+        print('\tHUB: ', hub_ip)
         print('Settings')
-        print('Selected Mic: ', mic_tag)
-        print('Samplerate: ', self.SAMPLERATE)
-        print('Speaker Mic: ', speaker_tag)
-        #print('Min Sample Frames: ', self.MIN_SAMPLE_FRAMES)
+        print('\tSelected Mic: ', mic_tag)
+        print('\tSpeaker Mic: ', speaker_tag)
+        print('\tSamplerate: ', self.SAMPLERATE)
+        print('\tVAD Sensitivity: ', vad_sensitivity)
+        print('\tMin Audio Sample Length: ', min_audio_sample_length)
+        print('\tAudio Sample Buffer Length: ', audio_sample_buffer_length)
 
     def process_audio(self, audio_data: bytes):
         print('Sending to server')
@@ -90,7 +96,7 @@ class Node:
             'command_text': '',
             'node_callback': '', 
             'node_id': self.node_id, 
-            'engage': False,
+            'engage': self.ENGAGED,
             'last_time_engaged': self.last_time_engaged,
             'time_sent': time_sent
         }
@@ -126,11 +132,12 @@ class Node:
 
             context = respond_response.json()
 
-            print('Command: ', context['command'])
+            print('Command: ', context['cleaned_command'])
             print('Response: ', context['response'])
-            print('TTTranscribe: ', context['time_to_transcribe'])
-            print('TTUnderstand: ', context['time_to_understand'])
-            print('TTSynth: ', context['time_to_synthesize'])
+            print('Deltas')
+            print('\tTranscribe: ', context['time_to_transcribe'])
+            print('\tUnderstand: ', context['time_to_understand'])
+            print('\tSynth: ', context['time_to_synthesize'])
 
             response_audio_data_str = context['response_audio_data_str']
             response_sample_rate = context['response_audio_sample_rate']
@@ -141,15 +148,12 @@ class Node:
                                          response_sample_rate, 
                                          response_sample_width)
         else:
-            print('Hub did not respond')
+            print('HUB did not respond')
 
     def mainloop(self):
-        print('Microphone stream started')
-
         self.last_time_engaged = time.time()
-        print('Listening...')
         while self.running:
-            audio_data = self.listener.listen(False)
+            audio_data, self.ENGAGED = self.listener.listen(self.ENGAGED)
             self.process_audio(audio_data)
                 
         print('Mainloop end')

@@ -6,7 +6,7 @@ import uuid
 
 from node import config
 from node.node import Node
-from node.utils.hardware import list_microphones
+from node.utils.hardware import list_microphones, list_speakers
 from node.schemas import NodeConfig
 
 def create_app(node: Node):
@@ -31,9 +31,13 @@ def create_app(node: Node):
         node.restart()
         return node_config, 200
 
-    @app.route('/api/config', methods=['GET'])
+    @app.route('/api/microphones', methods=['GET'])
     def get_microphones():
         return list_microphones(), 200
+
+    @app.route('/api/speakers', methods=['GET'])
+    def get_speakers():
+        return list_speakers(), 200
 
     @app.route('/api/restart', methods=['GET'])
     def restart():
