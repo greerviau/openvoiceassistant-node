@@ -96,10 +96,13 @@ class KaldiListener(Listener):
                                     recording_started = False
                                     # Clear out the recording buffer
                                     self.recording_buffer.clear()
-                                if self.wake_word in final_text or engaged:
-                                    return (self.get_audio_data(), True)
+                                    if self.wake_word in final_text or engaged:
+                                        return (self.get_audio_data(), True)
+                                    else:
+                                        print('Command did not engage')
+                                        break
                                 else:
-                                    print('Command did not engage')
+                                    print('No Recording')
                                     break
                             else:
                                 # Check if speech has started

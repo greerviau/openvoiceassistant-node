@@ -6,7 +6,7 @@ from typing import List
 import sounddevice as sd
 
 from node import config
-from node.listener import KaldiListener, WebRTCVADListener, SileroVADListener
+from node.listener import KaldiListener, WebRTCVADListener
 from node.audio_player import AudioPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
 #from .utils import noisereduce
@@ -70,16 +70,16 @@ class Node:
         self.audio_player = AudioPlayer(self.speaker_index)
 
         print('Node Info')
-        print('\tID: ', self.node_name)
-        print('\tName: ', self.node_name)
-        print('\tHUB: ', hub_ip)
+        print('- ID: ', self.node_name)
+        print('- Name: ', self.node_name)
+        print('- HUB: ', hub_ip)
         print('Settings')
-        print('\tSelected Mic: ', mic_tag)
-        print('\tSpeaker Mic: ', speaker_tag)
-        print('\tSamplerate: ', self.SAMPLERATE)
-        print('\tVAD Sensitivity: ', vad_sensitivity)
-        print('\tMin Audio Sample Length: ', min_audio_sample_length)
-        print('\tAudio Sample Buffer Length: ', audio_sample_buffer_length)
+        print('- Selected Mic: ', mic_tag)
+        print('- Speaker Mic: ', speaker_tag)
+        print('- Samplerate: ', self.SAMPLERATE)
+        print('- VAD Sensitivity: ', vad_sensitivity)
+        print('- Min Audio Sample Length: ', min_audio_sample_length)
+        print('- Audio Sample Buffer Length: ', audio_sample_buffer_length)
 
     def process_audio(self, audio_data: bytes):
         print('Sending to server')
@@ -123,8 +123,8 @@ class Node:
                     else:
                         raise
                 except:
-                    print('Retrying...')
-                    time.sleep(1)
+                    print('Retrying in 5...')
+                    time.sleep(5)
 
         if respond_response.status_code == 200:
 
@@ -132,21 +132,24 @@ class Node:
 
             context = respond_response.json()
 
+            response = context['response']
+
             print('Command: ', context['cleaned_command'])
             print('Response: ', context['response'])
             print('Deltas')
-            print('\tTranscribe: ', context['time_to_transcribe'])
-            print('\tUnderstand: ', context['time_to_understand'])
-            print('\tSynth: ', context['time_to_synthesize'])
+            print('- Transcribe: ', context['time_to_transcribe'])
+            print('- Understand: ', context['time_to_understand'])
+            print('- Synth: ', context['time_to_synthesize'])
 
             response_audio_data_str = context['response_audio_data_str']
             response_sample_rate = context['response_audio_sample_rate']
             response_sample_width = context['response_audio_sample_width']
             audio_bytes = bytes.fromhex(response_audio_data_str)
 
-            self.audio_player.play_audio(audio_bytes, 
-                                         response_sample_rate, 
-                                         response_sample_width)
+            if response is not None:
+                self.audio_player.play_audio(audio_bytes, 
+                                            response_sample_rate, 
+                                            response_sample_width)
         else:
             print('HUB did not respond')
 
