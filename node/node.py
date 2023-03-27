@@ -96,7 +96,7 @@ class Node:
             'command_text': '',
             'node_callback': '', 
             'node_id': self.node_id, 
-            'engage': self.ENGAGED,
+            'engaged': self.ENGAGED,
             'last_time_engaged': self.last_time_engaged,
             'time_sent': time_sent
         }
