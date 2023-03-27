@@ -57,7 +57,6 @@ def __default_config():
     device_ip = get_my_ip()
     hub_port = 5010
     hub_ip = scan_for_hub(device_ip, hub_port)
-    mic_index = 0
     random.seed(device_ip)
     node_id = f'new_node_{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}'
 
@@ -66,10 +65,11 @@ def __default_config():
         "node_name": node_id,
         "device_ip": device_ip,
         "hub_ip": hub_ip,
-        "mic_index": mic_index,
+        "mic_index": 0,
+        "speaker_index": 0,
         "min_audio_sample_length": 1,
         "audio_sample_buffer_length": 0.3,
-        "sensitivity": 3
+        "vad_sensitivity": 3
     }
 
 load_config()

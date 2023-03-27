@@ -34,10 +34,7 @@ def run_node(debug, no_sync):
             'node_name': node_name,
             'node_api_url': f'http://{device_ip}:{5005}/api',
             'mic_index': mic_index,
-            'speaker_index': speaker_index,
-            'min_audio_sample_length': min_audio_sample_length,
-            'audio_sample_buffer_length': audio_sample_buffer_length,
-            'vad_sensitivity': vad_sensitivity
+            'speaker_index': speaker_index
         }
 
         try:
