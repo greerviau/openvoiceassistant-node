@@ -67,8 +67,6 @@ def __default_config():
         "hub_ip": hub_ip,
         "mic_index": 0,
         "speaker_index": 0,
-        "min_audio_sample_length": 1,
-        "audio_sample_buffer_length": 0.3,
         "vad_sensitivity": 3
     }
 

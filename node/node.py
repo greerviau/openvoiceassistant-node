@@ -58,7 +58,7 @@ class Node:
 
         print(get_supported_samplerates(self.mic_index, samplerates))
 
-        self.listener = KaldiListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity, False)
+        self.listener = WebRTCVADListener(config.get("wake_word"), self.mic_index, self.SAMPLERATE, vad_sensitivity, False)
 
         self.ENGAGED = True
 

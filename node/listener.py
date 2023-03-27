@@ -60,7 +60,7 @@ class KaldiListener(Listener):
     def __init__(self, wake_word: str, device_idx: int, samplerate: int, sensitivity: int, write_file: bool = True):
         super().__init__(wake_word, device_idx, samplerate, sensitivity, write_file)
         # Define the Vosk model and its configuration
-        self.model = vosk.Model("model")
+        self.model = vosk.Model(lang='en-us')
 
     def listen(self, engaged: bool, interrupt: Tuple[bool] = (False)):
 

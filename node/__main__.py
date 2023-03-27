@@ -23,8 +23,6 @@ def run_node(debug, no_sync):
         hub_ip = config.get('hub_ip')
         mic_index = config.get('mic_index')
         speaker_index = config.get('speaker_index')
-        min_audio_sample_length = config.get('min_audio_sample_length')
-        audio_sample_buffer_length = config.get('audio_sample_buffer_length')
         vad_sensitivity = config.get('vad_sensitivity')
 
         hub_api_url = f'http://{hub_ip}:{5010}/api'
@@ -34,7 +32,8 @@ def run_node(debug, no_sync):
             'node_name': node_name,
             'node_api_url': f'http://{device_ip}:{5005}/api',
             'mic_index': mic_index,
-            'speaker_index': speaker_index
+            'speaker_index': speaker_index,
+            'vad_sensitivity': vad_sensitivity
         }
 
         try:
@@ -48,10 +47,10 @@ def run_node(debug, no_sync):
             config.set('node_name', config_json['node_name'])
             config.set('mic_index', config_json['mic_index'])
             config.set('speaker_index', config_json['speaker_index'])
-            config.set('wake_word', config_json['wake_word'])
-            config.set('min_audio_sample_length', config_json['min_audio_sample_length'])
-            config.set('audio_sample_buffer_length', config_json['audio_sample_buffer_length'])
             config.set('vad_sensitivity', config_json['vad_sensitivity'])
+            config.set('wakeup', config_json['wakeup'])
+            config.set('recording', config_json['recording'])
+            config.set('playback', config_json['playback'])
 
         except Exception as e:
             print(repr(e))
