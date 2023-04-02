@@ -155,3 +155,4 @@ cython_debug/
 config.json
 *.wav
 model
+vosk_model
