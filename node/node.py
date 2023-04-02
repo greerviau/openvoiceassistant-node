@@ -7,7 +7,7 @@ import sounddevice as sd
 
 from node import config
 from node.listener import Listener
-from node.audio_player import AudioPlayer
+from node.audio_player import PydubPlayer, PyaudioPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
 #from .utils import noisereduce
 
@@ -15,6 +15,8 @@ class Node:
     def __init__(self, debug: bool):
         self.set_config()
         self.debug = debug
+
+        self.hub_callback = ''
 
     def start(self):
         print('Starting node')
@@ -45,29 +47,27 @@ class Node:
 
         _, mic_tag = select_mic(self.mic_index)
 
-        samplerates = [16000, 48000, 32000, 8000]   # Try 16000 first because avoids downsampling on HUB for transcription
         self.sample_rate = 16000
         self.sample_width = 2
         self.channels = 1
+        
+        print('Available Speakers')
+        [print(speaker) for speaker in list_speakers()]
 
-        print(get_supported_samplerates(self.mic_index, samplerates))
+        _, speaker_tag = select_speaker(self.speaker_index)
+
+        self.audio_player = PydubPlayer(self.speaker_index)
 
         self.listener = Listener(wake_word=config.get("wake_word"),
                                 device_idx=self.mic_index, 
                                 sample_rate=self.sample_rate, 
                                 sample_width=self.sample_width,
                                 channels=self.channels,
-                                sensitivity=vad_sensitivity)
-
-        print('Available Speakers')
-        [print(speaker) for speaker in list_speakers()]
-
-        _, speaker_tag = select_speaker(self.speaker_index)
-
-        self.audio_player = AudioPlayer(self.speaker_index)
+                                sensitivity=vad_sensitivity,
+                                audio_player=self.audio_player)
 
         print('Node Info')
-        print('- ID: ', self.node_name)
+        print('- ID: ', self.node_id)
         print('- Name: ', self.node_name)
         print('- HUB: ', hub_ip)
         print('Settings')
@@ -79,27 +79,24 @@ class Node:
     def process_audio(self, audio_data: bytes):
         print('Sending to server')
 
-        '''
+        engaged = False
+
         wf = wave.open('command.wav', 'wb')
-        wf.setnchannels(1)
-        wf.setsampwidth(2)
+        wf.setnchannels(self.channels)
+        wf.setsampwidth(self.sample_width)
         wf.setframerate(self.sample_rate)
         wf.writeframes(audio_data)
         wf.close()
-        '''
-
-        audio_data_str = audio_data.hex()
 
         time_sent = time.time()
 
         payload = {
-            'command_audio_data_str': audio_data_str, 
-            'command_audio_sample_rate': self.sample_rate, 
-            'command_audio_sample_width': 2, 
-            'command_audio_channels': 1, 
-            'command_text': '',
-            'node_callback': '', 
             'node_id': self.node_id,
+            'command_audio_data_hex': audio_data.hex(), 
+            'command_audio_sample_rate': self.sample_rate, 
+            'command_audio_sample_width': self.sample_width, 
+            'command_audio_channels': self.channels,
+            'hub_callback': self.hub_callback,
             'last_time_engaged': self.last_time_engaged,
             'time_sent': time_sent
         }
@@ -136,6 +133,10 @@ class Node:
             context = respond_response.json()
 
             response = context['response']
+            self.hub_callback = context['hub_callback']
+
+            if self.hub_callback:
+                engaged = True
 
             print('Command: ', context['cleaned_command'])
             print('Response: ', context['response'])
@@ -144,22 +145,25 @@ class Node:
             print('- Understand: ', context['time_to_understand'])
             print('- Synth: ', context['time_to_synthesize'])
 
-            response_audio_data_str = context['response_audio_data_str']
+            response_audio_data_hex = context['response_audio_data_hex']
             response_sample_rate = context['response_audio_sample_rate']
             response_sample_width = context['response_audio_sample_width']
-            audio_bytes = bytes.fromhex(response_audio_data_str)
 
             if response is not None:
-                self.audio_player.play_audio(audio_bytes, 
-                                            response_sample_rate, 
-                                            response_sample_width)
+                self.audio_player.play_audio_bytes(bytes.fromhex(response_audio_data_hex), 
+                                                    response_sample_rate, 
+                                                    response_sample_width,
+                                                    1)
         else:
             print('HUB did not respond')
 
+        return engaged
+
     def mainloop(self):
         self.last_time_engaged = time.time()
+        engaged = False
         while self.running:
-            audio_data = self.listener.listen()
-            self.process_audio(audio_data)
+            audio_data = self.listener.listen(engaged)
+            engaged = self.process_audio(audio_data)
                 
         print('Mainloop end')

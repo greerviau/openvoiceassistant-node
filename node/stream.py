@@ -16,7 +16,8 @@ class Stream:
                  sample_rate: int, 
                  channels: int, 
                  sample_width: int,
-                 frames_per_buffer: int = 1024
+                 frames_per_buffer: int = 1024,
+                 recording_buffer_size: int = 12
     ):
         
         self.device_idx = device_idx
@@ -28,7 +29,7 @@ class Stream:
         # Define a buffer to store audio frames
         self.buffer = queue.Queue()
         # Define a recording buffer for the start of the recording
-        self.recording_buffer = collections.deque(maxlen=2)
+        self.recording_buffer = collections.deque(maxlen=recording_buffer_size)
 
         self.RECORDING = False
 
