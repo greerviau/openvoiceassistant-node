@@ -30,6 +30,10 @@ def create_app(node: Node):
         config.set('vad_sensitivity', node_config.vad_sensitivity)
         node.restart()
         return node_config, 200
+    
+    @app.route('/api/play_audio', methods=['POST'])
+    def play_audio():
+        pass
 
     @app.route('/api/microphones', methods=['GET'])
     def get_microphones():

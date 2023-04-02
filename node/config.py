@@ -67,7 +67,30 @@ def __default_config():
         "hub_ip": hub_ip,
         "mic_index": 0,
         "speaker_index": 0,
-        "vad_sensitivity": 3
+        "vad_sensitivity": 3,
+        "wake_word": "computer",
+        "wakeup": {
+            "algorithm:": "Kaldi",
+            "algorithm_options": [
+                "Kaldi",
+                "Owaken"
+            ]
+        },
+        "recording": {
+            "algorithm": "pyaudio",
+            "algorithm_options": [
+                "sounddevice",
+                "pyaudio"
+            ]
+        },
+        "playback": {
+            "algorithm": "aplay",
+            "algorithm_options": [
+                "aplay",
+                "pyaudio",
+                "pydub"
+            ]
+        },
     }
 
 load_config()
