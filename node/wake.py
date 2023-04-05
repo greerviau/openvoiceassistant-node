@@ -15,7 +15,7 @@ class KaldiWake:
     ):
         self.wake_word = wake_word
         self.sample_rate = sample_rate
-        self.model = vosk.Model('vosk_model')
+        self.model = vosk.Model(lang='en-us')
     
     def listen_for_wake_word(self, stream: Stream):
         print('Listening for wake word...')

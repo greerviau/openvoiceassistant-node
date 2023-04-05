@@ -70,6 +70,7 @@ def __default_config():
         "vad_sensitivity": 3,
         "wake_word": "computer",
         "wakeup": {
+            "wakeup_sound": True,
             "algorithm:": "Kaldi",
             "algorithm_options": [
                 "Kaldi",

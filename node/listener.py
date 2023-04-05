@@ -7,6 +7,7 @@ from typing import List, Tuple
 from node.stream import PyaudioStream
 from node.wake import KaldiWake
 from node.audio_player import AudioPlayer
+from node import config
 
 
 class Listener:
@@ -25,6 +26,7 @@ class Listener:
         self.sample_width = sample_width
         self.channels = channels
         self.sensitivity = sensitivity
+        self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
 
         self.audio_player = audio_player
 
@@ -53,10 +55,12 @@ class Listener:
         self.engaged_delay = 5 # 5sec
     
     def listen(self, engaged: bool=False):
+        audio_data = []
         if not engaged:
             self.wake.listen_for_wake_word(self.stream)
-            self.audio_player.play_audio_file('node/sounds/activate.wav')
-            audio_data = [chunk for chunk in self.stream.recording_buffer]
+            if self.wakeup_sound:
+                self.audio_player.play_audio_file('node/sounds/activate.wav')
+            #audio_data = [chunk for chunk in self.stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio
         for _ in range(20):
@@ -86,5 +90,10 @@ class Listener:
                     is_speech = True
 
             if not is_speech:
-                self.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
+                # Capture ~0.5 seconds of audio
+                for _ in range(10):
+                    chunk = self.stream.get_chunk()
+                    audio_data.append(chunk)
+                if self.wakeup_sound:
+                    self.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                 return b''.join(audio_data)
