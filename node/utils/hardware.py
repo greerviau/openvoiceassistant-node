@@ -41,30 +41,30 @@ def list_speakers() -> List[str]:
     return speaker_list
 
 def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
-    microphones = list_microphones()
+    microphones = find_microphones()
     try:
         if isinstance(mic, str):
-            mic_index = [idx for idx, element in enumerate(microphones) if mic in element.lower()][0]
+            mic_index = [idx for idx, info in microphones.items() if mic.lower() in info['name'].lower()][0]
         else:
             mic_index = mic
         
-        mic_tag = microphones[mic_index]
+        mic_tag = microphones[mic_index]['name']
     except Exception as e:
         raise RuntimeError(f'Microphone does not exist')
         
     return mic_index, mic_tag
 
 def select_speaker(speaker: Union[str, int]) -> Tuple[int, str]:
-    speakers = list_speakers()
+    speakers = find_speakers()
     try:
         if isinstance(speaker, str):
-            speaker_index = [idx for idx, element in enumerate(speakers) if speaker in element.lower()][0]
+            speaker_index = [idx for idx, info in speakers.items() if speaker.lower() in info['name'].lower()][0]
         else:
             speaker_index = speaker
         
-        speaker_tag = speakers[speaker_index]
+        speaker_tag = speakers[speaker_index]['name']
     except Exception as e:
-        raise RuntimeError(f'Speaker does not exist')
+        raise RuntimeError(f'Microphone does not exist')
         
     return speaker_index, speaker_tag
 
