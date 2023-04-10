@@ -26,7 +26,7 @@ def list_microphones() -> List[str]:
     mics = find_microphones()
     mic_list = []
     for i, info in mics.items():
-        print(info)
+        #print(info)
         name = info['name']
         mic_list.append(f'{i}: {name}')
     return mic_list
@@ -35,7 +35,7 @@ def list_speakers() -> List[str]:
     speakers = find_speakers()
     speaker_list = []
     for i, info in speakers.items():
-        print(info)
+        #print(info)
         name = info['name']
         speaker_list.append(f'{i}: {name}')
     return speaker_list
