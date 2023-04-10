@@ -6,15 +6,8 @@ import pyaudio
 def find_devices(kind) -> List[Dict]:
     if kind not in ['input', 'output']:
         raise RuntimeError('Device kind must be \"input\" or \"output\"')
-    devices = sd.query_devices()
-    mics = []
-    for i, device in enumerate(devices):
-        try:
-            info = sd.query_devices(i, kind)
-            mics.append(device)
-        except ValueError:
-            pass
-    return mics
+
+    return sd.query_devices(kind)
 
 def find_microphones() -> List[Dict]:
     return find_devices('input')
@@ -25,17 +18,17 @@ def find_speakers() -> List[Dict]:
 def list_microphones() -> List[str]:
     mics = find_microphones()
     mic_list = []
-    for i, info in enumerate(mics):
-        name = info['name']
-        mic_list.append(f'{i}: {name}')
+    for i, info in mics.items():
+        print(info)
+        mic_list.append(i)
     return mic_list
 
 def list_speakers() -> List[str]:
-    mics = find_speakers()
+    speakers = find_speakers()
     speaker_list = []
-    for i, info in enumerate(mics):
-        name = info['name']
-        speaker_list.append(f'{i}: {name}')
+    for i, info in speakers.items():
+        print(info)
+        speaker_list.append(i)
     return speaker_list
 
 def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
