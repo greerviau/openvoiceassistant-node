@@ -8,7 +8,8 @@ from typing import Tuple
 import threading
 
 class AudioPlayer:
-    def __init__(self, speaker_idx: int):
+    def __init__(self, node: 'Node', speaker_idx: int):
+        self.node = node
         self.speaker_idx = speaker_idx
 
 

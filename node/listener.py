@@ -2,26 +2,22 @@
 import time
 import collections
 import webrtcvad
-import threading
-from typing import List, Tuple
 
-from node.stream import PyaudioStream
 from node.wake import KaldiWake
-from node.audio_player import AudioPlayer
 from node import config
 
 
 class Listener:
     def __init__(self, 
+                 node: 'Node',
                  wake_word: str, 
                  device_idx: int, 
                  sample_rate: int, 
                  sample_width: int,
                  channels: int,
                  sensitivity: int,
-                 audio_player: AudioPlayer,
-                 pause_flag: threading.Event
     ):
+        self.node = node
         self.wake_word = wake_word
         self.device_idx = device_idx
         self.sample_rate = sample_rate
@@ -30,22 +26,8 @@ class Listener:
         self.sensitivity = sensitivity
         self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
 
-        self.audio_player = audio_player
-
-        self.pause_flag = pause_flag
-
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
-
-        self.stream = PyaudioStream(device_idx=self.device_idx,
-                                    sample_rate=self.sample_rate,
-                                    channels=self.channels,
-                                    sample_width=self.sample_width,
-                                    frames_per_buffer=1200)
-
-        #self.starting_sample_size = 
-        
-        self.stream.start_stream()
         
         self.wake = KaldiWake(wake_word=self.wake_word,
                               sample_rate=self.sample_rate)
@@ -59,26 +41,26 @@ class Listener:
         self.engaged_delay = 3 # 5sec
     
     def listen(self, engaged: bool=False):
-        self.stream.reset()
+        self.node.stream.reset()
         audio_data = []
         if not engaged:
-            self.wake.listen_for_wake_word(self.stream)
+            self.wake.listen_for_wake_word(self.node.stream)
 
-        self.pause_flag.set()
+        self.node.pause_flag.set()
         
         if self.wakeup_sound:
-            self.audio_player.play_audio_file('node/sounds/activate.wav')
+            self.node.audio_player.play_audio_file('node/sounds/activate.wav')
             #audio_data = [chunk for chunk in self.stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio
         for _ in range(20):
-            chunk = self.stream.get_chunk()
+            chunk = self.node.stream.get_chunk()
             audio_data.append(chunk)
 
         start = time.time()
 
         while True:
-            chunk = self.stream.get_chunk()
+            chunk = self.node.stream.get_chunk()
 
             audio_data.append(chunk)
 
@@ -100,8 +82,8 @@ class Listener:
             if not is_speech:
                 # Capture ~0.5 seconds of audio
                 for _ in range(10):
-                    chunk = self.stream.get_chunk()
+                    chunk = self.node.stream.get_chunk()
                     audio_data.append(chunk)
                 if self.wakeup_sound:
-                    self.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
+                    self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                 return b''.join(audio_data)

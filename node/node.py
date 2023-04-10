@@ -8,7 +8,8 @@ import threading
 
 from node import config
 from node.listener import Listener
-from node.audio_player import PydubPlayer, PyaudioPlayer
+from node.stream import PyaudioStream
+from node.audio_player import PydubPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates, get_input_channels
 #from .utils import noisereduce
 
@@ -63,24 +64,33 @@ class Node:
 
         _, speaker_tag = select_speaker(self.speaker_index)
 
-        self.audio_player = PydubPlayer(self.speaker_index)
+        self.audio_player = PydubPlayer(self,
+                                        self.speaker_index)
 
-        self.listener = Listener(wake_word=config.get("wake_word"),
+        self.stream = PyaudioStream(self,
+                                    device_idx=self.mic_index,
+                                    sample_rate=self.sample_rate,
+                                    channels=self.channels,
+                                    sample_width=self.sample_width,
+                                    frames_per_buffer=1200)
+        
+        self.stream.start_stream()
+
+        self.listener = Listener(self,
+                                wake_word=config.get("wake_word"),
                                 device_idx=self.mic_index, 
                                 sample_rate=self.sample_rate, 
                                 sample_width=self.sample_width,
                                 channels=self.channels,
-                                sensitivity=vad_sensitivity,
-                                audio_player=self.audio_player,
-                                pause_flag=self.pause_flag)
+                                sensitivity=vad_sensitivity)
 
         print('Node Info')
         print('- ID: ', self.node_id)
         print('- Name: ', self.node_name)
         print('- HUB: ', hub_ip)
         print('Settings')
-        print('- Selected Mic: ', mic_tag)
-        print('- Speaker Mic: ', speaker_tag)
+        print('- Microphone: ', mic_tag)
+        print('- Speaker: ', speaker_tag)
         print('- Sample Rate: ', self.sample_rate)
         print('- Sample Width: ', self.sample_width)
         print('- Channels: ', self.channels)

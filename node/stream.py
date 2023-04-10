@@ -12,6 +12,7 @@ from typing import List, Tuple
 
 class Stream:
     def __init__(self, 
+                 node: 'Node',
                  device_idx: int, 
                  sample_rate: int, 
                  channels: int, 
@@ -19,7 +20,7 @@ class Stream:
                  frames_per_buffer: int = 1024,
                  recording_buffer_size: int = 12
     ):
-        
+        self.node = node
         self.device_idx = device_idx
         self.sample_rate = sample_rate
         self.channels = channels
