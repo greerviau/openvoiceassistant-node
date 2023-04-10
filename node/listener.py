@@ -2,6 +2,7 @@
 import time
 import collections
 import webrtcvad
+import threading
 from typing import List, Tuple
 
 from node.stream import PyaudioStream
@@ -18,7 +19,8 @@ class Listener:
                  sample_width: int,
                  channels: int,
                  sensitivity: int,
-                 audio_player: AudioPlayer
+                 audio_player: AudioPlayer,
+                 pause_flag: threading.Event
     ):
         self.wake_word = wake_word
         self.device_idx = device_idx
@@ -29,6 +31,8 @@ class Listener:
         self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
 
         self.audio_player = audio_player
+
+        self.pause_flag = pause_flag
 
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
@@ -52,14 +56,18 @@ class Listener:
         self.vad_chunk_size = 960 # 30ms
         self.vad_audio_data = bytes()
 
-        self.engaged_delay = 5 # 5sec
+        self.engaged_delay = 3 # 5sec
     
     def listen(self, engaged: bool=False):
+        self.stream.reset()
         audio_data = []
         if not engaged:
             self.wake.listen_for_wake_word(self.stream)
-            if self.wakeup_sound:
-                self.audio_player.play_audio_file('node/sounds/activate.wav')
+
+        self.pause_flag.set()
+        
+        if self.wakeup_sound:
+            self.audio_player.play_audio_file('node/sounds/activate.wav')
             #audio_data = [chunk for chunk in self.stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio

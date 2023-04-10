@@ -31,9 +31,15 @@ def create_app(node: Node):
         node.restart()
         return node_config, 200
     
-    @app.route('/api/play_audio', methods=['POST'])
-    def play_audio():
-        pass
+    @app.route('/api/play_alarm', methods=['POST'])
+    def play_alarm():
+        node.play_alarm()
+        return {}, 200
+
+    @app.route('/api/stop_alarm', methods=['POST'])
+    def stop_alarm():
+        node.stop_alarm()
+        return {}, 200
 
     @app.route('/api/microphones', methods=['GET'])
     def get_microphones():

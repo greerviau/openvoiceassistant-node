@@ -35,6 +35,9 @@ class Stream:
 
     def get_chunk(self) -> bytes:
         return self.buffer.get()
+    
+    def reset(self):
+        self.buffer.queue.clear()
 
 class PyaudioStream(Stream):
 

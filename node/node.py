@@ -4,6 +4,7 @@ import pydub
 import time
 from typing import List
 import sounddevice as sd
+import threading
 
 from node import config
 from node.listener import Listener
@@ -13,10 +14,16 @@ from node.utils.hardware import list_microphones, list_speakers, select_mic, sel
 
 class Node:
     def __init__(self, debug: bool):
-        self.set_config()
         self.debug = debug
 
         self.hub_callback = ''
+
+        self.pause_flag = threading.Event()
+
+        self.alarm_thread = None
+        self.alarm_flag = threading.Event()
+
+        self.initialize()
 
     def start(self):
         print('Starting node')
@@ -29,10 +36,10 @@ class Node:
     def restart(self):
         self.stop()
         print('Restarting node...')
-        self.set_config()
+        self.initialize()
         self.start()
 
-    def set_config(self):
+    def initialize(self):
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
         self.mic_index = config.get('mic_index')
@@ -64,7 +71,8 @@ class Node:
                                 sample_width=self.sample_width,
                                 channels=self.channels,
                                 sensitivity=vad_sensitivity,
-                                audio_player=self.audio_player)
+                                audio_player=self.audio_player,
+                                pause_flag=self.pause_flag)
 
         print('Node Info')
         print('- ID: ', self.node_id)
@@ -154,6 +162,7 @@ class Node:
                                                     response_sample_rate, 
                                                     response_sample_width,
                                                     1)
+                time.sleep(0.5)
         else:
             print('HUB did not respond')
 
@@ -165,5 +174,24 @@ class Node:
         while self.running:
             audio_data = self.listener.listen(engaged)
             engaged = self.process_audio(audio_data)
+            self.pause_flag.clear()
+
                 
         print('Mainloop end')
+
+    def play_alarm(self):
+        def alarm():
+            while not self.alarm_flag.is_set():
+                if not self.pause_flag.is_set():
+                    print('Play alarm')
+                    self.audio_player.play_audio_file('node/sounds/alarm.wav')
+                time.sleep(0.1)
+            print('Alarm finished')
+        if not self.alarm_thread:
+            self.alarm_thread = threading.Thread(target=alarm, daemon=True)
+            self.alarm_thread.start()
+
+    def stop_alarm(self):
+        if self.alarm_thread:
+            self.alarm_flag.set()
+            self.alarm_thread = None
