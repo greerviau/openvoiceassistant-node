@@ -57,7 +57,7 @@ class Node:
 
         self.sample_rate = 16000
         self.sample_width = 2
-        self.channels = get_input_channels(self.mic_index)
+        self.channels = 1
         
         print('Available Speakers')
         [print(speaker) for speaker in list_speakers()]

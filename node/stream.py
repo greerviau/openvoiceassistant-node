@@ -84,4 +84,5 @@ class PyaudioStream(Stream):
             audio.terminate()
 
         except Exception as e:
+            print(repr(e))
             print("Error recording")
