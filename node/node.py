@@ -9,7 +9,7 @@ import threading
 from node import config
 from node.listener import Listener
 from node.audio_player import PydubPlayer, PyaudioPlayer
-from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
+from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates, get_input_channels
 #from .utils import noisereduce
 
 class Node:
@@ -56,7 +56,7 @@ class Node:
 
         self.sample_rate = 16000
         self.sample_width = 2
-        self.channels = 1
+        self.channels = get_input_channels(self.mic_index)
         
         print('Available Speakers')
         [print(speaker) for speaker in list_speakers()]
@@ -81,7 +81,9 @@ class Node:
         print('Settings')
         print('- Selected Mic: ', mic_tag)
         print('- Speaker Mic: ', speaker_tag)
-        print('- Samplerate: ', self.sample_rate)
+        print('- Sample Rate: ', self.sample_rate)
+        print('- Sample Width: ', self.sample_width)
+        print('- Channels: ', self.channels)
         print('- VAD Sensitivity: ', vad_sensitivity)
 
     def process_audio(self, audio_data: bytes):
