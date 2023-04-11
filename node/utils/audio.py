@@ -47,7 +47,6 @@ def maybe_convert_wav(
                 or (wav_file.getsampwidth() != sample_width)
                 or (wav_file.getnchannels() != channels)
             ):
-                print('Converting')
                 # Return converted wav
                 return convert_wav(
                     wav_bytes,

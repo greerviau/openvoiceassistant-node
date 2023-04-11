@@ -63,38 +63,40 @@ class Listener:
         while True:
             chunk = self.node.stream.get_chunk()
 
-            audio_data.append(chunk)
+            if chunk:
 
-            with io.BytesIO() as wav_buffer:
-                wav_file: wave.Wave_write = wave.open(wav_buffer, "wb")
-                with wav_file:
-                    wav_file.setframerate(self.sample_rate)
-                    wav_file.setsampwidth(self.sample_width)
-                    wav_file.setnchannels(self.channels)
-                    wav_file.writeframes(chunk)
+                audio_data.append(chunk)
 
-                wav_bytes = wav_buffer.getvalue()
+                with io.BytesIO() as wav_buffer:
+                    wav_file: wave.Wave_write = wave.open(wav_buffer, "wb")
+                    with wav_file:
+                        wav_file.setframerate(self.sample_rate)
+                        wav_file.setsampwidth(self.sample_width)
+                        wav_file.setnchannels(self.channels)
+                        wav_file.writeframes(chunk)
 
-                self.vad_audio_data += maybe_convert_wav(wav_bytes, sample_rate=16000, sample_width=2, channels=1)
+                    wav_bytes = wav_buffer.getvalue()
 
-                is_speech = False
+                    self.vad_audio_data += maybe_convert_wav(wav_bytes, sample_rate=16000, sample_width=2, channels=1)
 
-                # Process in chunks of 30ms for webrtcvad
-                while len(self.vad_audio_data) >= self.vad_chunk_size:
-                    vad_chunk = self.vad_audio_data[: self.vad_chunk_size]
-                    self.vad_audio_data = self.vad_audio_data[self.vad_chunk_size:]
+                    is_speech = False
 
-                    # Speech in any chunk counts as speech
-                    is_speech = is_speech or self.vad.is_speech(vad_chunk, 16000)
+                    # Process in chunks of 30ms for webrtcvad
+                    while len(self.vad_audio_data) >= self.vad_chunk_size:
+                        vad_chunk = self.vad_audio_data[: self.vad_chunk_size]
+                        self.vad_audio_data = self.vad_audio_data[self.vad_chunk_size:]
 
-                    if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
-                        is_speech = True
+                        # Speech in any chunk counts as speech
+                        is_speech = is_speech or self.vad.is_speech(vad_chunk, 16000)
 
-                if not is_speech:
-                    # Capture ~0.5 seconds of audio
-                    for _ in range(10):
-                        chunk = self.node.stream.get_chunk()
-                        audio_data.append(chunk)
-                    if self.wakeup_sound:
-                        self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
-                    return b''.join(audio_data)
+                        if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
+                            is_speech = True
+
+                    if not is_speech:
+                        # Capture ~0.5 seconds of audio
+                        for _ in range(10):
+                            chunk = self.node.stream.get_chunk()
+                            audio_data.append(chunk)
+                        if self.wakeup_sound:
+                            self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
+                        return b''.join(audio_data)
