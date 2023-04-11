@@ -4,21 +4,11 @@ import typing
 import wave
 
 def convert_wav(
-        self,
         wav_bytes: bytes,
-        sample_rate: typing.Optional[int] = None,
-        sample_width: typing.Optional[int] = None,
-        channels: typing.Optional[int] = None,
+        sample_rate: int,
+        sample_width: int,
+        channels: int,
     ) -> bytes:
-        """Converts WAV data to required format with sox. Return raw audio."""
-        if sample_rate is None:
-            sample_rate = self.sample_rate
-
-        if sample_width is None:
-            sample_width = self.sample_width
-
-        if channels is None:
-            channels = self.channels
 
         return subprocess.run(
             [
@@ -44,21 +34,11 @@ def convert_wav(
         ).stdout
 
 def maybe_convert_wav(
-    self,
     wav_bytes: bytes,
-    sample_rate: typing.Optional[int] = None,
-    sample_width: typing.Optional[int] = None,
-    channels: typing.Optional[int] = None,
+    sample_rate: int,
+    sample_width: int,
+    channels: int,
 ) -> bytes:
-    """Converts WAV data to required format if necessary. Returns raw audio."""
-    if sample_rate is None:
-        sample_rate = self.sample_rate
-
-    if sample_width is None:
-        sample_width = self.sample_width
-
-    if channels is None:
-        channels = self.channels
 
     with io.BytesIO(wav_bytes) as wav_io:
         with wave.open(wav_io, "rb") as wav_file:
@@ -68,7 +48,7 @@ def maybe_convert_wav(
                 or (wav_file.getnchannels() != channels)
             ):
                 # Return converted wav
-                return self.convert_wav(
+                return convert_wav(
                     wav_bytes,
                     sample_rate=sample_rate,
                     sample_width=sample_width,
