@@ -61,7 +61,7 @@ class Node:
         for rate in supported_rates:
             print(rate)
 
-        self.sample_rate = 16000
+        self.sample_rate = supported_rates[0]
         self.sample_width = 2
         self.channels = 1
         

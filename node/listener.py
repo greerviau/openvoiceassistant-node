@@ -4,6 +4,7 @@ import collections
 import webrtcvad
 
 from node.wake import KaldiWake
+from node.utils.audio import *
 from node import config
 
 
@@ -64,7 +65,7 @@ class Listener:
 
             audio_data.append(chunk)
 
-            self.vad_audio_data += chunk
+            self.vad_audio_data += maybe_convert_wav(chunk, sample_rate=16000, sample_width=2, channels=1)
 
             is_speech = False
 

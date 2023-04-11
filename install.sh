@@ -5,7 +5,7 @@ apt install -y python3-pip python3-venv python3-pyaudio \
                 libgirepository1.0-dev libcairo2-dev \
                 gfortran gcc libopenblas-dev libopenblas-base \
                 libblas-dev llvm python3-scipy build-essential \
-                portaudio19-dev
+                portaudio19-dev sox
 
 CWD=$(pwd)
 
