@@ -4,7 +4,6 @@ from typing import Union
 import wave
 import os
 import numpy as np
-import librosa
 import io
 
 def convert_wav(
@@ -102,10 +101,3 @@ def load_wave(wave_file_path: str):
     if not os.path.exists(wave_file_path):
         raise RuntimeError('Audio file does not exist')
     return wave.open(wave_file_path, 'rb')
-
-def create_numpy_waveform(audio_data: bytes):
-    return np.frombuffer(audio_data, dtype=np.int16).flatten().astype(np.float32) / 32768.0
-
-def resample_waveform(y: np.ndarray, sr_native: int, sr_resample: int) -> np.ndarray:
-    print('Re-sampling waveform')
-    return librosa.resample(y, orig_sr=sr_native, target_sr=sr_resample)
