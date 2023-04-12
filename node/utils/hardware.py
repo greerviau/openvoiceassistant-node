@@ -3,7 +3,7 @@ from typing import List, Dict, Tuple, Union
 import sounddevice as sd
 import pyaudio
 
-def find_devices(kind) -> List[Dict]:
+def find_devices(kind) -> Dict[int, Dict]:
     if kind not in ['input', 'output']:
         raise RuntimeError('Device kind must be \"input\" or \"output\"')
     devices = sd.query_devices()
@@ -16,10 +16,10 @@ def find_devices(kind) -> List[Dict]:
             pass
     return filtered
 
-def find_microphones() -> List[Dict]:
+def find_microphones() -> Dict[int, Dict]:
     return find_devices('input')
 
-def find_speakers() -> List[Dict]:
+def find_speakers() -> Dict[int, Dict]:
     return find_devices('output')
 
 def list_microphones() -> List[str]:
