@@ -170,7 +170,8 @@ class Node:
                 save_wave('response.wav',
                             bytes.fromhex(response_audio_data_hex),
                             response_sample_rate,
-                            response_sample_width)
+                            response_sample_width,
+                            1)
                 
                 self.audio_player.play_audio_file('response.wav')
                 time.sleep(0.2)
