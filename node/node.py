@@ -48,7 +48,7 @@ class Node:
         self.hub_ip = config.get('hub_ip')
         self.vad_sensitivity = config.get('vad_sensitivity')
 
-        self.hub_api_url = f'http://{hub_ip}:{5010}/api'
+        self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
         
         print('Available Microphones:')
         [print(mic) for mic in list_microphones()]
