@@ -79,7 +79,7 @@ class PyaudioPlayer(AudioPlayer):
         CHUNK = 1024
         stream = self.p.open(format=self.p.get_format_from_width(wave_file.getsampwidth()),
                             channels=wave_file.getnchannels(),
-                            rate=wave_file.getframerate(),
+                            rate=self.sample_rate,
                             output=True,
                             output_device_index=self.speaker_idx)
 
