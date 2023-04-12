@@ -18,6 +18,10 @@ class Listener:
         self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
 
+        self.stream = node.stream
+        self.audio_player = node.audio_player
+        self.pause_flag = node.pause_flag
+
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
         
@@ -33,12 +37,11 @@ class Listener:
         self.engaged_delay = 3 # 5sec
     
     def listen(self, engaged: bool=False):
-        self.node.stream.reset()
         audio_data = []
         if not engaged:
-            self.wake.listen_for_wake_word(self.node.stream)
+            self.wake.listen_for_wake_word(self.stream)
 
-        self.node.pause_flag.set()
+        self.pause_flag.set()
         
         if self.wakeup_sound:
             self.node.audio_player.play_audio_file('node/sounds/activate.wav')
@@ -47,13 +50,13 @@ class Listener:
         # Capture ~0.5 seconds of audio
         s = time.time()
         while time.time() - s < 0.5:
-            chunk = self.node.stream.get_chunk()
+            chunk = self.stream.get_chunk()
             audio_data.append(chunk)
 
         start = time.time()
 
         while True:
-            chunk = self.node.stream.get_chunk()
+            chunk = self.stream.get_chunk()
 
             if chunk:
 
@@ -88,9 +91,9 @@ class Listener:
                         # Capture ~0.5 seconds of audio
                         s = time.time()
                         while time.time() - s < 0.5:
-                            chunk = self.node.stream.get_chunk()
+                            chunk = self.stream.get_chunk()
                             audio_data.append(chunk)
 
                         if self.wakeup_sound:
-                            self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
+                            self.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                         return b''.join(audio_data)

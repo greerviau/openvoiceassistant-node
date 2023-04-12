@@ -32,9 +32,6 @@ class Stream:
 
     def get_chunk(self) -> bytes:
         return self.buffer.get()
-    
-    def reset(self):
-        self.buffer.queue.clear()
 
 class PyaudioStream(Stream):
 
@@ -63,12 +60,12 @@ class PyaudioStream(Stream):
             rate=self.sample_rate,
             frames_per_buffer=self.frames_per_buffer,
             input=True,
-            stream_callback=callback,
+            stream_callback=callback
         )
 
         assert mic is not None
         mic.start_stream()
-        print("Recording audio")
+        print("Pyaudio stream started")
 
         while mic.is_active():
             if not self.RECORDING:
