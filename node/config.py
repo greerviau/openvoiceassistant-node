@@ -5,6 +5,7 @@ import uuid
 import random
 
 from node.utils.network import get_my_ip, scan_for_hub
+from node.utils.hardware import find_speakers, find_microphones
 
 loc = os.path.realpath(os.path.dirname(__file__))
 config_path = f'{loc}/config.json'
@@ -65,8 +66,8 @@ def __default_config():
         "node_name": node_id,
         "device_ip": device_ip,
         "hub_ip": hub_ip,
-        "mic_index": 0,
-        "speaker_index": 0,
+        "mic_index": list(find_microphones().keys())[0],
+        "speaker_index": list(find_speakers().keys())[0],
         "vad_sensitivity": 3,
         "wake_word": "computer",
         "wakeup": {
