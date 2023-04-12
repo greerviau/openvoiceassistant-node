@@ -46,39 +46,34 @@ class PyaudioStream(Stream):
         self.RECORDING = False
 
     def stream(self):
-        try:
-            audio = pyaudio.PyAudio()
+        audio = pyaudio.PyAudio()
 
-            def callback(in_data, frame_count, time_info, status):
-                if in_data:
-                    self.buffer.put(in_data)
-                    self.recording_buffer.append(in_data)
+        def callback(in_data, frame_count, time_info, status):
+            if in_data:
+                self.buffer.put(in_data)
+                self.recording_buffer.append(in_data)
 
-                return (None, pyaudio.paContinue)
+            return (None, pyaudio.paContinue)
 
-            # Open device
-            mic = audio.open(
-                input_device_index=self.device_idx,
-                channels=self.channels,
-                format=audio.get_format_from_width(self.sample_width),
-                rate=self.sample_rate,
-                frames_per_buffer=self.frames_per_buffer,
-                input=True,
-                stream_callback=callback,
-            )
+        # Open device
+        mic = audio.open(
+            input_device_index=self.device_idx,
+            channels=self.channels,
+            format=audio.get_format_from_width(self.sample_width),
+            rate=self.sample_rate,
+            frames_per_buffer=self.frames_per_buffer,
+            input=True,
+            stream_callback=callback,
+        )
 
-            assert mic is not None
-            mic.start_stream()
-            print("Recording audio")
+        assert mic is not None
+        mic.start_stream()
+        print("Recording audio")
 
-            while mic.is_active():
-                if not self.RECORDING:
-                    break
-                time.sleep(0.1)
+        while mic.is_active():
+            if not self.RECORDING:
+                break
+            time.sleep(0.1)
 
-            mic.stop_stream()
-            audio.terminate()
-
-        except Exception as e:
-            print(repr(e))
-            print("Error recording")
+        mic.stop_stream()
+        audio.terminate()
