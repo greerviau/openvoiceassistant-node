@@ -4,11 +4,16 @@ from typing import Union
 import wave
 
 def convert_wav(
-        wav_bytes: bytes,
+        wav: Union[wave.Wave_read, bytes],
         sample_rate: int,
         sample_width: int,
         channels: int,
     ) -> bytes:
+
+        if isinstance(wav, wave.Wave_read):
+            wav_bytes = wav.readframes(wav.getnframes())
+        else:
+            wav_bytes = wav
 
         return subprocess.run(
             [
@@ -34,7 +39,7 @@ def convert_wav(
         ).stdout
 
 def maybe_convert_wav(
-    wav: Union[bytes, wave.Wave_read],
+    wav: Union[wave.Wave_read, bytes],
     sample_rate: int,
     sample_width: int,
     channels: int,
@@ -42,23 +47,23 @@ def maybe_convert_wav(
 
     if isinstance(wav, wave.Wave_read):
         wav_bytes = wav.readframes(wav.getnframes())
+        wav_file = wav
     else:
         wav_bytes = wav
+        wav_file = wave.open(io.BytesIO(wav_bytes), "rb")
 
-    with io.BytesIO(wav_bytes) as wav_io:
-        with wave.open(wav_io, "rb") as wav_file:
-            if (
-                (wav_file.getframerate() != sample_rate)
-                or (wav_file.getsampwidth() != sample_width)
-                or (wav_file.getnchannels() != channels)
-            ):
-                # Return converted wav
-                return convert_wav(
-                    wav_bytes,
-                    sample_rate=sample_rate,
-                    sample_width=sample_width,
-                    channels=channels,
-                )
+    if (
+        (wav_file.getframerate() != sample_rate)
+        or (wav_file.getsampwidth() != sample_width)
+        or (wav_file.getnchannels() != channels)
+    ):
+        # Return converted wav
+        return convert_wav(
+            wav_bytes,
+            sample_rate=sample_rate,
+            sample_width=sample_width,
+            channels=channels,
+        )
 
-            # Return original audio
-            return wav_file.readframes(wav_file.getnframes())
+    # Return original audio
+    return wav_file.readframes(wav_file.getnframes())

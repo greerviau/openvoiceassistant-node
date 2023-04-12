@@ -71,7 +71,14 @@ class PyaudioPlayer(AudioPlayer):
 
             wf = wave.open(file, 'rb')
 
-            wf = maybe_convert_wav(wf, sample_rate=48000, sample_width=2, channels=1)
+            wav_bytes = maybe_convert_wav(wf, sample_rate=48000, sample_width=2, channels=1)
+
+            wf = wave.open(io.BytesIO(), 'wb')
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(48000)
+            wf.writeframes(wav_bytes)
+            wf.close()
 
             self.pyaudio_stream(wf)
 
