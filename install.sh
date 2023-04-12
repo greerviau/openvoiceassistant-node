@@ -9,8 +9,6 @@ apt install -y python3-pip python3-venv python3-pyaudio \
 
 CWD=$(pwd)
 
-export PA_ALSA_PLUGHW=1
-
 python3 -m venv $CWD/env/node
 
 source $CWD/env/node/bin/activate
