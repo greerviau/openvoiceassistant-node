@@ -15,6 +15,8 @@ def convert_wav(
         else:
             wav_bytes = wav
 
+        print(wav_bytes)
+
         return subprocess.run(
             [
                 "sox",
