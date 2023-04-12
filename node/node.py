@@ -119,8 +119,7 @@ class Node:
         try:
             respond_response = requests.post(
                 f'{self.hub_api_url}/respond/audio',
-                json=payload,
-                timeout=5
+                json=payload
             )
         except Exception as e:
             print(repr(e))
