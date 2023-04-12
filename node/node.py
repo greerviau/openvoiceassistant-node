@@ -75,9 +75,10 @@ class Node:
 
         self.stream = PyaudioStream(self, frames_per_buffer=1200)
         
+        self.listener = Listener(self)
+        
         self.stream.start_stream()
 
-        self.listener = Listener(self)
 
         print('Node Info')
         print('- ID: ', self.node_id)

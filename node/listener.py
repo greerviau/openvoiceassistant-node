@@ -37,6 +37,7 @@ class Listener:
         self.engaged_delay = 3 # 5sec
     
     def listen(self, engaged: bool=False):
+        self.stream.clear()
         audio_data = []
         if not engaged:
             self.wake.listen_for_wake_word(self.stream)
@@ -44,7 +45,7 @@ class Listener:
         self.pause_flag.set()
         
         if self.wakeup_sound:
-            self.node.audio_player.play_audio_file('node/sounds/activate.wav')
+            self.audio_player.play_audio_file('node/sounds/activate.wav')
             #audio_data = [chunk for chunk in self.stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio
