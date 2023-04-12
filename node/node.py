@@ -9,7 +9,7 @@ import threading
 from node import config
 from node.listener import Listener
 from node.stream import PyaudioStream
-from node.audio_player import PydubPlayer
+from node.audio_player import PyaudioPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates, get_input_channels
 #from .utils import noisereduce
 
@@ -70,7 +70,7 @@ class Node:
 
         _, speaker_tag = select_speaker(self.speaker_index)
 
-        self.audio_player = PydubPlayer(self,
+        self.audio_player = PyaudioPlayer(self,
                                         self.speaker_index)
 
         self.stream = PyaudioStream(self,
@@ -130,7 +130,8 @@ class Node:
         try:
             respond_response = requests.post(
                 f'{self.hub_api_url}/respond/audio',
-                json=payload
+                json=payload,
+                timeout=5
             )
         except Exception as e:
             print(repr(e))
