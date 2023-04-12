@@ -54,7 +54,8 @@ class Listener:
             #audio_data = [chunk for chunk in self.stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio
-        for _ in range(20):
+        s = time.time()
+        while time.time() - s < 0.5:
             chunk = self.node.stream.get_chunk()
             audio_data.append(chunk)
 
@@ -94,9 +95,11 @@ class Listener:
 
                     if not is_speech:
                         # Capture ~0.5 seconds of audio
-                        for _ in range(10):
+                        s = time.time()
+                        while time.time() - s < 0.5:
                             chunk = self.node.stream.get_chunk()
                             audio_data.append(chunk)
+                            
                         if self.wakeup_sound:
                             self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                         return b''.join(audio_data)
