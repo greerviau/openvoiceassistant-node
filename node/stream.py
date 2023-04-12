@@ -17,7 +17,7 @@ class Stream:
                  recording_buffer_size: int = 12
     ):
         self.node = node
-        self.device_idx = node.device_idx
+        self.device_idx = node.mic_idx
         self.sample_rate = node.sample_rate
         self.channels = node.channels
         self.sample_width = node.sample_width

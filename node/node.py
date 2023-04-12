@@ -43,10 +43,10 @@ class Node:
     def initialize(self):
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
-        self.mic_index = config.get('mic_index')
-        self.speaker_index = config.get('speaker_index')
-        hub_ip = config.get('hub_ip')
-        vad_sensitivity = config.get('vad_sensitivity')
+        self.mic_idx = config.get('mic_index')
+        self.speaker_idx = config.get('speaker_index')
+        self.hub_ip = config.get('hub_ip')
+        self.vad_sensitivity = config.get('vad_sensitivity')
 
         self.hub_api_url = f'http://{hub_ip}:{5010}/api'
         
@@ -81,14 +81,14 @@ class Node:
         print('Node Info')
         print('- ID: ', self.node_id)
         print('- Name: ', self.node_name)
-        print('- HUB: ', hub_ip)
+        print('- HUB: ', self.hub_ip)
         print('Settings')
         print('- Microphone: ', mic_tag)
         print('- Speaker: ', speaker_tag)
         print('- Sample Rate: ', self.sample_rate)
         print('- Sample Width: ', self.sample_width)
         print('- Channels: ', self.channels)
-        print('- VAD Sensitivity: ', vad_sensitivity)
+        print('- VAD Sensitivity: ', self.vad_sensitivity)
 
     def process_audio(self, audio_data: bytes):
         print('Sending to server')

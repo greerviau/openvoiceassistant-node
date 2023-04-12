@@ -11,8 +11,7 @@ from node import config
 class Listener:
     def __init__(self, node: 'Node'):
         self.node = node
-        self.wake_word = node.wake_word
-        self.device_idx = node.device_idx
+        self.wake_word = config.get('wake_word')
         self.sample_rate = node.sample_rate
         self.sample_width = node.sample_width
         self.channels = node.channels
