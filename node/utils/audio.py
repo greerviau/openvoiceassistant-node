@@ -1,6 +1,6 @@
 import io
 import subprocess
-import typing
+from typing import Union
 import wave
 
 def convert_wav(
@@ -34,11 +34,16 @@ def convert_wav(
         ).stdout
 
 def maybe_convert_wav(
-    wav_bytes: bytes,
+    wav: Union[bytes, wave.Wave_read],
     sample_rate: int,
     sample_width: int,
     channels: int,
 ) -> bytes:
+
+    if isinstance(wav, wave.Wave_read):
+        wav_bytes = wav.readframes(wav.getnframes())
+    else:
+        wav_bytes = wav
 
     with io.BytesIO(wav_bytes) as wav_io:
         with wave.open(wav_io, "rb") as wav_file:

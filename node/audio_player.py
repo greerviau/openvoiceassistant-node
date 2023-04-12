@@ -7,6 +7,8 @@ from pydub.playback import play
 from typing import Tuple
 import threading
 
+from node.utils.audio import *
+
 class AudioPlayer:
     def __init__(self, node: 'Node', speaker_idx: int):
         self.node = node
@@ -68,6 +70,8 @@ class PyaudioPlayer(AudioPlayer):
                 raise RuntimeError('Audio file does not exist')
 
             wf = wave.open(file, 'rb')
+
+            wf = maybe_convert_wav(wf, sample_rate=48000, sample_width=2, channels=1)
 
             self.pyaudio_stream(wf)
 
