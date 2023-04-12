@@ -172,7 +172,7 @@ class Node:
                             response_sample_rate,
                             response_sample_width)
                 
-                self.audio_player.play_audio_file('response.wav'
+                self.audio_player.play_audio_file('response.wav')
                 time.sleep(0.2)
         else:
             print('HUB did not respond')
