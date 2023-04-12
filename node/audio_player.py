@@ -52,9 +52,9 @@ class PyaudioPlayer(AudioPlayer):
     def play_audio_bytes(self, audio_bytes: bytes, sample_rate: int, sample_width: int, channels: int, asynchronous:bool=False):
         def play_audio():      
 
-            wf = wave.open(io.BytesIo(), 'rb')
+            wf = wave.open(io.BytesIO(), 'wb')
             wf.setframerate(sample_rate)
-            wf.setsamplewidth(sample_width)
+            wf.setsampwidth(sample_width)
             wf.setnchannels(channels)
             wf.writeframes(audio_bytes)
 
