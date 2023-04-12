@@ -67,3 +67,13 @@ def maybe_convert_wav(
 
     # Return original audio
     return wav_file.readframes(wav_file.getnframes())
+
+def convert_to_wav(audio_data: bytes, sample_rate: int, sample_width: int, channels: int) -> bytes:
+    wave_io = io.BytesIO()
+    wf = wave.open(wave_io, 'wb')
+    wf.setnchannels(channels)
+    wf.setsampwidth(sample_width)
+    wf.setframerate(sample_rate)
+    wf.writeframes(audio_data)
+
+    return wave_io.getvalue()
