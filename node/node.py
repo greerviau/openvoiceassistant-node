@@ -7,6 +7,7 @@ import sounddevice as sd
 import threading
 
 from node import config
+from node.utils.audio import save_wave
 from node.listener import Listener
 from node.stream import PyaudioStream
 from node.audio_player import PyaudioPlayer
@@ -165,11 +166,14 @@ class Node:
             response_sample_width = context['response_audio_sample_width']
 
             if response is not None:
-                self.audio_player.play_audio_bytes(bytes.fromhex(response_audio_data_hex), 
-                                                    self.sample_rate, 
-                                                    self.sample_width,
-                                                    self.channels)
-                time.sleep(0.5)
+
+                save_wave('response.wav',
+                            bytes.fromhex(response_audio_data_hex),
+                            response_sample_rate,
+                            response_sample_width)
+                
+                self.audio_player.play_audio_file('response.wav'
+                time.sleep(0.2)
         else:
             print('HUB did not respond')
 
