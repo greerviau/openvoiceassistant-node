@@ -54,7 +54,7 @@ class Node:
         print('Available Microphones:')
         [print(mic) for mic in list_microphones()]
 
-        _, mic_tag = select_mic(self.mic_idx)
+        _, self.mic_tag = select_mic(self.mic_idx)
 
         rates = [16000, 48000, 32000, 8000]
         supported_rates = get_supported_samplerates(self.mic_idx, rates)
@@ -69,7 +69,7 @@ class Node:
         print('Available Speakers')
         [print(speaker) for speaker in list_speakers()]
 
-        _, speaker_tag = select_speaker(self.speaker_idx)
+        _, self.speaker_tag = select_speaker(self.speaker_idx)
 
         self.audio_player = PyaudioPlayer(self)
 
