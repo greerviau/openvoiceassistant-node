@@ -52,7 +52,9 @@ class PyaudioPlayer(AudioPlayer):
     def play_audio_bytes(self, audio_bytes: bytes, sample_rate: int, sample_width: int, channels: int, asynchronous:bool=False):
         def play_audio():      
 
-            self.pyaudio_stream(wave.open(io.BytesIO(convert_to_wav(audio_bytes, sample_rate, sample_width, channels)), "rb"))
+            wf = wave.open(io.BytesIO(convert_to_wav(audio_bytes, sample_rate, sample_width, channels)), "rb")
+
+            self.pyaudio_stream(wf)
             
         if asynchronous:
             threading.Thread(target=play_audio).start()
@@ -77,7 +79,7 @@ class PyaudioPlayer(AudioPlayer):
         CHUNK = 1024
         stream = self.p.open(format=self.p.get_format_from_width(wave_file.getsampwidth()),
                             channels=wave_file.getnchannels(),
-                            rate=self.sample_rate,
+                            rate=wave_file.getframerate(),
                             output=True,
                             output_device_index=self.speaker_idx)
 
