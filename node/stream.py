@@ -37,12 +37,12 @@ class PyaudioStream(Stream):
 
     def start_stream(self):
         self.RECORDING = True
-        threading.Thread(target=self.stream, daemon=True).start()
+        threading.Thread(target=self.run_stream, daemon=True).start()
 
     def stop_stream(self):
         self.RECORDING = False
 
-    def stream(self):
+    def run_stream(self):
         audio = pyaudio.PyAudio()
 
         def callback(in_data, frame_count, time_info, status):
