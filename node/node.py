@@ -166,9 +166,9 @@ class Node:
 
             if response is not None:
                 self.audio_player.play_audio_bytes(bytes.fromhex(response_audio_data_hex), 
-                                                    response_sample_rate, 
-                                                    response_sample_width,
-                                                    1)
+                                                    self.sample_rate, 
+                                                    self.sample_width,
+                                                    self.channels)
                 time.sleep(0.5)
         else:
             print('HUB did not respond')
