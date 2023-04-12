@@ -41,8 +41,8 @@ class PydubPlayer(AudioPlayer):
 
 class PyaudioPlayer(AudioPlayer):
 
-    def __init__(self, speaker_idx: int):
-        super().__init__(speaker_idx)
+    def __init__(self, node: 'Node', speaker_idx: int):
+        super().__init__(node, speaker_idx)
 
         self.p = pyaudio.PyAudio()
 
