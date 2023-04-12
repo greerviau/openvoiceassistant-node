@@ -13,18 +13,14 @@ from typing import List, Tuple
 class Stream:
     def __init__(self, 
                  node: 'Node',
-                 device_idx: int, 
-                 sample_rate: int, 
-                 channels: int, 
-                 sample_width: int,
                  frames_per_buffer: int = 1024,
                  recording_buffer_size: int = 12
     ):
         self.node = node
-        self.device_idx = device_idx
-        self.sample_rate = sample_rate
-        self.channels = channels
-        self.sample_width = sample_width
+        self.device_idx = node.device_idx
+        self.sample_rate = node.sample_rate
+        self.channels = node.channels
+        self.sample_width = node.sample_width
         self.frames_per_buffer = frames_per_buffer
 
         # Define a buffer to store audio frames

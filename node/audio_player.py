@@ -10,9 +10,10 @@ import threading
 from node.utils.audio import *
 
 class AudioPlayer:
-    def __init__(self, node: 'Node', speaker_idx: int):
+    def __init__(self, node: 'Node'):
         self.node = node
-        self.speaker_idx = speaker_idx
+        self.speaker_idx = node.speaker_idx
+        self.sample_rate = node.sample_rate
 
 
 class PydubPlayer(AudioPlayer):
@@ -43,8 +44,8 @@ class PydubPlayer(AudioPlayer):
 
 class PyaudioPlayer(AudioPlayer):
 
-    def __init__(self, node: 'Node', speaker_idx: int):
-        super().__init__(node, speaker_idx)
+    def __init__(self, node: 'Node'):
+        super().__init__(node)
 
         self.p = pyaudio.PyAudio()
 
@@ -82,7 +83,7 @@ class PyaudioPlayer(AudioPlayer):
         CHUNK = 1024
         stream = self.p.open(format=self.p.get_format_from_width(wave_file.getsampwidth()),
                             channels=wave_file.getnchannels(),
-                            rate=48000,
+                            rate=self.sample_rate,
                             output=True,
                             output_device_index=self.speaker_idx)
 

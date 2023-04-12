@@ -9,22 +9,14 @@ from node import config
 
 
 class Listener:
-    def __init__(self, 
-                 node: 'Node',
-                 wake_word: str, 
-                 device_idx: int, 
-                 sample_rate: int, 
-                 sample_width: int,
-                 channels: int,
-                 sensitivity: int,
-    ):
+    def __init__(self, node: 'Node'):
         self.node = node
-        self.wake_word = wake_word
-        self.device_idx = device_idx
-        self.sample_rate = sample_rate
-        self.sample_width = sample_width
-        self.channels = channels
-        self.sensitivity = sensitivity
+        self.wake_word = node.wake_word
+        self.device_idx = node.device_idx
+        self.sample_rate = node.sample_rate
+        self.sample_width = node.sample_width
+        self.channels = node.channels
+        self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
 
         # Define a recording buffer for the start of the recording
@@ -34,7 +26,7 @@ class Listener:
                               sample_rate=self.sample_rate)
         
         self.vad = webrtcvad.Vad()
-        self.vad.set_mode(sensitivity)
+        self.vad.set_mode(self.sensitivity)
 
         self.vad_chunk_size = 960 # 30ms
         self.vad_audio_data = bytes()
@@ -99,7 +91,7 @@ class Listener:
                         while time.time() - s < 0.5:
                             chunk = self.node.stream.get_chunk()
                             audio_data.append(chunk)
-                            
+
                         if self.wakeup_sound:
                             self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                         return b''.join(audio_data)

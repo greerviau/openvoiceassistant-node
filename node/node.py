@@ -70,25 +70,13 @@ class Node:
 
         _, speaker_tag = select_speaker(self.speaker_index)
 
-        self.audio_player = PyaudioPlayer(self,
-                                        self.speaker_index)
+        self.audio_player = PyaudioPlayer(self)
 
-        self.stream = PyaudioStream(self,
-                                    device_idx=self.mic_index,
-                                    sample_rate=self.sample_rate,
-                                    channels=self.channels,
-                                    sample_width=self.sample_width,
-                                    frames_per_buffer=1200)
+        self.stream = PyaudioStream(self, frames_per_buffer=1200)
         
         self.stream.start_stream()
 
-        self.listener = Listener(self,
-                                wake_word=config.get("wake_word"),
-                                device_idx=self.mic_index, 
-                                sample_rate=self.sample_rate, 
-                                sample_width=self.sample_width,
-                                channels=self.channels,
-                                sensitivity=vad_sensitivity)
+        self.listener = Listener(self)
 
         print('Node Info')
         print('- ID: ', self.node_id)
