@@ -10,9 +10,15 @@ from node import config
 from node.utils.audio import save_wave
 from node.listener import Listener
 from node.stream import PyaudioStream
-from node.audio_player import PyaudioPlayer
+from node.audio_player import PyaudioPlayer, SimpleAudioPlayer, PydubPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates, get_input_channels
 #from .utils import noisereduce
+
+PLAYBACK = {
+    "pyaudio": PyaudioPlayer,
+    "simpleaudio": SimpleAudioPlayer,
+    "pydub": PydubPlayer
+}
 
 class Node:
     def __init__(self, debug: bool):
@@ -71,10 +77,11 @@ class Node:
 
         _, self.speaker_tag = select_speaker(self.speaker_idx)
 
-        self.audio_player = PyaudioPlayer(self)
+        playback_algo = config.get('playback', 'algorithm')
+        self.audio_player = PLAYBACK[playback_algo](self)
 
         self.stream = PyaudioStream(self, frames_per_buffer=1200)
-        
+
         self.listener = Listener(self)
         
         self.stream.start_stream()
@@ -85,6 +92,7 @@ class Node:
         print('- Name: ', self.node_name)
         print('- HUB: ', self.hub_ip)
         print('Settings')
+        print('- Playback: ', playback_algo)
         print('- Microphone: ', self.mic_tag)
         print('- Speaker: ', self.speaker_tag)
         print('- Sample Rate: ', self.sample_rate)

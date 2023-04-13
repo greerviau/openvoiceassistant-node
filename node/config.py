@@ -86,10 +86,10 @@ def __default_config():
             ]
         },
         "playback": {
-            "algorithm": "aplay",
+            "algorithm": "pyaudio",
             "algorithm_options": [
-                "aplay",
                 "pyaudio",
+                "aplay",
                 "pydub"
             ]
         },

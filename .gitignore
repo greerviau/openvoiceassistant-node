@@ -154,5 +154,6 @@ cython_debug/
 .DS_Store
 config.json
 command.wav
+response.wav
 model
 vosk_model
