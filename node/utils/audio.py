@@ -33,7 +33,8 @@ def convert_wav(
                 "-c",
                 str(channels),
                 "-t",
-                "raw"
+                "raw",
+                "-",
             ],
             check=True,
             stdout=subprocess.PIPE,
