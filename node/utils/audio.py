@@ -18,7 +18,7 @@ def resample_wav(
         else:
             wav_bytes = wav
 
-        return subprocess.run(
+        resampled = subprocess.run(
             [
                 "sox",
                 "-t",
@@ -40,6 +40,8 @@ def resample_wav(
             stdout=subprocess.PIPE,
             input=wav_bytes,
         ).stdout
+
+        return convert_to_wav(resampled, sample_rate, sample_width, channels)
 
 def maybe_resample_wav(
     wav: Union[wave.Wave_read, bytes],
