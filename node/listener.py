@@ -73,7 +73,7 @@ class Listener:
 
                     wav_bytes = wav_buffer.getvalue()
 
-                    self.vad_audio_data += maybe_convert_wav(wav_bytes, sample_rate=16000, sample_width=2, channels=1)
+                    self.vad_audio_data += maybe_resample_wav(wav_bytes, sample_rate=16000, sample_width=2, channels=1)
 
                     is_speech = False
 
