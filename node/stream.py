@@ -63,21 +63,21 @@ class PyaudioStream(Stream):
                 format=audio.get_format_from_width(self.sample_width),
                 rate=self.sample_rate,
                 frames_per_buffer=self.frames_per_buffer,
-                input=True
+                input=True,
+                stream_callback=callback
             )
 
             assert mic is not None
-            #mic.start_stream()
+            mic.start_stream()
             print("Pyaudio stream started")
 
-            while self.RECORDING:
-                #time.sleep(0.1)
-                in_data = mic.read(self.frames_per_buffer)
-                self.buffer.put(in_data)
-                self.recording_buffer.append(in_data)
+            while mic.is_active():
+                time.sleep(0.1)
+                if not self.RECORDING:
+                    break
 
             print("Finished recording")
-            #mic.stop_stream()
+            mic.stop_stream()
             audio.terminate()
 
         except Exception as e:
