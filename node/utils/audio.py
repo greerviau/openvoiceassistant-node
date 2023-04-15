@@ -7,16 +7,11 @@ import numpy as np
 import io
 
 def convert_wav(
-        wav: Union[wave.Wave_read, bytes],
+        wav_bytes: bytes,
         sample_rate: int,
         sample_width: int,
         channels: int,
     ) -> bytes:
-
-        if isinstance(wav, wave.Wave_read):
-            wav_bytes = wav.readframes(wav.getnframes())
-        else:
-            wav_bytes = wav
 
         return subprocess.run(
             [
