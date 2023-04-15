@@ -96,7 +96,7 @@ class PyaudioPlayer(AudioPlayer):
                         sample_rate: int, 
                         sample_width: int, 
                         channels: int, 
-                        resample: bool = False, 
+                        resample: bool = True, 
                         asynchronous: bool = False
     ):
         def play_audio():      
@@ -113,16 +113,15 @@ class PyaudioPlayer(AudioPlayer):
         else:
             play_audio()
 
-    def play_audio_file(self, file: str, resample: bool = False, asynchronous: bool = False):
+    def play_audio_file(self, file: str, resample: bool = True, asynchronous: bool = False):
         def play_audio():
             if not os.path.exists(file):
                 raise RuntimeError('Audio file does not exist')
 
             wf = wave.open(file, 'rb')
-            wf_bytes = convert_to_wav(wf)
             if resample:
-                wf_bytes = maybe_resample_wav(wf_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
-            wf = wave.open(io.BytesIO(wf_bytes), 'rb')
+                wf_bytes = maybe_resample_wav(wf, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
+                wf = wave.open(io.BytesIO(wf_bytes), 'rb')
 
             self.play_pyaudio(wf)
 
