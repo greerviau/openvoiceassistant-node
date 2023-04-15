@@ -50,6 +50,7 @@ def maybe_resample_wav(
 
     if isinstance(wav, wave.Wave_read):
         wav_bytes = wav.readframes(wav.getnframes())
+        wav_bytes = convert_to_wav(wav_bytes, wav.getframerate(), wav.getsampwidth(), wav.getnchannels())
         wav_file = wav
     else:
         wav_bytes = wav
