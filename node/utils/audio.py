@@ -33,8 +33,7 @@ def convert_wav(
                 "-c",
                 str(channels),
                 "-t",
-                "raw",
-                "-",
+                "raw"
             ],
             check=True,
             stdout=subprocess.PIPE,
@@ -49,7 +48,6 @@ def maybe_convert_wav(
 ) -> bytes:
 
     if isinstance(wav, wave.Wave_read):
-        print('Converting wav read')
         wav_bytes = wav.readframes(wav.getnframes())
         wav_file = wav
     else:
