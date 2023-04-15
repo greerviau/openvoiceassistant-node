@@ -109,6 +109,8 @@ class PyaudioPlayer(AudioPlayer):
                 raise RuntimeError('Audio file does not exist')
 
             wf = wave.open(file, 'rb')
+            wf_bytes = maybe_convert_wav(wf, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
+            wf = wave.open(io.BytesIO(wf_bytes), 'rb')
 
             self.play_pyaudio(wf)
 
