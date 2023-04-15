@@ -80,7 +80,7 @@ class Node:
         playback_algo = config.get('playback', 'algorithm')
         self.audio_player = PLAYBACK[playback_algo](self)
 
-        self.stream = PyaudioStream(self, frames_per_buffer=1200)
+        self.stream = PyaudioStream(self, frames_per_buffer=8000)
 
         self.listener = Listener(self)
         
