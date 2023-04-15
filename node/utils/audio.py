@@ -49,6 +49,7 @@ def maybe_convert_wav(
 ) -> bytes:
 
     if isinstance(wav, wave.Wave_read):
+        print('Converting wav read')
         wav_bytes = wav.readframes(wav.getnframes())
         wav_file = wav
     else:
