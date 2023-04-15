@@ -6,12 +6,17 @@ import os
 import numpy as np
 import io
 
-def convert_wav(
-        wav_bytes: bytes,
+def resample_wav(
+        wav: Union[wave.Wave_read, bytes],
         sample_rate: int,
         sample_width: int,
         channels: int,
     ) -> bytes:
+
+        if isinstance(wav, wave.Wave_read):
+            wav_bytes = wav.readframes(wav.getnframes())
+        else:
+            wav_bytes = wav
 
         return subprocess.run(
             [
@@ -29,14 +34,14 @@ def convert_wav(
                 str(channels),
                 "-t",
                 "raw",
-                "-",
+                "-"
             ],
             check=True,
             stdout=subprocess.PIPE,
             input=wav_bytes,
         ).stdout
 
-def maybe_convert_wav(
+def maybe_resample_wav(
     wav: Union[wave.Wave_read, bytes],
     sample_rate: int,
     sample_width: int,
@@ -56,7 +61,7 @@ def maybe_convert_wav(
         or (wav_file.getnchannels() != channels)
     ):
         # Return converted wav
-        return convert_wav(
+        return resample_wav(
             wav_bytes,
             sample_rate=sample_rate,
             sample_width=sample_width,

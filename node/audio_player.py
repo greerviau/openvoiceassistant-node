@@ -91,10 +91,20 @@ class PyaudioPlayer(AudioPlayer):
 
         self.p = pyaudio.PyAudio()
 
-    def play_audio_bytes(self, audio_bytes: bytes, sample_rate: int, sample_width: int, channels: int, asynchronous:bool=False):
+    def play_audio_bytes(self, 
+                        audio_bytes: bytes, 
+                        sample_rate: int, 
+                        sample_width: int, 
+                        channels: int, 
+                        resample: bool = False, 
+                        asynchronous: bool = False
+    ):
         def play_audio():      
 
-            wf = wave.open(io.BytesIO(maybe_convert_wav(audio_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)), "rb")
+            wf_bytes = convert_to_wav(audio_bytes, sample_rate, sample_width, channels)
+            if resample:
+                wf_bytes = maybe_resample_wav(wf_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
+            wf = wave.open(io.BytesIO(wf_bytes), "rb")
 
             self.play_pyaudio(wf)
             
@@ -103,13 +113,15 @@ class PyaudioPlayer(AudioPlayer):
         else:
             play_audio()
 
-    def play_audio_file(self, file: str, asynchronous:bool=False):
+    def play_audio_file(self, file: str, resample: bool = False, asynchronous: bool = False):
         def play_audio():
             if not os.path.exists(file):
                 raise RuntimeError('Audio file does not exist')
 
             wf = wave.open(file, 'rb')
-            wf_bytes = maybe_convert_wav(wf, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
+            wf_bytes = convert_to_wav(wf)
+            if resample:
+                wf_bytes = maybe_resample_wav(wf_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
             wf = wave.open(io.BytesIO(wf_bytes), 'rb')
 
             self.play_pyaudio(wf)
