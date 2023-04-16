@@ -104,6 +104,7 @@ class PyaudioPlayer(AudioPlayer):
             wf_bytes = convert_to_wav(audio_bytes, sample_rate, sample_width, channels)
             if resample:
                 wf_bytes = maybe_resample_wav(wf_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
+                wf_bytes = convert_to_wav(wf_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
             wf = wave.open(io.BytesIO(wf_bytes), "rb")
 
             self.play_pyaudio(wf)
@@ -121,6 +122,7 @@ class PyaudioPlayer(AudioPlayer):
             wf = wave.open(file, 'rb')
             if resample:
                 wf_bytes = maybe_resample_wav(wf, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
+                wf_bytes = convert_to_wav(wf_bytes, self.speaker_sample_rate, self.speaker_sample_width, self.speaker_channels)
                 wf = wave.open(io.BytesIO(wf_bytes), 'rb')
 
             self.play_pyaudio(wf)
