@@ -90,6 +90,7 @@ def __default_config():
             "algorithm_options": [
                 "pyaudio",
                 "aplay",
+                "simpleaudio",
                 "pydub"
             ]
         },

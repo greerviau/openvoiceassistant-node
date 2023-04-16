@@ -16,9 +16,9 @@ def resample_wav(
         if isinstance(wav, wave.Wave_read):
             wav_bytes = wav.readframes(wav.getnframes())
         else:
-            wav_bytes = wav
+            wav_bytes = convert_to_wav(wav, sample_rate, sample_width, channels)
 
-        resampled = subprocess.run(
+        return subprocess.run(
             [
                 "sox",
                 "-t",
@@ -41,8 +41,6 @@ def resample_wav(
             input=wav_bytes,
         ).stdout
 
-        return convert_to_wav(resampled, sample_rate, sample_width, channels)
-
 def maybe_resample_wav(
     wav: Union[wave.Wave_read, bytes],
     sample_rate: int,
@@ -52,7 +50,6 @@ def maybe_resample_wav(
 
     if isinstance(wav, wave.Wave_read):
         wav_bytes = wav.readframes(wav.getnframes())
-        wav_bytes = convert_to_wav(wav_bytes, wav.getframerate(), wav.getsampwidth(), wav.getnchannels())
         wav_file = wav
     else:
         wav_bytes = wav
