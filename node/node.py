@@ -50,10 +50,10 @@ class Node:
     def initialize(self):
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
-        self.mic_idx = config.get('mic_index')
-        self.speaker_idx = config.get('speaker_index')
         self.hub_ip = config.get('hub_ip')
-        self.vad_sensitivity = config.get('vad_sensitivity')
+        self.mic_idx = config.get('recording', 'mic_index')
+        self.vad_sensitivity = config.get('recording', 'vad_sensitivity')
+        self.speaker_idx = config.get('playback', 'speaker_index')
 
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
         

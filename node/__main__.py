@@ -21,9 +21,6 @@ def run_node(debug, no_sync):
         node_name = config.get('node_name')
         device_ip = config.get('device_ip')
         hub_ip = config.get('hub_ip')
-        mic_index = config.get('mic_index')
-        speaker_index = config.get('speaker_index')
-        vad_sensitivity = config.get('vad_sensitivity')
         wakeup = config.get('wakeup')
         recording = config.get('recording')
         playback = config.get('playback')
@@ -34,9 +31,6 @@ def run_node(debug, no_sync):
             'node_id': node_id,
             'node_name': node_name,
             'node_api_url': f'http://{device_ip}:5005/api',
-            'mic_index': mic_index,
-            'speaker_index': speaker_index,
-            'vad_sensitivity': vad_sensitivity,
             'wakeup': wakeup,
             'recording': recording,
             'playback': playback
@@ -51,10 +45,6 @@ def run_node(debug, no_sync):
             config_json = response.json()
             print(config_json)
             config.set('node_name', config_json['node_name'])
-            config.set('mic_index', config_json['mic_index'])
-            config.set('speaker_index', config_json['speaker_index'])
-            config.set('vad_sensitivity', config_json['vad_sensitivity'])
-            config.set('wake_word', config_json['wake_word'])
             config.set('wakeup', config_json['wakeup'])
             config.set('recording', config_json['recording'])
             config.set('playback', config_json['playback'])
