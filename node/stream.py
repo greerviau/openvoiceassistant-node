@@ -30,6 +30,16 @@ class Stream:
 
         self.RECORDING = False
 
+    def start_stream(self):
+        self.RECORDING = True
+        threading.Thread(target=self.run_stream, daemon=True).start()
+
+    def stop_stream(self):
+        self.RECORDING = False
+
+    def run_stream(self):
+        pass
+
     def get_chunk(self) -> bytes:
         return self.buffer.get()
 
@@ -37,13 +47,6 @@ class Stream:
         self.buffer.queue.clear()
 
 class PyaudioStream(Stream):
-
-    def start_stream(self):
-        self.RECORDING = True
-        threading.Thread(target=self.run_stream, daemon=True).start()
-
-    def stop_stream(self):
-        self.RECORDING = False
 
     def run_stream(self):
         try:
@@ -80,6 +83,31 @@ class PyaudioStream(Stream):
             mic.stop_stream()
             audio.terminate()
 
+        except Exception as e:
+            print(repr(e))
+            print("Error recording")
+
+class SounddeviceStream(Stream):
+
+    def run_stream(self):
+        try:
+
+            def callback(in_data, frame_count, time_info, status):
+                if in_data:
+                    self.buffer.put(in_data)
+                    self.recording_buffer.append(in_data)
+
+            with sd.RawInputStream(
+                samplerate=self.sample_rate, 
+                channels=self.channels,
+                device=self.device_idx, 
+                callback=callback, 
+                blocksize=self.frames_per_buffer, 
+                dtype="int16"):
+
+                while self.RECORDING:
+                    time.sleep(0.1)
+        
         except Exception as e:
             print(repr(e))
             print("Error recording")

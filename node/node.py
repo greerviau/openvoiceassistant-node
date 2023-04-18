@@ -9,10 +9,15 @@ import threading
 from node import config
 from node.utils.audio import save_wave
 from node.listener import Listener
-from node.stream import PyaudioStream
+from node.stream import PyaudioStream, SounddeviceStream
 from node.audio_player import PyaudioPlayer, SimpleAudioPlayer, PydubPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates, get_input_channels
 #from .utils import noisereduce
+
+RECORDING = {
+    "pyaudio": PyaudioStream,
+    "sounddevice": SounddeviceStream
+}
 
 PLAYBACK = {
     "pyaudio": PyaudioPlayer,
@@ -80,7 +85,8 @@ class Node:
         playback_algo = config.get('playback', 'algorithm')
         self.audio_player = PLAYBACK[playback_algo](self)
 
-        self.stream = PyaudioStream(self, frames_per_buffer=1200)
+        recording_algo = config.get('recording', 'algorithm')
+        self.stream = RECORDING[recording_algo](self, frames_per_buffer=1200)
 
         self.listener = Listener(self)
         
