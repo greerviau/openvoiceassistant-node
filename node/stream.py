@@ -54,8 +54,8 @@ class PyaudioStream(Stream):
 
             def callback(in_data, frame_count, time_info, status):
                 if in_data:
-                    self.buffer.put(in_data)
-                    self.recording_buffer.append(in_data)
+                    self.buffer.put(bytes(in_data))
+                    self.recording_buffer.append(bytes(in_data))
 
                 return (None, pyaudio.paContinue)
 
