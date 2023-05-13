@@ -9,7 +9,8 @@ from node.web import create_app
 @click.command()
 @click.option('--debug', is_flag=True)
 @click.option('--no_sync', is_flag=True)
-def run_node(debug, no_sync):
+@click.option('--sync_up', is_flag=True)
+def run_node(debug, no_sync, sync_up):
 
     if not no_sync:
 
@@ -37,7 +38,7 @@ def run_node(debug, no_sync):
         }
 
         try:
-            response = requests.put(f'{hub_api_url}/node/sync', json=sync_data, timeout=5)
+            response = requests.put(f'{hub_api_url}/node/{"sync_up" if sync_up else "sync_down"}', json=sync_data, timeout=5)
             if response.status_code != 200:
                 print(response.json())
                 response.raise_for_status()
