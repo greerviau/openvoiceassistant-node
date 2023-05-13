@@ -1,9 +1,6 @@
 import requests
 import wave
-import pydub
 import time
-from typing import List
-import sounddevice as sd
 import threading
 
 from node import config
@@ -11,8 +8,7 @@ from node.utils.audio import save_wave
 from node.listener import Listener
 from node.stream import PyaudioStream, SounddeviceStream
 from node.audio_player import PyaudioPlayer, SimpleAudioPlayer, PydubPlayer
-from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates, get_input_channels
-#from .utils import noisereduce
+from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
 
 RECORDING = {
     "pyaudio": PyaudioStream,
@@ -70,8 +66,7 @@ class Node:
         rates = [16000, 48000, 32000, 8000]
         supported_rates = get_supported_samplerates(self.mic_idx, rates)
         print("Microphone supported sample rates")
-        for rate in supported_rates:
-            print(rate)
+        for rate in supported_rates: print(rate)
 
         self.sample_rate = supported_rates[0]
         self.sample_width = 2
@@ -86,7 +81,7 @@ class Node:
         self.audio_player = PLAYBACK[playback_algo](self)
 
         recording_algo = config.get('recording', 'algorithm')
-        self.stream = RECORDING[recording_algo](self, frames_per_buffer=1200)
+        self.stream = RECORDING[recording_algo](self, frames_per_buffer=800)
 
         self.listener = Listener(self)
         
@@ -98,16 +93,17 @@ class Node:
         print('- Name: ', self.node_name)
         print('- HUB: ', self.hub_ip)
         print('Settings')
-        print('- Playback: ', playback_algo)
+        print('- Recording: ', recording_algo)
         print('- Microphone: ', self.mic_tag)
-        print('- Speaker: ', self.speaker_tag)
         print('- Sample Rate: ', self.sample_rate)
         print('- Sample Width: ', self.sample_width)
         print('- Channels: ', self.channels)
+        print('- Playback: ', playback_algo)
+        print('- Speaker: ', self.speaker_tag)
         print('- VAD Sensitivity: ', self.vad_sensitivity)
 
     def process_audio(self, audio_data: bytes):
-        print('Sending to server')
+        print('Sending audio data to HUB for processing')
 
         engaged = False
 
@@ -165,12 +161,14 @@ class Node:
             response = context['response']
             self.hub_callback = context['hub_callback']
 
-            if self.hub_callback:
-                engaged = True
+            if self.hub_callback: engaged = True
 
             print('Command: ', context['cleaned_command'])
-            print('Response: ', context['response'])
-            print('Deltas')
+            print('Skill:', context['skill'])
+            print('Action:', context['action'])
+            print('Conf:', context['conf'])
+            print('Response: ', response)
+            print('Time Deltas')
             print('- Transcribe: ', context['time_to_transcribe'])
             print('- Understand: ', context['time_to_understand'])
             print('- Synth: ', context['time_to_synthesize'])
@@ -180,7 +178,6 @@ class Node:
             response_sample_width = context['response_audio_sample_width']
 
             if response is not None:
-
                 save_wave('response.wav',
                             bytes.fromhex(response_audio_data_hex),
                             response_sample_rate,
@@ -190,7 +187,7 @@ class Node:
                 self.audio_player.play_audio_file('response.wav')
                 time.sleep(0.2)
         else:
-            print('HUB did not respond')
+            print('No response from HUB')
 
         return engaged
 
@@ -207,10 +204,9 @@ class Node:
 
     def play_alarm(self):
         def alarm():
+            print('Playing alarm')
             while not self.alarm_flag.is_set():
-                if not self.pause_flag.is_set():
-                    print('Play alarm')
-                    self.audio_player.play_audio_file('node/sounds/alarm.wav')
+                if not self.pause_flag.is_set(): self.audio_player.play_audio_file('node/sounds/alarm.wav')
                 time.sleep(0.1)
             print('Alarm finished')
         if not self.alarm_thread:
