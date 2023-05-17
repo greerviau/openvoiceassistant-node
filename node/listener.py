@@ -72,7 +72,7 @@ class Listener:
                         wav_file.setnchannels(self.channels)
                         wav_file.writeframes(chunk)
 
-                    wav_bytes = wav_buffer.getvalue()
+                    self.vad_audio_data = wav_buffer.getvalue()
 
                     #self.vad_audio_data += maybe_resample_wav(wav_bytes, sample_rate=16000, sample_width=2, channels=1)
 
