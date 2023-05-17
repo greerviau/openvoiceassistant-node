@@ -74,7 +74,7 @@ class Listener:
 
                     wav_bytes = wav_buffer.getvalue()
 
-                    self.vad_audio_data += maybe_resample_wav(wav_bytes, sample_rate=16000, sample_width=2, channels=1)
+                    self.vad_audio_data += maybe_resample_wav(wav_bytes, sample_rate=self.sample_rate, sample_width=2, channels=1)
 
                     is_speech = False
 
@@ -84,10 +84,9 @@ class Listener:
                         self.vad_audio_data = self.vad_audio_data[self.vad_chunk_size:]
 
                         # Speech in any chunk counts as speech
-                        is_speech = is_speech or self.vad.is_speech(vad_chunk, 16000)
+                        is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
 
-                    print(is_speech)
-
+                    '''
                     if is_speech:
                         speech_end = 0
                     else:
@@ -96,6 +95,7 @@ class Listener:
                             speech_end = time.time()
                         elif time.time() - speech_end < 0.5:
                             is_speech = True
+                    '''
 
                     if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
                         is_speech = True
