@@ -86,6 +86,8 @@ class Listener:
                         # Speech in any chunk counts as speech
                         is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
 
+                    print(is_speech)
+
                     if is_speech:
                         speech_end = 0
                     else:
