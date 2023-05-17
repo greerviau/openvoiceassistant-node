@@ -55,6 +55,7 @@ class Listener:
             audio_data.append(chunk)
 
         start = time.time()
+        speech_end = 0
 
         while True:
             chunk = self.stream.get_chunk()
@@ -85,16 +86,28 @@ class Listener:
                         # Speech in any chunk counts as speech
                         is_speech = is_speech or self.vad.is_speech(vad_chunk, 16000)
 
-                        if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
+                    if is_speech:
+                        speech_end = 0
+                    else:
+                        if speech_end == 0:
+                            is_speech = True
+                            speech_end = time.time()
+                        elif time.time() - speech_end < 0.5:
                             is_speech = True
 
+                    if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
+                        is_speech = True
+                    
                     if not is_speech:
+                        '''
                         # Capture ~0.5 seconds of audio
                         s = time.time()
                         while time.time() - s < 0.5:
                             chunk = self.stream.get_chunk()
                             audio_data.append(chunk)
+                        '''
 
                         if self.wakeup_sound:
                             self.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                         return b''.join(audio_data)
+                    

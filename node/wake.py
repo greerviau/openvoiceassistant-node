@@ -35,11 +35,11 @@ class KaldiWake:
                         return
                     else:
                         break
-                else:
+                #else:
                     # Check if speech has started
-                    partial = json.loads(rec.PartialResult())
+                    #partial = json.loads(rec.PartialResult())
                     #print(partial["partial"])
-                    if self.wake_word in partial["partial"]:
-                        print('Wake word!')
-                        return
+                    #if self.wake_word in partial["partial"]:
+                    #    print('Wake word!')
+                    #    return
 

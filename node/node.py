@@ -81,7 +81,7 @@ class Node:
         self.audio_player = PLAYBACK[playback_algo](self)
 
         recording_algo = config.get('recording', 'algorithm')
-        self.stream = RECORDING[recording_algo](self, frames_per_buffer=800)
+        self.stream = RECORDING[recording_algo](self, frames_per_buffer=1600)
 
         self.listener = Listener(self)
         
