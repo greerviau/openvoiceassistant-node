@@ -48,8 +48,6 @@ def maybe_resample_wav(
     channels: int,
 ) -> bytes:
 
-    print("resample")
-
     if isinstance(wav, wave.Wave_read):
         wav_bytes = wav.readframes(wav.getnframes())
         wav_file = wav
@@ -67,7 +65,7 @@ def maybe_resample_wav(
             wav_bytes,
             sample_rate=sample_rate,
             sample_width=sample_width,
-            channels=channels,
+            channels=channels
         )
 
     # Return original audio
