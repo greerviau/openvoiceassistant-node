@@ -1,9 +1,6 @@
-import queue
 import vosk
-import sounddevice as sd
 import json
-import wave
-import collections
+
 from node.stream import Stream
 
 vosk.SetLogLevel(-1)
