@@ -10,7 +10,7 @@ import time
 import threading
 from typing import List, Tuple
 
-class Stream:
+class Stream(threading.Thread):
     def __init__(self, 
                  node: 'Node',
                  frames_per_buffer: int = 1024,
@@ -25,17 +25,15 @@ class Stream:
 
         # Define a buffer to store audio frames
         self.buffer = queue.Queue()
-        # Define a recording buffer for the start of the recording
-        self.recording_buffer = collections.deque(maxlen=recording_buffer_size)
 
-        self.RECORDING = False
+        self.STOP_RECORDING = threading.Event()
 
     def start_stream(self):
-        self.RECORDING = True
+        self.STOP_RECORDING.clear()
         threading.Thread(target=self.run_stream, daemon=True).start()
 
     def stop_stream(self):
-        self.RECORDING = False
+        self.STOP_RECORDING.set()
 
     def run_stream(self):
         pass
@@ -54,8 +52,7 @@ class PyaudioStream(Stream):
 
             def callback(in_data, frame_count, time_info, status):
                 if in_data:
-                    self.buffer.put(in_data)
-                    self.recording_buffer.append(in_data)
+                    self.buffer.put_nowait(in_data)
 
                 return (None, pyaudio.paContinue)
 
@@ -76,7 +73,7 @@ class PyaudioStream(Stream):
 
             while mic.is_active():
                 time.sleep(0.1)
-                if not self.RECORDING:
+                if self.STOP_RECORDING.is_set():
                     break
 
             print("Finished recording")
@@ -95,7 +92,7 @@ class SounddeviceStream(Stream):
 
             def callback(in_data, frame_count, time_info, status):
                 if in_data:
-                    self.buffer.put(bytes(in_data))
+                    self.buffer.put_nowait(bytes(in_data))
                     self.recording_buffer.append(bytes(in_data))
 
             with sd.RawInputStream(
@@ -106,7 +103,7 @@ class SounddeviceStream(Stream):
                 blocksize=self.frames_per_buffer, 
                 dtype="int16"):
 
-                while self.RECORDING:
+                while not self.STOP_RECORDING.is_set():
                     time.sleep(0.1)
         
         except Exception as e:
