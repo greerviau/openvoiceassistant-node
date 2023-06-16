@@ -85,8 +85,8 @@ class PyaudioStream(Stream):
 
         except Exception as e:
             print(repr(e))
-            print(e)
             print("Error recording")
+            raise e
 
 class SounddeviceStream(Stream):
 
