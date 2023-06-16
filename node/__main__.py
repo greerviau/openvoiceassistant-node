@@ -5,6 +5,7 @@ import threading
 from node import config
 from node.node import Node
 from node.web import create_app
+from node.utils.network import get_my_ip
 
 @click.command()
 @click.option('--debug', is_flag=True)
@@ -20,7 +21,7 @@ def run_node(debug, no_sync, sync_up):
 
         node_id = config.get('node_id')
         node_name = config.get('node_name')
-        device_ip = config.get('device_ip')
+        device_ip = get_my_ip()
         hub_ip = config.get('hub_ip')
         wakeup = config.get('wakeup')
         recording = config.get('recording')

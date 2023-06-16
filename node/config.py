@@ -59,12 +59,11 @@ def __default_config():
     hub_port = 5010
     hub_ip = scan_for_hub(device_ip, hub_port)
     random.seed(device_ip)
-    node_id = f'new_node_{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}'
+    node_id = f'{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}'
 
     return {
         "node_id": node_id,
-        "node_name": node_id,
-        "device_ip": device_ip,
+        "node_name": f"node_{node_id}",
         "hub_ip": hub_ip,
         "wakeup": {
             "wake_word": "computer",
