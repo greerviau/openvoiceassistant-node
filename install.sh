@@ -1,16 +1,16 @@
 #!/bin/bash
 
-apt install -y python3-pip python3-venv python3-pyaudio \
+apt install -y python3.9 python3-pip python3.9-venv python3.9-pyaudio \
                 git wget libatlas-base-dev libglib2.0-dev \
                 libgirepository1.0-dev libcairo2-dev \
                 gfortran gcc libopenblas-dev libopenblas-base \
-                libblas-dev llvm python3-scipy build-essential \
+                libblas-dev llvm python3.9-scipy build-essential \
                 portaudio19-dev sox
 
 CWD=$(pwd)
 
-python3 -m venv $CWD/env/node
+python3.9 -m venv $CWD/env/node
 
 source $CWD/env/node/bin/activate
  
-pip3 install -r requirements.txt
+python3.9 -m pip install -r requirements.txt
