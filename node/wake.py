@@ -22,7 +22,8 @@ class KaldiWake:
         while True:
             rec = vosk.KaldiRecognizer(self.model, 
                                         self.sample_rate,
-                                        f'["{self.wake_word}", "[unk]"]')
+                                        #f'["{self.wake_word}", "[unk]"]'
+                                        )
             while True:
                 chunk = stream.get_chunk()
 
@@ -35,11 +36,11 @@ class KaldiWake:
                         return
                     else:
                         break
-                #else:
+                else:
                     # Check if speech has started
-                    #partial = json.loads(rec.PartialResult())
+                    partial = json.loads(rec.PartialResult())
                     #print(partial["partial"])
-                    #if self.wake_word in partial["partial"]:
-                    #    print('Wake word!')
-                    #    return
+                    if self.wake_word in partial["partial"]:
+                        print('Wake word!')
+                        return
 
