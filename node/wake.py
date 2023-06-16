@@ -26,6 +26,7 @@ class KaldiWake:
                                         )
             while True:
                 chunk = stream.get_chunk()
+                print('Chunk fetched')
 
                 # Add audio frames to the Vosk recognizer
                 if rec.AcceptWaveform(chunk):
