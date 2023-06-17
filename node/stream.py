@@ -68,6 +68,7 @@ class PyaudioStream(Stream):
             )
 
             assert mic is not None
+            mic.start_stream()
             print("Pyaudio stream started")
 
             while not self.STOP_RECORDING.is_set():
