@@ -93,7 +93,6 @@ class SounddeviceStream(Stream):
             def callback(in_data, frame_count, time_info, status):
                 if in_data:
                     self.buffer.put_nowait(bytes(in_data))
-                    self.recording_buffer.append(bytes(in_data))
 
             with sd.RawInputStream(
                 samplerate=self.sample_rate, 

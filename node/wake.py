@@ -8,16 +8,18 @@ vosk.SetLogLevel(-1)
 class KaldiWake:
     def __init__(self,
                  wake_word: str,
-                 sample_rate: int
+                 sample_rate: int,
+                 stream: Stream
     ):
         self.wake_word = wake_word
         self.sample_rate = sample_rate
+        self.stream = stream
         try:
             self.model = vosk.Model(lang='en-us')
         except:
             self.model = vosk.Model('vosk_model')
     
-    def listen_for_wake_word(self, stream: Stream):
+    def listen_for_wake_word(self):
         print('Listening for wake word...')
         while True:
             rec = vosk.KaldiRecognizer(self.model, 
@@ -25,7 +27,7 @@ class KaldiWake:
                                         #f'["{self.wake_word}", "[unk]"]'
                                         )
             while True:
-                chunk = stream.get_chunk()
+                chunk = self.stream.get_chunk()
                 print('Chunk fetched')
 
                 # Add audio frames to the Vosk recognizer

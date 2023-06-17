@@ -26,7 +26,8 @@ class Listener:
         self.recording_buffer = collections.deque(maxlen=2)
         
         self.wake = KaldiWake(wake_word=self.wake_word,
-                              sample_rate=self.sample_rate)
+                              sample_rate=self.sample_rate,
+                              stream=self.stream)
         
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(self.sensitivity)
@@ -40,7 +41,7 @@ class Listener:
         self.stream.clear()
         audio_data = []
         if not engaged:
-            self.wake.listen_for_wake_word(self.stream)
+            self.wake.listen_for_wake_word()
 
         self.pause_flag.set()
         
