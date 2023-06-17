@@ -72,7 +72,7 @@ class PyaudioStream(Stream):
             print("Pyaudio stream started")
 
             while mic.is_active():
-                time.sleep(0.1)
+                time.sleep(1)
 
             print("Finished recording")
             mic.stop_stream()
