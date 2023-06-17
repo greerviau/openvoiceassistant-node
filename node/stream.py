@@ -28,14 +28,14 @@ class Stream(threading.Thread):
 
         self.STOP_RECORDING = threading.Event()
 
-    def start_stream(self):
+    def start(self):
         self.STOP_RECORDING.clear()
-        threading.Thread(target=self.run_stream, daemon=True).start()
+        threading.Thread(target=self.record, daemon=True).start()
 
-    def stop_stream(self):
+    def stop(self):
         self.STOP_RECORDING.set()
 
-    def run_stream(self):
+    def record(self):
         pass
 
     def get_chunk(self) -> bytes:
@@ -46,13 +46,13 @@ class Stream(threading.Thread):
 
 class PyaudioStream(Stream):
 
-    def run_stream(self):
+    def record(self):
         try:
             audio = pyaudio.PyAudio()
 
             def callback(in_data, frame_count, time_info, status):
                 if in_data:
-                    self.buffer.put_nowait(in_data)
+                    self.buffer.put(in_data)
 
                 return (None, pyaudio.paContinue)
 
@@ -71,7 +71,7 @@ class PyaudioStream(Stream):
             mic.start_stream()
             print("Pyaudio stream started")
 
-            while not self.STOP_RECORDING.is_set():
+            while mic.is_active():
                 time.sleep(0.1)
 
             print("Finished recording")
@@ -85,7 +85,7 @@ class PyaudioStream(Stream):
 
 class SounddeviceStream(Stream):
 
-    def run_stream(self):
+    def record(self):
         try:
 
             def callback(in_data, frame_count, time_info, status):
