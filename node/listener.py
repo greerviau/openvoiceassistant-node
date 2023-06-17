@@ -37,7 +37,7 @@ class Listener:
         self.engaged_delay = 3 # 5sec
     
     def listen(self, engaged: bool=False):
-        #self.stream.clear()
+        self.stream.clear()
         audio_data = []
         if not engaged:
             self.wake.listen_for_wake_word(self.stream)
