@@ -55,7 +55,6 @@ class Listener:
             audio_data.append(chunk)
 
         start = time.time()
-        speech_end = 0
 
         while True:
             chunk = self.stream.get_chunk()
