@@ -26,14 +26,14 @@ class Stream(threading.Thread):
         # Define a buffer to store audio frames
         self.buffer = queue.Queue()
 
-        self.STOP_RECORDING = threading.Event()
+        self.RECORDING = False
 
     def start_stream(self):
-        self.STOP_RECORDING.clear()
-        threading.Thread(target=self.run_stream, daemon=True).start()
+        self.RECORDING = True
+        self.run_stream()
 
     def stop_stream(self):
-        self.STOP_RECORDING.set()
+        self.RECORDING = False
 
     def run_stream(self):
         pass
@@ -66,19 +66,23 @@ class PyaudioStream(Stream):
                 input=True,
                 stream_callback=callback
             )
-
+            
             assert mic is not None
-            mic.start_stream()
-            print("Pyaudio stream started")
 
-            while mic.is_active():
-                time.sleep(0.1)
-                if self.STOP_RECORDING.is_set():
-                    break
+            def wait_for_stream():
+                mic.start_stream()
+                print("Pyaudio stream started")
 
-            print("Finished recording")
-            mic.stop_stream()
-            audio.terminate()
+                while mic.is_active():
+                    time.sleep(0.1)
+                    if not self.RECORDING:
+                        break
+
+                print("Finished recording")
+                mic.stop_stream()
+                audio.terminate()
+            
+            threading.Thread(target=wait_for_stream, daemon=True).start()
 
         except Exception as e:
             print(repr(e))
@@ -102,7 +106,7 @@ class SounddeviceStream(Stream):
                 blocksize=self.frames_per_buffer, 
                 dtype="int16"):
 
-                while not self.STOP_RECORDING.is_set():
+                while self.RECORDING:
                     time.sleep(0.1)
         
         except Exception as e:

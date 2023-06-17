@@ -4,8 +4,7 @@ apt install -y python3.9 python3-pip python3.9-venv python3-pyaudio \
                 git wget libatlas-base-dev libglib2.0-dev \
                 libgirepository1.0-dev libcairo2-dev \
                 gfortran gcc libopenblas-dev libopenblas-base \
-                libblas-dev llvm python3-scipy build-essential \
-                portaudio19-dev sox
+                libblas-dev llvm python3-scipy build-essential sox
 
 CWD=$(pwd)
 
