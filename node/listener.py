@@ -18,7 +18,6 @@ class Listener:
         self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
 
-        self.stream = node.stream
         self.audio_player = node.audio_player
         self.pause_flag = node.pause_flag
 
@@ -36,28 +35,29 @@ class Listener:
 
         self.engaged_delay = 3 # 5sec
     
-    def listen(self, engaged: bool=False):
-        self.stream.clear()
+    def listen(self, engaged: bool=False):  
+        stream = self.node.stream(self.node, frames_per_buffer=1600)
+        stream.start()
         audio_data = []
         if not engaged:
-            self.wake.listen_for_wake_word(self.stream)
+            self.wake.listen_for_wake_word(stream)
 
         self.pause_flag.set()
         
         if self.wakeup_sound:
             self.audio_player.play_audio_file('node/sounds/activate.wav')
-            #audio_data = [chunk for chunk in self.stream.recording_buffer]
+            #audio_data = [chunk for chunk in stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio
         s = time.time()
         while time.time() - s < 0.5:
-            chunk = self.stream.get_chunk()
+            chunk = stream.get_chunk()
             audio_data.append(chunk)
 
         start = time.time()
 
         while True:
-            chunk = self.stream.get_chunk()
+            chunk = stream.get_chunk()
 
             if chunk:
 
@@ -84,7 +84,9 @@ class Listener:
 
                         # Speech in any chunk counts as speech
                         is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
-
+                    
+                    
+                    print(is_speech)
                     '''
                     if is_speech:
                         speech_end = 0
@@ -98,13 +100,12 @@ class Listener:
 
                     if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
                         is_speech = True
-                    
                     if not is_speech:
                         '''
                         # Capture ~0.5 seconds of audio
                         s = time.time()
                         while time.time() - s < 0.5:
-                            chunk = self.stream.get_chunk()
+                            chunk = stream.get_chunk()
                             audio_data.append(chunk)
                         '''
 
