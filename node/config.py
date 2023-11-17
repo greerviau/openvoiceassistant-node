@@ -73,7 +73,7 @@ def __default_config():
                 "Owaken"
             ]
         },
-        "mic_index": 0,
+        "mic_index": list(find_microphones().keys())[0],
         "vad_sensitivity": 3,
         "playback": {
             "algorithm": "pyaudio",
@@ -83,7 +83,7 @@ def __default_config():
                 "simpleaudio",
                 "pydub"
             ], 
-            "speaker_index": 0
+            "speaker_index": list(find_speakers().keys())[0]
         },
     }
 
