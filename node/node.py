@@ -6,18 +6,12 @@ import threading
 from node import config
 from node.utils.audio import save_wave
 from node.listener import Listener
-from node.stream import PyaudioStream, SounddeviceStream
-from node.audio_player import PyaudioPlayer, SimpleAudioPlayer, PydubPlayer
+from node.stream import PyaudioStream
+from node.audio_player import PyaudioPlayer, PydubPlayer
 from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
-
-RECORDING = {
-    "pyaudio": PyaudioStream,
-    "sounddevice": SounddeviceStream
-}
 
 PLAYBACK = {
     "pyaudio": PyaudioPlayer,
-    "simpleaudio": SimpleAudioPlayer,
     "pydub": PydubPlayer
 }
 
@@ -52,8 +46,8 @@ class Node:
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
         self.hub_ip = config.get('hub_ip')
-        self.mic_idx = config.get('recording', 'mic_index')
-        self.vad_sensitivity = config.get('recording', 'vad_sensitivity')
+        self.mic_idx = config.get('mic_index')
+        self.vad_sensitivity = config.get('vad_sensitivity')
         self.speaker_idx = config.get('playback', 'speaker_index')
 
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
@@ -80,17 +74,15 @@ class Node:
         playback_algo = config.get('playback', 'algorithm')
         self.audio_player = PLAYBACK[playback_algo](self)
 
-        recording_algo = config.get('recording', 'algorithm')
-        self.stream = RECORDING[recording_algo]
+        self.stream = PyaudioStream(self, frames_per_buffer=1600)
+        self.stream.start()
         self.listener = Listener(self)
-
 
         print('Node Info')
         print('- ID: ', self.node_id)
         print('- Name: ', self.node_name)
         print('- HUB: ', self.hub_ip)
         print('Settings')
-        print('- Recording: ', recording_algo)
         print('- Microphone: ', self.mic_tag)
         print('- Sample Rate: ', self.sample_rate)
         print('- Sample Width: ', self.sample_width)

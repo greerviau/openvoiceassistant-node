@@ -82,27 +82,3 @@ class PyaudioStream(Stream):
             print(repr(e))
             print("Error recording")
             raise e
-
-class SounddeviceStream(Stream):
-
-    def record(self):
-        try:
-
-            def callback(in_data, frame_count, time_info, status):
-                if in_data:
-                    self.buffer.put_nowait(bytes(in_data))
-
-            with sd.RawInputStream(
-                samplerate=self.sample_rate, 
-                channels=self.channels,
-                device=self.device_idx, 
-                callback=callback, 
-                blocksize=self.frames_per_buffer, 
-                dtype="int16"):
-
-                while not self.STOP_RECORDING.is_set():
-                    time.sleep(0.1)
-        
-        except Exception as e:
-            print(repr(e))
-            print("Error recording")

@@ -45,45 +45,6 @@ class PydubPlayer(AudioPlayer):
         else:
             play_audio()
 
-class SimpleAudioPlayer(AudioPlayer):
-    def play_audio_bytes(self, audio_bytes: bytes, sample_rate: int, sample_width: int, channels: int, asynchronous:bool=False):
-        def play_audio():      
-
-            wf = wave.open(io.BytesIO(convert_to_wav(audio_bytes, sample_rate, sample_width, channels)), "rb")
-
-            self.play_simpleaudio(wf.readframes(wf.getnframes()), sample_rate, sample_width, channels)
-            
-        if asynchronous:
-            threading.Thread(target=play_audio).start()
-        else:
-            play_audio()
-
-    def play_audio_file(self, file: str, asynchronous:bool=False):
-        def play_audio():
-            if not os.path.exists(file):
-                raise RuntimeError('Audio file does not exist')
-
-            wf = wave.open(file, 'rb')
-            sr = wf.getframerate()
-            sw = wf.getsampwidth()
-            c = wf.getnchannels()
-
-            self.play_simpleaudio(wf.readframes(wf.getnframes()), sr, sw, c)
-
-        if asynchronous:
-            threading.Thread(target=play_audio).start()
-        else:
-            play_audio()
-
-    def play_simpleaudio(self, seg: bytes, sample_rate: int, sample_width: int, channels: int):
-        return simpleaudio.play_buffer(
-            seg,
-            num_channels=channels,
-            bytes_per_sample=sample_width,
-            sample_rate=sample_rate
-        )
-
-
 class PyaudioPlayer(AudioPlayer):
 
     def __init__(self, node: 'Node'):

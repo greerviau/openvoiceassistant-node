@@ -5,7 +5,7 @@ import threading
 from node import config
 from node.node import Node
 from node.web import create_app
-from node.utils.network import get_my_ip
+from node.utils.network import get_my_ip, scan_for_hub
 
 @click.command()
 @click.option('--debug', is_flag=True)
@@ -24,8 +24,13 @@ def run_node(debug, no_sync, sync_up):
         device_ip = get_my_ip()
         hub_ip = config.get('hub_ip')
         wakeup = config.get('wakeup')
-        recording = config.get('recording')
+        mic_index = config.get('mic_index')
+        vad_sensitivity = config.get('vad_sensitivity')
         playback = config.get('playback')
+
+        if not hub_ip:
+            hub_ip = scan_for_hub(device_ip, 5010)
+            config.set('hub_ip', hub_ip)
 
         hub_api_url = f'http://{hub_ip}:5010/api'
 
@@ -34,7 +39,8 @@ def run_node(debug, no_sync, sync_up):
             'node_name': node_name,
             'node_api_url': f'http://{device_ip}:5005/api',
             'wakeup': wakeup,
-            'recording': recording,
+            'mic_index': mic_index,
+            'vad_sensitivity': vad_sensitivity,
             'playback': playback
         }
 
@@ -48,7 +54,8 @@ def run_node(debug, no_sync, sync_up):
             print(config_json)
             config.set('node_name', config_json['node_name'])
             config.set('wakeup', config_json['wakeup'])
-            config.set('recording', config_json['recording'])
+            config.set('mic_index', config_json['mic_index'])
+            config.set('vad_sensitivity', config_json['vad_sensitivity'])
             config.set('playback', config_json['playback'])
 
         except Exception as e:

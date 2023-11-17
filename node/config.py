@@ -56,8 +56,7 @@ def load_config() -> typing.Dict:
 
 def __default_config():
     device_ip = get_my_ip()
-    hub_port = 5010
-    hub_ip = scan_for_hub(device_ip, hub_port)
+    hub_ip = scan_for_hub(device_ip, 5010)
     random.seed(device_ip)
     node_id = f'{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}'
 

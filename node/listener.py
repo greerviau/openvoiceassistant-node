@@ -21,6 +21,8 @@ class Listener:
         self.audio_player = node.audio_player
         self.pause_flag = node.pause_flag
 
+        self.stream = node.stream
+
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
         
@@ -35,12 +37,10 @@ class Listener:
 
         self.engaged_delay = 3 # 5sec
     
-    def listen(self, engaged: bool=False):  
-        stream = self.node.stream(self.node, frames_per_buffer=1600)
-        stream.start()
+    def listen(self, engaged: bool=False): 
         audio_data = []
         if not engaged:
-            self.wake.listen_for_wake_word(stream)
+            self.wake.listen_for_wake_word(self.stream)
 
         self.pause_flag.set()
         
@@ -51,13 +51,13 @@ class Listener:
         # Capture ~0.5 seconds of audio
         s = time.time()
         while time.time() - s < 0.5:
-            chunk = stream.get_chunk()
+            chunk = self.stream.get_chunk()
             audio_data.append(chunk)
 
         start = time.time()
 
         while True:
-            chunk = stream.get_chunk()
+            chunk = self.stream.get_chunk()
 
             if chunk:
 
