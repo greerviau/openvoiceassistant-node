@@ -6,16 +6,15 @@ import pydub
 from pydub.playback import play
 import threading
 
+from node import config
 from node.utils.audio import *
 
 class AudioPlayer:
-    def __init__(self, node: 'Node'):
-        self.node = node
+    def __init__(self, node):
         self.speaker_idx = node.speaker_idx
         self.speaker_sample_rate = node.sample_rate
         self.speaker_sample_width = node.sample_width
-        self.speaker_channels = node.channels
-
+        self.speaker_channels = node.audio_channels
 
 class PydubPlayer(AudioPlayer):
 

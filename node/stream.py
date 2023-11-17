@@ -1,32 +1,24 @@
 import queue
 import pyaudio
 import time
-import threading
 
 class Stream():
     def __init__(self, 
-                 node: 'Node',
+                 node,
                  frames_per_buffer: int = 1024,
                  recording_buffer_size: int = 12
     ):
-        self.node = node
-        self.device_idx = node.mic_idx
+        self.mic_idx = node.mic_idx
         self.sample_rate = node.sample_rate
-        self.channels = node.channels
         self.sample_width = node.sample_width
+        self.channels = node.audio_channels
         self.frames_per_buffer = frames_per_buffer
 
         # Define a buffer to store audio frames
         self.buffer = queue.Queue()
 
-        self.STOP_RECORDING = threading.Event()
-
     def start(self):
-        self.STOP_RECORDING.clear()
-        threading.Thread(target=self.record, daemon=True).start()
-
-    def stop(self):
-        self.STOP_RECORDING.set()
+        self.record()
 
     def record(self):
         pass
@@ -51,7 +43,7 @@ class PyaudioStream(Stream):
 
             # Open device
             mic = audio.open(
-                input_device_index=self.device_idx,
+                input_device_index=self.mic_idx,
                 channels=self.channels,
                 format=audio.get_format_from_width(self.sample_width),
                 rate=self.sample_rate,

@@ -11,17 +11,12 @@ from node import config
 class Listener:
     def __init__(self, node: 'Node'):
         self.node = node
-        self.wake_word = config.get('wakeup', 'wake_word')
+        self.wake_word = node.wake_word
         self.sample_rate = node.sample_rate
         self.sample_width = node.sample_width
-        self.channels = node.channels
+        self.channels = node.audio_channels
         self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = config.get('wakeup', 'wakeup_sound')
-
-        self.audio_player = node.audio_player
-        self.pause_flag = node.pause_flag
-
-        self.stream = node.stream
 
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
@@ -40,24 +35,24 @@ class Listener:
     def listen(self, engaged: bool=False): 
         audio_data = []
         if not engaged:
-            self.wake.listen_for_wake_word(self.stream)
+            self.wake.listen_for_wake_word(self.node.stream)
 
-        self.pause_flag.set()
+        self.node.pause_flag.set()
         
         if self.wakeup_sound:
-            self.audio_player.play_audio_file('node/sounds/activate.wav')
+            self.node.audio_player.play_audio_file('node/sounds/activate.wav')
             #audio_data = [chunk for chunk in stream.recording_buffer]
 
         # Capture ~0.5 seconds of audio
         s = time.time()
         while time.time() - s < 0.5:
-            chunk = self.stream.get_chunk()
+            chunk = self.node.stream.get_chunk()
             audio_data.append(chunk)
 
         start = time.time()
 
         while True:
-            chunk = self.stream.get_chunk()
+            chunk = self.node.stream.get_chunk()
 
             if chunk:
 
@@ -110,6 +105,6 @@ class Listener:
                         '''
 
                         if self.wakeup_sound:
-                            self.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
+                            self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                         return b''.join(audio_data)
                     

@@ -4,11 +4,11 @@ import time
 import threading
 
 from node import config
-from node.utils.audio import save_wave
-from node.listener import Listener
 from node.stream import PyaudioStream
+from node.listener import Listener
 from node.audio_player import PyaudioPlayer, PydubPlayer
-from node.utils.hardware import list_microphones, list_speakers, select_mic, select_speaker, get_supported_samplerates
+from node.processor import Processor
+from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
 
 PLAYBACK = {
     "pyaudio": PyaudioPlayer,
@@ -18,8 +18,6 @@ PLAYBACK = {
 class Node:
     def __init__(self, debug: bool):
         self.debug = debug
-
-        self.hub_callback = ''
 
         self.pause_flag = threading.Event()
 
@@ -31,7 +29,8 @@ class Node:
     def start(self):
         print('Starting node')
         self.running = True
-        self.mainloop()
+        threading.Thread(target=self.processor.run, daemon=True).start()
+        self.stream.start()
 
     def stop(self):
         self.running = False
@@ -46,150 +45,59 @@ class Node:
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
         self.hub_ip = config.get('hub_ip')
-        self.mic_idx = config.get('mic_index')
-        self.vad_sensitivity = config.get('vad_sensitivity')
-        self.speaker_idx = config.get('playback', 'speaker_index')
 
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
-        
-        print('Available Microphones:')
-        [print(mic) for mic in list_microphones()]
+
+        # MICROPHONE SETTINGS
+        self.mic_idx = config.get('mic_index')
+
+        print('\nAvailable Microphones:')
+        [print(f'- {mic}') for mic in list_microphones()]
 
         _, self.mic_tag = select_mic(self.mic_idx)
 
+        print("\nMicrophone supported sample rates")
         rates = [16000, 48000, 32000, 8000]
         supported_rates = get_supported_samplerates(self.mic_idx, rates)
-        print("Microphone supported sample rates")
-        for rate in supported_rates: print(rate)
+        [print(f'- {rate}') for rate in supported_rates]
 
         self.sample_rate = supported_rates[0]
         self.sample_width = 2
-        self.channels = 1
-        
-        print('Available Speakers')
-        [print(speaker) for speaker in list_speakers()]
+        self.audio_channels = 1
+
+        # SPEAKER SETTINGS
+        self.speaker_idx = config.get('playback', 'speaker_index')
+
+        print('\nAvailable Speakers')
+        [print(f'- {speaker}') for speaker in list_speakers()]
 
         _, self.speaker_tag = select_speaker(self.speaker_idx)
 
         playback_algo = config.get('playback', 'algorithm')
-        self.audio_player = PLAYBACK[playback_algo](self)
 
+        # LISTENER SETTINGS
+        self.vad_sensitivity = config.get('vad_sensitivity')
+        self.wake_word = config.get('wakeup', 'wake_word')
+
+        print('\n\nNode Info')
+        print('- ID:             ', self.node_id)
+        print('- Name:           ', self.node_name)
+        print('- HUB:            ', self.hub_ip)
+        print('- Wake Word:      ', self.wake_word)
+        print('IO Settings')
+        print('- Microphone:     ', self.mic_tag)
+        print('- Microphone IDX: ', self.mic_idx)
+        print('- Sample Rate:    ', self.sample_rate)
+        print('- Sample Width:   ', self.sample_width)
+        print('- Audio Channels: ', self.audio_channels)
+        print('- Speaker:        ', self.speaker_tag)
+        print('- Playback:       ', playback_algo)
+        
+        # INITIALIZING COMPONENTS
         self.stream = PyaudioStream(self, frames_per_buffer=1600)
-        self.stream.start()
         self.listener = Listener(self)
-
-        print('Node Info')
-        print('- ID: ', self.node_id)
-        print('- Name: ', self.node_name)
-        print('- HUB: ', self.hub_ip)
-        print('Settings')
-        print('- Microphone: ', self.mic_tag)
-        print('- Sample Rate: ', self.sample_rate)
-        print('- Sample Width: ', self.sample_width)
-        print('- Channels: ', self.channels)
-        print('- Playback: ', playback_algo)
-        print('- Speaker: ', self.speaker_tag)
-        print('- VAD Sensitivity: ', self.vad_sensitivity)
-
-    def process_audio(self, audio_data: bytes):
-        print('Sending audio data to HUB for processing')
-
-        engaged = False
-
-        wf = wave.open('command.wav', 'wb')
-        wf.setnchannels(self.channels)
-        wf.setsampwidth(self.sample_width)
-        wf.setframerate(self.sample_rate)
-        wf.writeframes(audio_data)
-        wf.close()
-
-        time_sent = time.time()
-
-        payload = {
-            'node_id': self.node_id,
-            'command_audio_data_hex': audio_data.hex(), 
-            'command_audio_sample_rate': self.sample_rate, 
-            'command_audio_sample_width': self.sample_width, 
-            'command_audio_channels': self.channels,
-            'hub_callback': self.hub_callback,
-            'last_time_engaged': self.last_time_engaged,
-            'time_sent': time_sent
-        }
-
-        try:
-            respond_response = requests.post(
-                f'{self.hub_api_url}/respond/audio',
-                json=payload
-            )
-        except Exception as e:
-            print(repr(e))
-            print('Lost connection to HUB')
-            connect = False
-            while not connect:
-                try:
-                    retry_response = requests.get(
-                        self.hub_api_url,
-                        json=payload,
-                        timeout=30
-                    )
-                    if retry_response.status_code == 200:
-                        connect = True
-                        print('\nConnected')
-                    else:
-                        raise
-                except:
-                    print('Retrying in 5...')
-                    time.sleep(5)
-
-        if respond_response.status_code == 200:
-
-            self.last_time_engaged = time_sent
-
-            context = respond_response.json()
-
-            response = context['response']
-            self.hub_callback = context['hub_callback']
-
-            if self.hub_callback: engaged = True
-
-            print('Command: ', context['cleaned_command'])
-            print('Skill:', context['skill'])
-            print('Action:', context['action'])
-            print('Conf:', context['conf'])
-            print('Response: ', response)
-            print('Time Deltas')
-            print('- Transcribe: ', context['time_to_transcribe'])
-            print('- Understand: ', context['time_to_understand'])
-            print('- Synth: ', context['time_to_synthesize'])
-
-            response_audio_data_hex = context['response_audio_data_hex']
-            response_sample_rate = context['response_audio_sample_rate']
-            response_sample_width = context['response_audio_sample_width']
-
-            if response is not None:
-                save_wave('response.wav',
-                            bytes.fromhex(response_audio_data_hex),
-                            response_sample_rate,
-                            response_sample_width,
-                            1)
-                
-                self.audio_player.play_audio_file('response.wav')
-                time.sleep(0.2)
-        else:
-            print('No response from HUB')
-
-        return engaged
-
-    def mainloop(self):
-        self.last_time_engaged = time.time()
-        engaged = False
-        while self.running:
-            audio_data = self.listener.listen(engaged)
-            engaged = self.process_audio(audio_data)
-            self.pause_flag.clear()
-
-                
-        print('Mainloop end')
+        self.audio_player = PLAYBACK[playback_algo](self)
+        self.processor = Processor(self)
 
     def play_alarm(self):
         def alarm():
