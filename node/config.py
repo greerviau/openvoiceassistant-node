@@ -66,21 +66,15 @@ def __default_config():
         "hub_ip": hub_ip,
         "wakeup": {
             "wake_word": "computer",
-            "wakeup_sound": True,
-            "algorithm:": "Kaldi",
-            "algorithm_options": [
-                "Kaldi",
-                "Owaken"
-            ]
+            "wakeup_sound": True
         },
         "mic_index": list(find_microphones().keys())[0],
         "vad_sensitivity": 3,
         "playback": {
             "algorithm": "pyaudio",
-            "algorithm_options": [
+            "options": [
                 "pyaudio",
                 "aplay",
-                "simpleaudio",
                 "pydub"
             ], 
             "speaker_index": list(find_speakers().keys())[0]
