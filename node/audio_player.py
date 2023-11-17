@@ -4,8 +4,6 @@ import os
 import io
 import pydub
 from pydub.playback import play
-import simpleaudio
-from typing import Tuple
 import threading
 
 from node.utils.audio import *

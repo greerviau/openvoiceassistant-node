@@ -1,14 +1,7 @@
 import queue
-import vosk
-import sounddevice as sd
 import pyaudio
-import json
-import wave
-import collections
-import webrtcvad
 import time
 import threading
-from typing import List, Tuple
 
 class Stream(threading.Thread):
     def __init__(self, 

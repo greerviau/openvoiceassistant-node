@@ -3,7 +3,6 @@ import subprocess
 from typing import Union
 import wave
 import os
-import numpy as np
 import io
 
 def resample_wav(
