@@ -3,7 +3,7 @@ import pyaudio
 import time
 import threading
 
-class Stream(threading.Thread):
+class Stream():
     def __init__(self, 
                  node: 'Node',
                  frames_per_buffer: int = 1024,
