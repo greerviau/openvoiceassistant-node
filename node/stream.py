@@ -17,16 +17,13 @@ class Stream():
         self.frames_per_buffer = frames_per_buffer
 
         # Define a buffer to store audio frames
-        self.buffer = queue.Queue(recording_buffer_size)
+        self.buffer = queue.Queue()
 
     def record(self):
         pass
 
     def get_chunk(self) -> bytes:
         return self.buffer.get()
-
-    def clear(self):
-        self.buffer.queue.clear()
 
 class SoundDeviceStream(Stream):
 
