@@ -2,7 +2,6 @@ import queue
 import time
 import threading
 import pyaudio
-import numpy as np
 import sounddevice as sd
 
 class Stream():
@@ -21,13 +20,16 @@ class Stream():
         self.buffer = queue.Queue()
 
         self.RECORDING = False
+        self.record_thread = None
 
     def start(self):
         self.RECORDING = True
-        threading.Thread(target=self.record, daemon=True).start()
+        self.record_thread = threading.Thread(target=self.record, daemon=True)
+        self.record_thread.start()
 
     def stop(self):
         self.RECORDING = False
+        self.record_thread.join()
         self.buffer.queue.clear()
 
     def record(self):
@@ -45,11 +47,11 @@ class SoundDeviceStream(Stream):
         try:
             print('Stream started')
             with sd.RawInputStream(samplerate=self.sample_rate, 
-                                device=self.mic_idx, 
-                                channels=self.channels, 
-                                blocksize=self.frames_per_buffer,
-                                dtype="int16",
-                                callback=callback):
+                                    device=self.mic_idx, 
+                                    channels=self.channels, 
+                                    blocksize=self.frames_per_buffer,
+                                    dtype="int16",
+                                    callback=callback):
                 while self.RECORDING:
                     time.sleep(0.1)
 
