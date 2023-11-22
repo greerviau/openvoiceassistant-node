@@ -4,7 +4,7 @@ import time
 import threading
 
 from node import config
-from node.stream import PyaudioStream
+from node.stream import PyaudioStream, SoundDeviceStream
 from node.listener import Listener
 from node.audio_player import PyaudioPlayer, PydubPlayer
 from node.processor import Processor
@@ -94,7 +94,7 @@ class Node:
         print('- Playback:       ', playback_algo)
         
         # INITIALIZING COMPONENTS
-        self.stream = PyaudioStream(self, frames_per_buffer=1600)
+        self.stream = SoundDeviceStream(self, frames_per_buffer=1600)
         self.listener = Listener(self)
         self.audio_player = PLAYBACK[playback_algo](self)
         self.processor = Processor(self)

@@ -1,6 +1,8 @@
 import queue
-import pyaudio
 import time
+import pyaudio
+import numpy as np
+import sounddevice as sd
 
 class Stream():
     def __init__(self, 
@@ -28,6 +30,23 @@ class Stream():
 
     def clear(self):
         self.buffer.queue.clear()
+
+class SoundDeviceStream(Stream):
+
+    def record(self):
+        
+        def callback(in_data, frame_count, time_info, status):
+            self.buffer.put(bytes(in_data))
+
+        print('Stream started')
+        with sd.RawInputStream(samplerate=self.sample_rate, 
+                            device=self.mic_idx, 
+                            channels=self.channels, 
+                            blocksize=self.frames_per_buffer,
+                            dtype="int16",
+                            callback=callback):
+            while True:
+                time.sleep(0.1)
 
 class PyaudioStream(Stream):
 
