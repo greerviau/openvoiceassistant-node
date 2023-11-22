@@ -34,17 +34,21 @@ class SoundDeviceStream(Stream):
         
         def callback(in_data, frame_count, time_info, status):
             self.buffer.put(bytes(in_data))
-
-        print('Stream started')
-        with sd.RawInputStream(samplerate=self.sample_rate, 
-                            device=self.mic_idx, 
-                            channels=self.channels, 
-                            blocksize=self.frames_per_buffer,
-                            dtype="int16",
-                            callback=callback):
-            while True:
-                time.sleep(0.1)
-
+        try:
+            print('Stream started')
+            with sd.RawInputStream(samplerate=self.sample_rate, 
+                                device=self.mic_idx, 
+                                channels=self.channels, 
+                                blocksize=self.frames_per_buffer,
+                                dtype="int16",
+                                callback=callback):
+                while True:
+                    time.sleep(0.1)
+        except Exception as e:
+            print(repr(e))
+            print("Error recording")
+            raise e
+        
 class PyaudioStream(Stream):
 
     def record(self):
