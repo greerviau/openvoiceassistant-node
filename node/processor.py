@@ -31,7 +31,7 @@ class Processor():
             'command_audio_sample_width': self.node.sample_width, 
             'command_audio_channels': self.node.audio_channels,
             'hub_callback': self.hub_callback,
-            'last_time_engaged': self.last_time_engaged,
+            'last_time_engaged': self.node.last_time_engaged,
             'time_sent': time_sent
         }
 
@@ -98,14 +98,3 @@ class Processor():
             print('No response from HUB')
 
         return engaged
-    
-    def run(self):
-        self.last_time_engaged = time.time()
-        engaged = False
-        while self.node.running:
-            audio_data = self.node.listener.listen(engaged)
-            engaged = self.process_audio(audio_data)
-            self.node.pause_flag.clear()
-
-                
-        print('Mainloop end')

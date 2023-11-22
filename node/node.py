@@ -29,8 +29,7 @@ class Node:
     def start(self):
         print('Starting node')
         self.running = True
-        threading.Thread(target=self.processor.run, daemon=True).start()
-        self.stream.record()
+        self.run()
 
     def stop(self):
         self.running = False
@@ -98,6 +97,19 @@ class Node:
         self.listener = Listener(self)
         self.audio_player = PLAYBACK[playback_algo](self)
         self.processor = Processor(self)
+    
+    def run(self):
+        self.last_time_engaged = time.time()
+        engaged = False
+        while self.running:
+            self.stream.start()
+            audio_data = self.listener.listen(engaged)
+            self.stream.stop()
+            engaged = self.processor.process_audio(audio_data)
+            self.pause_flag.clear()
+
+                
+        print('Mainloop end')
 
     def play_alarm(self):
         def alarm():

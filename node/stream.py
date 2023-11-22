@@ -1,5 +1,6 @@
 import queue
 import time
+import threading
 import pyaudio
 import numpy as np
 import sounddevice as sd
@@ -18,6 +19,16 @@ class Stream():
 
         # Define a buffer to store audio frames
         self.buffer = queue.Queue()
+
+        self.RECORDING = False
+
+    def start(self):
+        self.RECORDING = True
+        threading.Thread(target=self.record, daemon=True).start()
+
+    def stop(self):
+        self.RECORDING = False
+        self.buffer.queue.clear()
 
     def record(self):
         pass
@@ -39,7 +50,7 @@ class SoundDeviceStream(Stream):
                                 blocksize=self.frames_per_buffer,
                                 dtype="int16",
                                 callback=callback):
-                while True:
+                while self.RECORDING:
                     time.sleep(0.1)
 
         except Exception as e:
