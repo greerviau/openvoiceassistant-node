@@ -3,6 +3,7 @@ import wave
 import os
 import io
 import pydub
+import pygame
 from pydub.playback import play
 import threading
 from subprocess import call
@@ -105,6 +106,22 @@ class APlayer(AudioPlayer):
    def play_audio_file(self, file: str, asynchronous: bool = False):
         def play_audio():
             call(["aplay", file])
+
+        if asynchronous:
+            threading.Thread(target=play_audio).start()
+        else:
+            play_audio()
+
+class PygamePlayer(AudioPlayer):
+    def play_audio_file(self, file: str, asynchronous: bool = False):
+        def play_audio():
+            pygame.mixer.init()
+            pygame.mixer.music.load(file)
+            pygame.mixer.music.set_volume(1.0)
+            pygame.mixer.music.play()
+
+            while pygame.mixer.music.get_busy() == True:
+                pass
 
         if asynchronous:
             threading.Thread(target=play_audio).start()
