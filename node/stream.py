@@ -17,7 +17,7 @@ class Stream():
         self.frames_per_buffer = frames_per_buffer
 
         # Define a buffer to store audio frames
-        self.buffer = queue.Queue()
+        self.buffer = queue.Queue(recording_buffer_size)
 
     def record(self):
         pass
@@ -44,6 +44,7 @@ class SoundDeviceStream(Stream):
                                 callback=callback):
                 while True:
                     time.sleep(0.1)
+
         except Exception as e:
             print(repr(e))
             print("Error recording")
