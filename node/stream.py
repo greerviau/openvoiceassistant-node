@@ -19,9 +19,6 @@ class Stream():
         # Define a buffer to store audio frames
         self.buffer = queue.Queue()
 
-    def start(self):
-        self.record()
-
     def record(self):
         pass
 

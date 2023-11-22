@@ -30,7 +30,7 @@ class Node:
         print('Starting node')
         self.running = True
         threading.Thread(target=self.processor.run, daemon=True).start()
-        self.stream.start()
+        self.stream.record()
 
     def stop(self):
         self.running = False
