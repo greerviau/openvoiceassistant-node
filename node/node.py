@@ -6,13 +6,14 @@ import threading
 from node import config
 from node.stream import PyaudioStream, SoundDeviceStream
 from node.listener import Listener
-from node.audio_player import PyaudioPlayer, PydubPlayer
+from node.audio_player import PyaudioPlayer, PydubPlayer, APlayer
 from node.processor import Processor
 from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
 
 PLAYBACK = {
     "pyaudio": PyaudioPlayer,
-    "pydub": PydubPlayer
+    "pydub": PydubPlayer,
+    "aplay": APlayer
 }
 
 class Node:

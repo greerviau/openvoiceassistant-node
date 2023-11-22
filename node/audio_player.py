@@ -5,6 +5,7 @@ import io
 import pydub
 from pydub.playback import play
 import threading
+from subprocess import call
 
 from node import config
 from node.utils.audio import *
@@ -100,3 +101,12 @@ class PyaudioPlayer(AudioPlayer):
 
         self.p.terminate()
 
+class APlayer(AudioPlayer):
+   def play_audio_file(self, file: str, asynchronous: bool = False):
+        def play_audio():
+            call(["aplay", file])
+
+        if asynchronous:
+            threading.Thread(target=play_audio).start()
+        else:
+            play_audio()
