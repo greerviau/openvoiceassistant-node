@@ -34,7 +34,7 @@ class Listener:
         self.vad_chunk_size = 960 # 30ms
         self.vad_audio_data = bytes()
 
-        self.engaged_delay = 3 # 5sec
+        self.engaged_delay = 3 # seconds
     
     def listen(self, engaged: bool=False): 
         buffer = queue.Queue()
@@ -53,6 +53,8 @@ class Listener:
                 self.wake.reset()
                 while True:
                     if self.wake.listen_for_wake_word(buffer.get()): break
+                    
+        self.node.pause_flag.set()
         
         if self.wakeup_sound:
             self.node.audio_player.play_audio_file('node/sounds/activate.wav', asynchronous=True)
@@ -60,16 +62,14 @@ class Listener:
 
         audio_data = []
 
+        buffer.queue.clear()
+
         with sd.RawInputStream(samplerate=self.sample_rate, 
                                     device=self.mic_idx, 
                                     channels=self.channels, 
                                     blocksize=self.frames_per_buffer,
                                     dtype="int16",
                                     callback=callback):
-            # Capture ~0.5 seconds of audio
-            s = time.time()
-            while time.time() - s < 0.5:
-                audio_data.append(buffer.get())
 
             start = time.time()
 
@@ -114,7 +114,7 @@ class Listener:
                                 is_speech = True
                         '''
 
-                        if engaged and time.time() - start < self.engaged_delay:    # If we are engaged, wait at least 5 seconds to hear something
+                        if  (time.time() - start < 1) or (engaged and time.time() - start < self.engaged_delay):    # If we are engaged, wait a few seconds to hear something
                             is_speech = True
                         if not is_speech:
                             '''

@@ -93,7 +93,6 @@ class Processor():
                             1)
                 
                 self.node.audio_player.play_audio_file('response.wav')
-                time.sleep(0.2)
         else:
             print('No response from HUB')
 
