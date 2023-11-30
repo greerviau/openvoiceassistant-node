@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./env/node/bin/activate
+source ./env/bin/activate
 
 export PA_ALSA_PLUGHW=1
 

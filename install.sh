@@ -9,8 +9,8 @@ apt install -y python3-pip python3.11-venv python3-pyaudio \
 
 CWD=$(pwd)
 
-python3.11 -m venv $CWD/env/node
+python3.11 -m venv $CWD/env
 
-source $CWD/env/node/bin/activate
+source $CWD/env/bin/activate
  
 python3.11 -m pip install -r requirements.txt
