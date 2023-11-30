@@ -18,7 +18,7 @@ class AudioPlayer:
     def play_audio_file(self, file: str, asynchronous: bool = False):
         def play_audio():
             data, fs = sf.read(file, dtype='float32')  
-            sd.play(data, fs)
+            sd.play(data, fs, device=self.speaker_idx)
             status = sd.wait()
         if asynchronous:
             threading.Thread(target=play_audio, daemon=True).start()
