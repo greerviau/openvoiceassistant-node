@@ -64,21 +64,11 @@ def __default_config():
         "node_id": node_id,
         "node_name": f"node_{node_id}",
         "hub_ip": hub_ip,
-        "wakeup": {
-            "wake_word": "computer",
-            "wakeup_sound": True
-        },
+        "wake_word": "computer",
+        "wakeup_sound": True,
         "mic_index": list(find_microphones().keys())[0],
         "vad_sensitivity": 3,
-        "playback": {
-            "algorithm": "pyaudio",
-            "options": [
-                "pyaudio",
-                "aplay",
-                "pydub"
-            ], 
-            "speaker_index": list(find_speakers().keys())[0]
-        },
+        "speaker_index": list(find_speakers().keys())[0]
     }
 
 load_config()

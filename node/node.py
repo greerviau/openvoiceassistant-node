@@ -4,18 +4,10 @@ import time
 import threading
 
 from node import config
-from node.stream import PyaudioStream, SoundDeviceStream
 from node.listener import Listener
-from node.audio_player import PyaudioPlayer, PydubPlayer, APlayer, PygamePlayer
+from node.audio_player import AudioPlayer
 from node.processor import Processor
 from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
-
-PLAYBACK = {
-    "pyaudio": PyaudioPlayer,
-    "pydub": PydubPlayer,
-    "aplay": APlayer,
-    "pygame": PygamePlayer
-}
 
 class Node:
     def __init__(self, debug: bool):
@@ -67,18 +59,16 @@ class Node:
         self.audio_channels = 1
 
         # SPEAKER SETTINGS
-        self.speaker_idx = config.get('playback', 'speaker_index')
+        self.speaker_idx = config.get('speaker_index')
 
         print('\nAvailable Speakers')
         [print(f'- {speaker}') for speaker in list_speakers()]
 
         _, self.speaker_tag = select_speaker(self.speaker_idx)
 
-        playback_algo = config.get('playback', 'algorithm')
-
         # LISTENER SETTINGS
         self.vad_sensitivity = config.get('vad_sensitivity')
-        self.wake_word = config.get('wakeup', 'wake_word')
+        self.wake_word = config.get('wake_word')
 
         print('\n\nNode Info')
         print('- ID:             ', self.node_id)
@@ -92,21 +82,17 @@ class Node:
         print('- Sample Width:   ', self.sample_width)
         print('- Audio Channels: ', self.audio_channels)
         print('- Speaker:        ', self.speaker_tag)
-        print('- Playback:       ', playback_algo)
         
         # INITIALIZING COMPONENTS
-        self.stream = SoundDeviceStream(self, frames_per_buffer=1600)
-        self.listener = Listener(self)
-        self.audio_player = PLAYBACK[playback_algo](self)
+        self.audio_player = AudioPlayer(self)
+        self.listener = Listener(self, frames_per_buffer=1600)
         self.processor = Processor(self)
     
     def run(self):
         self.last_time_engaged = time.time()
         engaged = False
         while self.running:
-            self.stream.start()
             audio_data = self.listener.listen(engaged)
-            self.stream.stop()
             engaged = self.processor.process_audio(audio_data)
             self.pause_flag.clear()
 

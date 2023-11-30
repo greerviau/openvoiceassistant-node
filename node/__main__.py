@@ -23,10 +23,11 @@ def run_node(debug, no_sync, sync_up):
         node_name = config.get('node_name')
         device_ip = get_my_ip()
         hub_ip = config.get('hub_ip')
-        wakeup = config.get('wakeup')
+        wake_word = config.get('wake_word')
+        wakeup_sound = config.get('wakeup_sound')
         mic_index = config.get('mic_index')
         vad_sensitivity = config.get('vad_sensitivity')
-        playback = config.get('playback')
+        speaker_index = config.get('speaker_index')
 
         if not hub_ip:
             hub_ip = scan_for_hub(device_ip, 5010)
@@ -38,10 +39,11 @@ def run_node(debug, no_sync, sync_up):
             'node_id': node_id,
             'node_name': node_name,
             'node_api_url': f'http://{device_ip}:5005/api',
-            'wakeup': wakeup,
+            'wake_word': wake_word,
+            'wakeup_sound': wakeup_sound,
             'mic_index': mic_index,
             'vad_sensitivity': vad_sensitivity,
-            'playback': playback
+            'speaker_index': speaker_index
         }
 
         try:
@@ -53,10 +55,11 @@ def run_node(debug, no_sync, sync_up):
             config_json = response.json()
             print(config_json)
             config.set('node_name', config_json['node_name'])
-            config.set('wakeup', config_json['wakeup'])
+            config.set('wake_word', config_json['wake_word'])
+            config.set('wakeup_sound', config_json['wakeup_sound'])
             config.set('mic_index', config_json['mic_index'])
             config.set('vad_sensitivity', config_json['vad_sensitivity'])
-            config.set('playback', config_json['playback'])
+            config.set('speaker_index', config_json['speaker_index'])
 
         except Exception as e:
             print(repr(e))

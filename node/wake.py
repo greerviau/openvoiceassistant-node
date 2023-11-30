@@ -1,8 +1,6 @@
 import vosk
 import json
 
-from node.stream import Stream
-
 vosk.SetLogLevel(-1)
 
 class KaldiWake:
@@ -16,31 +14,28 @@ class KaldiWake:
             self.model = vosk.Model(lang='en-us')
         except:
             self.model = vosk.Model('vosk_model')
-    
-    def listen_for_wake_word(self, stream: Stream):
-        print('Listening for wake word...')
-        while True:
-            rec = vosk.KaldiRecognizer(self.model, 
+
+    def reset(self):
+        self.rec = vosk.KaldiRecognizer(self.model, 
                                         self.sample_rate,
                                         #f'["{self.wake_word}", "[unk]"]'
                                         )
-            while True:
-                chunk = stream.get_chunk()
-
-                # Add audio frames to the Vosk recognizer
-                if rec.AcceptWaveform(chunk):
-                    res = json.loads(rec.Result())
-                    print(res)
-                    if self.wake_word in res['text']:
-                        print('Wake word!')
-                        return
-                    else:
-                        break
-                else:
-                    # Check if speech has started
-                    partial = json.loads(rec.PartialResult())
-                    print(partial["partial"])
-                    if self.wake_word in partial["partial"]:
-                        print('Wake word!')
-                        return
+    
+    def listen_for_wake_word(self, chunk: bytes):
+        # Add audio frames to the Vosk recognizer
+        if self.rec.AcceptWaveform(chunk):
+            res = json.loads(self.rec.Result())
+            print(res)
+            if self.wake_word in res['text']:
+                print('Wake word!')
+                return True
+            else:
+                return False
+        else:
+            # Check if speech has started
+            partial = json.loads(self.rec.PartialResult())
+            print(partial["partial"])
+            if self.wake_word in partial["partial"]:
+                print('Wake word!')
+                return True
 
