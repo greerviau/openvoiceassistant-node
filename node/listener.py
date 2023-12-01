@@ -34,7 +34,7 @@ class Listener:
         self.vad_chunk_size = 960 # 30ms
         self.vad_audio_data = bytes()
 
-        self.engaged_delay = 3 # seconds
+        self.engaged_delay = 5 # seconds
     
     def listen(self, engaged: bool=False): 
         buffer = queue.Queue()
@@ -114,7 +114,7 @@ class Listener:
                                 is_speech = True
                         '''
 
-                        if  (time.time() - start < 1) or (engaged and time.time() - start < self.engaged_delay):    # If we are engaged, wait a few seconds to hear something
+                        if time.time() - start < self.engaged_delay:    # If we are engaged, wait a few seconds to hear something
                             is_speech = True
                         if not is_speech:
                             '''
