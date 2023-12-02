@@ -39,10 +39,13 @@ def create_app(node: Node):
     
     @app.route('/api/set_volume', methods=['PUT'])
     def set_volume():
-        data = flask.request.json
-        volume = data.volume_percent
-        config.set('volume', volume)
-        node.set_volume(volume)
+        try:
+            data = flask.request.json
+            volume = data.volume_percent
+            config.set('volume', volume)
+            node.set_volume(volume)
+        except Exception as e:
+            print(e)
         return {}, 200
 
     @app.route('/api/microphones', methods=['GET'])
