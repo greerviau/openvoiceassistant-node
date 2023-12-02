@@ -14,8 +14,10 @@ class AudioPlayer:
             while self.speaker_busy.is_set():
                 time.sleep(0.1)
             self.speaker_busy.set()
+            print('Speaker busy')
             self.play_sounddevice(file)
             self.speaker_busy.clear()
+            print('Speaker not busy')
 
         if asynchronous:
             threading.Thread(target=play_audio, daemon=True).start()
