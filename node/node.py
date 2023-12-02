@@ -33,6 +33,7 @@ class Node:
     def initialize(self):
 
         self.pause_flag = threading.Event()
+        self.interrupt_flag = threading.Event()
 
         self.alarm_thread = None
         self.alarm_flag = threading.Event()
