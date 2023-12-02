@@ -20,7 +20,7 @@ class Listener:
         self.channels = node.audio_channels
         self.frames_per_buffer = frames_per_buffer
         self.sensitivity = node.vad_sensitivity
-        self.wakeup_sound = config.get('wakeup_sound')
+        self.wakeup_sound = node.wakeup_sound
 
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)

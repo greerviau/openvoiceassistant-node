@@ -38,12 +38,15 @@ class Node:
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
         self.hub_ip = config.get('hub_ip')
+        self.wake_word = config.get('wake_word')
+        self.wakeup_sound = config.get('wakeup_sound')
+        self.mic_idx = config.get('mic_index')
+        self.speaker_idx = config.get('speaker_index')
+        self.vad_sensitivity = config.get('vad_sensitivity')
 
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
 
         # MICROPHONE SETTINGS
-        self.mic_idx = config.get('mic_index')
-
         print('\nAvailable Microphones:')
         [print(f'- {mic}') for mic in list_microphones()]
 
@@ -59,17 +62,12 @@ class Node:
         self.audio_channels = 1
 
         # SPEAKER SETTINGS
-        self.speaker_idx = config.get('speaker_index')
-
         print('\nAvailable Speakers')
         [print(f'- {speaker}') for speaker in list_speakers()]
 
         _, self.speaker_tag = select_speaker(self.speaker_idx)
 
         # LISTENER SETTINGS
-        self.vad_sensitivity = config.get('vad_sensitivity')
-        self.wake_word = config.get('wake_word')
-
         print('\n\nNode Info')
         print('- ID:             ', self.node_id)
         print('- Name:           ', self.node_name)
