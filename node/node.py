@@ -103,7 +103,7 @@ class Node:
 
     def set_volume(self, volume: int):
         if volume >= 0 and volume <= 100:
-            mixer = alsaaudio.Mixer()
+            mixer = alsaaudio.Mixer('PCM')
             mixer.setvolume(volume) 
             mixer.setmute(0)    # Unmute the speaker
 
