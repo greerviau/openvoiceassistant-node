@@ -53,8 +53,6 @@ class Listener:
                 self.wake.reset()
                 while True:
                     if self.wake.listen_for_wake_word(buffer.get()): break
-                    
-        self.node.alarm_flag.set()
         
         if self.wakeup_sound:
             self.node.audio_player.play_audio_file('node/sounds/activate.wav', asynchronous=True)
