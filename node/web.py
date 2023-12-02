@@ -37,7 +37,7 @@ def create_app(node: Node):
         node.stop_alarm()
         return {}, 200
     
-    @app.route('/api/set_volume', methods=['POST'])
+    @app.route('/api/set_volume', methods=['PUT'])
     def set_volume():
         data = flask.request.json
         volume = data['volume_percent']
