@@ -41,7 +41,7 @@ def create_app(node: Node):
     def set_volume():
         try:
             data = flask.request.json
-            volume = data.volume_percent
+            volume = data['volume_percent']
             config.set('volume', volume)
             node.set_volume(volume)
         except Exception as e:
