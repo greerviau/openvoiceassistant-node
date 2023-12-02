@@ -25,6 +25,7 @@ class AudioPlayer:
             play_audio()
 
     def stop_playing(self):
+        print('Audio stopped')
         sd.stop()
 
     def play_sounddevice(self, file):
