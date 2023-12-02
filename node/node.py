@@ -31,8 +31,6 @@ class Node:
         self.start()
 
     def initialize(self):
-        self.pause_flag = threading.Event()
-
         self.alarm_thread = None
         self.alarm_flag = threading.Event()
 
@@ -96,7 +94,6 @@ class Node:
         while self.running:
             audio_data = self.listener.listen(engaged)
             engaged = self.processor.process_audio(audio_data)
-            self.pause_flag.clear()
 
                 
         print('Mainloop end')
@@ -113,9 +110,10 @@ class Node:
         def alarm():
             print('Playing alarm')
             while not self.alarm_flag.is_set():
-                if not self.pause_flag.is_set(): self.audio_player.play_audio_file('node/sounds/alarm.wav')
+                self.audio_player.play_audio_file('node/sounds/alarm.wav')
                 time.sleep(0.1)
             print('Alarm finished')
+            self.alarm_flag.clear()
         if not self.alarm_thread:
             self.alarm_thread = threading.Thread(target=alarm, daemon=True)
             self.alarm_thread.start()
