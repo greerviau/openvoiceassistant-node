@@ -14,7 +14,7 @@ class AudioPlayer:
             while self.speaker_busy.is_set():
                 time.sleep(0.1)
             self.speaker_busy.set()
-            self.play_output_stream(file)
+            self.play_sounddevice(file)
             self.speaker_busy.clear()
 
         if asynchronous:
@@ -22,10 +22,12 @@ class AudioPlayer:
         else:
             play_audio()
 
+    def stop_playing(self):
+        sd.stop()
+
     def play_sounddevice(self, file):
         data, fs = sf.read(file, dtype='float32')  
-        sd.play(data, fs, device=self.speaker_idx)
-        status = sd.wait()
+        sd.play(data, fs, device=self.speaker_idx, blocking=True)
 
     def play_output_stream(self, file):
         event = threading.Event()

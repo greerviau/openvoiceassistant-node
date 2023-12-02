@@ -54,6 +54,7 @@ class Listener:
                 while True:
                     if self.wake.listen_for_wake_word(buffer.get()): break
                     
+        self.node.audio_player.stop()
         self.node.pause_flag.set()
         
         if self.wakeup_sound:
