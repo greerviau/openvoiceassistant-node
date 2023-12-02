@@ -41,6 +41,7 @@ def create_app(node: Node):
     def set_volume():
         data = flask.request.json
         volume = data.volume_percent
+        config.set('volume', volume)
         node.set_volume(volume)
         return {}, 200
 
