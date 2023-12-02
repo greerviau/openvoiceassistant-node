@@ -7,22 +7,12 @@ class AudioPlayer:
     def __init__(self, node):
         self.node = node
         self.speaker_idx = node.speaker_idx
-        self.speaker_busy = threading.Event()
 
     def play_audio_file(self, file: str, asynchronous: bool = False):
-        def play_audio():
-            while self.speaker_busy.is_set():
-                time.sleep(0.1)
-            self.speaker_busy.set()
-            print('Speaker busy')
-            self.play_sounddevice(file)
-            self.speaker_busy.clear()
-            print('Speaker not busy')
 
-        if asynchronous:
-            threading.Thread(target=play_audio, daemon=True).start()
-        else:
-            play_audio()
+            self.play_sounddevice(file)
+            if not asynchronous:
+                sd.wait()
 
     def stop_playing(self):
         print('Audio stopped')
