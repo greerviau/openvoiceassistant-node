@@ -2,7 +2,7 @@ import requests
 import wave
 import time
 import threading
-import alsaaudio
+from subprocess import call
 
 from node import config
 from node.listener import Listener
@@ -103,9 +103,7 @@ class Node:
 
     def set_volume(self, volume: int):
         if volume >= 0 and volume <= 100:
-            mixer = alsaaudio.Mixer('PCM')
-            mixer.setvolume(volume) 
-            mixer.setmute(0)    # Unmute the speaker
+            call(["amixer", "cset", "numid=1", f"{volume}%"])
 
     def play_alarm(self):
         def alarm():
