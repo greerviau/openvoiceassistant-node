@@ -36,6 +36,11 @@ def create_app(node: Node):
     def stop_alarm():
         node.stop_alarm()
         return {}, 200
+    
+    @app.route('/api/set_volume', methods=['POST'])
+    def set_volume():
+        node.set_volume()
+        return {}, 200
 
     @app.route('/api/microphones', methods=['GET'])
     def get_microphones():

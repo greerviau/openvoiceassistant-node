@@ -2,6 +2,7 @@ import requests
 import wave
 import time
 import threading
+import alsaaudio
 
 from node import config
 from node.listener import Listener
@@ -44,6 +45,8 @@ class Node:
         self.speaker_idx = config.get('speaker_index')
         self.vad_sensitivity = config.get('vad_sensitivity')
         self.volume = config.get('volume')
+
+        self.set_volume(self.volume)
 
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
 
@@ -97,6 +100,12 @@ class Node:
 
                 
         print('Mainloop end')
+
+    def set_volume(self, volume: int):
+        if volume >= 0 and volume <= 100:
+            mixer = alsaaudio.Mixer()
+            mixer.setvolume(volume) 
+            mixer.setmute(0)    # Unmute the speaker
 
     def play_alarm(self):
         def alarm():
