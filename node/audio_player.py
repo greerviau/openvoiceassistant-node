@@ -41,6 +41,7 @@ class AudioPlayer:
 
                 stream = sd.RawOutputStream(samplerate=wf.samplerate,
                                             device=self.speaker_idx,
+                                            dtype='float32',
                                             channels=wf.channels,
                                             callback=callback,
                                             blocksize=1024,
