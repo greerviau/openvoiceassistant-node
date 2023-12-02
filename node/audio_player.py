@@ -32,10 +32,9 @@ class AudioPlayer:
         with sf.SoundFile(file) as wf:
             def callback(outdata, frames, time, status):
                 data = wf.buffer_read(frames, dtype='float32')
-                if len(outdata) > len(data) or self.node.interrupt_flag.is_set():
+                if len(outdata) > len(data):
                     outdata[:len(data)] = data
                     outdata[len(data):] = b'\x00' * (len(outdata) - len(data))
-                    self.node.interrupt_flag.clear()
                     raise sd.CallbackStop
                 else:
                     outdata[:] = data
