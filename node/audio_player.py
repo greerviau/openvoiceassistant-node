@@ -32,7 +32,7 @@ class AudioPlayer:
         event = threading.Event()
         def callback(outdata, frames, time, status):
             data = wf.buffer_read(frames, dtype='float32')
-            if len(outdata) > len(data):
+            if len(outdata) > len(data) or self.node.pause_flag.is_set():
                 outdata[:len(data)] = data
                 outdata[len(data):] = b'\x00' * (len(outdata) - len(data))
                 raise sd.CallbackStop
@@ -44,6 +44,6 @@ class AudioPlayer:
                                     channels=wf.channels,
                                     callback=callback,
                                     blocksize=1024,
-                                    finished_callback=self.node.pause_flag.set)
+                                    finished_callback=event.set)
             with stream:
                 event.wait()
