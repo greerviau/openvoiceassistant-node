@@ -4,4 +4,4 @@ source ./env/bin/activate
 
 export PA_ALSA_PLUGHW=1
 
-python3 -m node
+python -m node
