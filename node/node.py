@@ -14,11 +14,6 @@ class Node:
     def __init__(self, debug: bool):
         self.debug = debug
 
-        self.pause_flag = threading.Event()
-
-        self.alarm_thread = None
-        self.alarm_flag = threading.Event()
-
         self.initialize()
 
     def start(self):
@@ -36,6 +31,11 @@ class Node:
         self.start()
 
     def initialize(self):
+        self.pause_flag = threading.Event()
+
+        self.alarm_thread = None
+        self.alarm_flag = threading.Event()
+
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
         self.hub_ip = config.get('hub_ip')
@@ -107,7 +107,7 @@ class Node:
             mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
             mixer.setvolume(volume)
         else:
-            print('Failed to set volume: (Out of range 0-100)')
+            print('Failed to set volume: (Out of range 0-1)')
 
     def play_alarm(self):
         def alarm():

@@ -39,7 +39,9 @@ def create_app(node: Node):
     
     @app.route('/api/set_volume', methods=['POST'])
     def set_volume():
-        node.set_volume()
+        data = flask.request.json
+        volume = data['volume_percent']
+        node.set_volume(volume)
         return {}, 200
 
     @app.route('/api/microphones', methods=['GET'])
