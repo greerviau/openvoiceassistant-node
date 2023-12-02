@@ -46,8 +46,6 @@ class Node:
         self.vad_sensitivity = config.get('vad_sensitivity')
         self.volume = config.get('volume')
 
-        self.set_volume(self.volume)
-
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
 
         # MICROPHONE SETTINGS
@@ -84,6 +82,8 @@ class Node:
         print('- Sample Width:   ', self.sample_width)
         print('- Audio Channels: ', self.audio_channels)
         print('- Speaker:        ', self.speaker_tag)
+
+        self.set_volume(self.volume)
         
         # INITIALIZING COMPONENTS
         self.audio_player = AudioPlayer(self)
