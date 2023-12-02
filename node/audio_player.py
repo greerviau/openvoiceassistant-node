@@ -40,9 +40,10 @@ class AudioPlayer:
                     outdata[:] = data
 
                 stream = sd.RawOutputStream(samplerate=wf.samplerate,
-                                        channels=wf.channels,
-                                        callback=callback,
-                                        blocksize=1024,
-                                        finished_callback=event.set)
+                                            device=self.speaker_idx,
+                                            channels=wf.channels,
+                                            callback=callback,
+                                            blocksize=1024,
+                                            finished_callback=event.set)
                 with stream:
                     event.wait()
