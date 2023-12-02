@@ -11,7 +11,8 @@ class AudioPlayer:
 
     def play_audio_file(self, file: str, asynchronous: bool = False):
         def play_audio():
-            self.speaker_busy.wait()
+            while self.speaker_busy.is_set():
+                time.sleep(0.1)
             self.speaker_busy.set()
             self.play_sounddevice(file)
             self.speaker_busy.clear()
