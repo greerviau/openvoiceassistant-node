@@ -68,7 +68,8 @@ def __default_config():
         "wakeup_sound": True,
         "mic_index": list(find_microphones().keys())[0],
         "vad_sensitivity": 3,
-        "speaker_index": list(find_speakers().keys())[0]
+        "speaker_index": list(find_speakers().keys())[0],
+        "volume": 1
     }
 
 load_config()

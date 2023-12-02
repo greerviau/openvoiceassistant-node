@@ -43,6 +43,7 @@ class Node:
         self.mic_idx = config.get('mic_index')
         self.speaker_idx = config.get('speaker_index')
         self.vad_sensitivity = config.get('vad_sensitivity')
+        self.volume = config.get('volume')
 
         self.hub_api_url = f'http://{self.hub_ip}:{5010}/api'
 
