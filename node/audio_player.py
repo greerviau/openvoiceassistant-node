@@ -13,7 +13,7 @@ class AudioPlayer:
         def play_audio():
             self.speaker_busy.wait()
             self.speaker_busy.set()
-            self.play_output_stream(file)
+            self.play_sounddevice(file)
             self.speaker_busy.clear()
 
         if asynchronous:
