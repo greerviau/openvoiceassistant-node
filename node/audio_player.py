@@ -14,7 +14,7 @@ class AudioPlayer:
             while self.speaker_busy.is_set():
                 time.sleep(0.1)
             self.speaker_busy.set()
-            self.play_sounddevice(file)
+            self.play_output_stream(file)
             self.speaker_busy.clear()
 
         if asynchronous:
