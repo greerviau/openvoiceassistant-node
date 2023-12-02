@@ -2,7 +2,7 @@ import requests
 import wave
 import time
 import threading
-from subprocess import call
+import alsaaudio
 
 from node import config
 from node.listener import Listener
@@ -102,7 +102,12 @@ class Node:
         print('Mainloop end')
 
     def set_volume(self, volume: int):
-        pass
+        if volume >= 0 and volume <= 100:
+            mixer_card = alsaaudio.mixers(cardindex=self.speaker_idx)[0]
+            mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
+            mixer.setvolume(volume)
+        else:
+            print('Failed to set volume: (Out of range 0-100)')
 
     def play_alarm(self):
         def alarm():
