@@ -18,7 +18,7 @@ def create_app(node: Node):
         return config.config, 200
 
     @app.route('/api/config', methods=['PUT'])
-    def put_config(node_id: str):
+    def put_config():
         node_config = flask.request.json
         config.set('node_name', node_config.node_name)
         config.set('mic_index', node_config.mic_index)
@@ -40,7 +40,7 @@ def create_app(node: Node):
     @app.route('/api/set_volume', methods=['PUT'])
     def set_volume():
         data = flask.request.json
-        volume = data['volume_percent']
+        volume = data.volume_percent
         node.set_volume(volume)
         return {}, 200
 
