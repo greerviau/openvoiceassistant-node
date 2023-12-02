@@ -103,7 +103,7 @@ class Node:
 
     def set_volume(self, volume: int):
         if volume >= 0 and volume <= 100:
-            call(["amixer", "cset", "numid=1", f"{volume}%"])
+            call(["amixer", "-q", "-M", "sset", "PCM", f"{volume}%"])
 
     def play_alarm(self):
         def alarm():
