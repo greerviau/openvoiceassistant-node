@@ -103,7 +103,7 @@ class Listener:
                             is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
                         
                         
-                        print(is_speech)
+                        #print(is_speech)
                         '''
                         if is_speech:
                             speech_end = 0
