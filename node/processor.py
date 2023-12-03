@@ -79,10 +79,13 @@ class Processor():
             print('Conf:', context['conf'])
             print('Response: ', response)
             print('Deltas')
+            print('- Time to Send: ', context['time_recieved'] - context['time_sent'])
             print('- Transcribe: ', context['time_to_transcribe'])
             print('- Understand: ', context['time_to_understand'])
             print('- Action: ', context['time_to_action'])
             print('- Synth: ', context['time_to_synthesize'])
+            print('- Run Pipeline: ', context['time_to_run_pipeline'])
+            print('- Time to Return: ', time.time() - context['time_returned'])
 
             response_audio_data_hex = context['response_audio_data_hex']
             response_sample_rate = context['response_audio_sample_rate']
