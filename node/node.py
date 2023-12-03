@@ -115,6 +115,7 @@ class Node:
             def timer_finished():
                 self.audio_player.play_audio_file('node/sounds/alarm.wav', asynchronous=True, loop=True)
             self.timer = Timer(durration_seconds, timer_finished)
+            self.timer.start()
 
     def get_timer(self):
         if self.timer:
