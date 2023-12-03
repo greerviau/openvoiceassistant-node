@@ -36,8 +36,9 @@ def create_app(node: Node):
 
     @app.route('/api/timer_remaining_time', methods=['GET'])
     def timer_remaining_time():
-        node.stop_alarm()
-        return {}, 200
+        return {
+            "time_remaining": node.get_timer()
+        }, 200
     
     @app.route('/api/set_volume', methods=['PUT'])
     def set_volume():
