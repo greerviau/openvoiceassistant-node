@@ -34,7 +34,7 @@ class Listener:
         self.vad_chunk_size = 960 # 30ms
         self.vad_audio_data = bytes()
 
-        self.engaged_delay = 3 # seconds
+        self.engaged_delay = 2 # seconds
     
     def listen(self, engaged: bool=False): 
         buffer = queue.Queue()

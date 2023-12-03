@@ -27,13 +27,15 @@ def create_app(node: Node):
         node.restart()
         return node_config, 200
     
-    @app.route('/api/play_alarm', methods=['POST'])
-    def play_alarm():
-        node.play_alarm()
+    @app.route('/api/set_timer', methods=['POST'])
+    def set_timer():
+        data = flask.request.json
+        durration = data['durration']
+        node.set_timer(durration)
         return {}, 200
 
-    @app.route('/api/stop_alarm', methods=['POST'])
-    def stop_alarm():
+    @app.route('/api/timer_remaining_time', methods=['GET'])
+    def timer_remaining_time():
         node.stop_alarm()
         return {}, 200
     

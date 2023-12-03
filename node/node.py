@@ -8,6 +8,7 @@ from node import config
 from node.listener import Listener
 from node.audio_player import AudioPlayer
 from node.processor import Processor
+from node.timer import Timer
 from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
 
 class Node:
@@ -34,8 +35,7 @@ class Node:
 
         self.pause_flag = threading.Event()
 
-        self.alarm_thread = None
-        self.alarm_flag = threading.Event()
+        self.timer = None
 
         self.node_id = config.get('node_id')
         self.node_name = config.get('node_name')
@@ -110,20 +110,11 @@ class Node:
         else:
             print('Failed to set volume: (Out of range 0-1)')
 
-    def play_alarm(self):
-        def alarm():
-            print('Playing alarm')
-            while not self.alarm_flag.is_set():
-                if not self.pause_flag.is_set(): 
-                    self.audio_player.play_audio_file('node/sounds/alarm.wav')
-                time.sleep(0.1)
-            print('Alarm finished')
-            self.alarm_flag.clear()
-        if not self.alarm_thread:
-            self.alarm_thread = threading.Thread(target=alarm, daemon=True)
-            self.alarm_thread.start()
+    def set_timer(self, durration_seconds: int):
+        if self.timer == None:
+            def timer_finished():
+                self.audio_player.play_audio_file('node/sounds/alarm.wav', asynchronous=True, loop=True)
+            self.timer = Timer(durration_seconds, timer_finished)
 
-    def stop_alarm(self):
-        if self.alarm_thread:
-            self.alarm_flag.set()
-            self.alarm_thread = None
+    def get_timer(self):
+        return self.timer.remaining()
