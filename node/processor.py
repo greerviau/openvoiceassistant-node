@@ -86,6 +86,7 @@ class Processor():
             print('- Synth: ', context['time_to_synthesize'])
             print('- Run Pipeline: ', context['time_to_run_pipeline'])
             print('- Time to Return: ', time.time() - context['time_returned'])
+            print('- Total: ', time.time() - context['time_sent'])
 
             response_audio_data_hex = context['response_audio_data_hex']
             response_sample_rate = context['response_audio_sample_rate']
