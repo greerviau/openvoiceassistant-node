@@ -121,6 +121,6 @@ class Node:
 
     def get_timer(self):
         if self.timer:
-            return self.timer.remaining()
+            return int(self.timer.remaining())
         else:
             return 0
