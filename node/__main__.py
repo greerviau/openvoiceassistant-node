@@ -21,6 +21,7 @@ def run_node(debug, no_sync, sync_up):
 
         node_id = config.get('node_id')
         node_name = config.get('node_name')
+        node_area = config.get('node_area')
         device_ip = get_my_ip()
         hub_ip = config.get('hub_ip')
         wake_word = config.get('wake_word')
@@ -38,6 +39,7 @@ def run_node(debug, no_sync, sync_up):
         sync_data = {        
             'node_id': node_id,
             'node_name': node_name,
+            'node_area': node_area,
             'node_api_url': f'http://{device_ip}:5005/api',
             'wake_word': wake_word,
             'wakeup_sound': wakeup_sound,
@@ -55,6 +57,7 @@ def run_node(debug, no_sync, sync_up):
             config_json = response.json()
             print(config_json)
             config.set('node_name', config_json['node_name'])
+            config.set('node_area', config_json['node_area'])
             config.set('wake_word', config_json['wake_word'])
             config.set('wakeup_sound', config_json['wakeup_sound'])
             config.set('mic_index', config_json['mic_index'])

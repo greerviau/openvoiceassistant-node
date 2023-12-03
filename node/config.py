@@ -63,6 +63,7 @@ def __default_config():
     return {
         "node_id": node_id,
         "node_name": f"node_{node_id}",
+        "node_area": "",
         "hub_ip": hub_ip,
         "wake_word": "computer",
         "wakeup_sound": True,
