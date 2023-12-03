@@ -8,11 +8,12 @@ class AudioPlayer:
         self.node = node
         self.speaker_idx = node.speaker_idx
 
-    def play_audio_file(self, file: str, asynchronous: bool = False):
+    def play_audio_file(self, file: str, asynchronous: bool = False, loop: bool = False):
+            if asynchronous == False and loop == True:
+                raise RuntimeWarning('Infinite loop detected')
 
-            self.play_sounddevice(file)
-            if not asynchronous:
-                sd.wait()
+            data, fs = sf.read(file, dtype='float32')  
+            sd.play(data, fs, device=self.speaker_idx, blocking=(not asynchronous), loop=loop)
 
     def stop_playing(self):
         print('Audio stopped')
