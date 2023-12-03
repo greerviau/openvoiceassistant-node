@@ -26,6 +26,8 @@ class Processor():
 
         payload = {
             'node_id': self.node.node_id,
+            'node_name': self.node.node_name,
+            'node_area': self.node.node_area,
             'command_audio_data_hex': audio_data.hex(), 
             'command_audio_sample_rate': self.node.sample_rate, 
             'command_audio_sample_width': self.node.sample_width, 
@@ -76,9 +78,10 @@ class Processor():
             print('Action:', context['action'])
             print('Conf:', context['conf'])
             print('Response: ', response)
-            print('Time Deltas')
+            print('Deltas')
             print('- Transcribe: ', context['time_to_transcribe'])
             print('- Understand: ', context['time_to_understand'])
+            print('- Action: ', context['time_to_action'])
             print('- Synth: ', context['time_to_synthesize'])
 
             response_audio_data_hex = context['response_audio_data_hex']
