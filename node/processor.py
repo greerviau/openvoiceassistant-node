@@ -14,7 +14,7 @@ class Processor():
 
         time_sent = time.time()
 
-        command_audio_data = open('command.wav', 'rb')
+        command_audio_data = open('command.wav', 'rb').read()
         print(type(command_audio_data))
 
         payload = {
