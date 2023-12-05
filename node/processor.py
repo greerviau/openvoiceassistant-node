@@ -15,13 +15,12 @@ class Processor():
         time_sent = time.time()
 
         command_audio_data = open('command.wav', 'rb').read()
-        print(type(command_audio_data))
 
         payload = {
             'node_id': self.node.node_id,
             'node_name': self.node.node_name,
             'node_area': self.node.node_area,
-            'command_audio_data': command_audio_data,
+            'command_audio_data': command_audio_data.hex(),
             'hub_callback': self.hub_callback,
             'last_time_engaged': self.node.last_time_engaged,
             'time_sent': time_sent
