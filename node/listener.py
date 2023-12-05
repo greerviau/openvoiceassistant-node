@@ -67,8 +67,9 @@ class Listener:
         buffer.queue.clear()
 
         with sf.SoundFile('command.wav', 
-                           samplerate=self.sample_rate, 
-                           channels=self.channels) as wav_file:
+                            mode='w',
+                            samplerate=self.sample_rate, 
+                            channels=self.channels) as wav_file:
 
             with sd.RawInputStream(samplerate=self.sample_rate, 
                                         device=self.mic_idx, 
