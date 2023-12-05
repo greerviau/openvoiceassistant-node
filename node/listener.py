@@ -80,17 +80,11 @@ class Listener:
 
                     audio_data.append(chunk)
 
-                    with io.BytesIO() as wav_buffer:
-                        wav_file: wave.Wave_write = wave.open(wav_buffer, "wb")
-                        with wav_file:
-                            wav_file.setframerate(self.sample_rate)
-                            wav_file.setsampwidth(self.sample_width)
-                            wav_file.setnchannels(self.channels)
-                            wav_file.writeframes(chunk)
-
-                        wav_bytes = wav_buffer.getvalue()
-
-                        self.vad_audio_data += maybe_resample_wav(wav_bytes, sample_rate=self.sample_rate, sample_width=2, channels=1)
+                    with wave.open('command.wav', "wb") as wav_file:
+                        wav_file.setframerate(self.sample_rate)
+                        wav_file.setsampwidth(self.sample_width)
+                        wav_file.setnchannels(self.channels)
+                        wav_file.writeframes(chunk)
 
                         is_speech = False
 

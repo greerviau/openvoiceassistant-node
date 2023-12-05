@@ -1,8 +1,5 @@
 import requests
-import wave
 import time
-
-from node.utils.audio import save_wave
 
 class Processor():
     def __init__(self, node):
@@ -15,23 +12,13 @@ class Processor():
 
         engaged = False
 
-        wf = wave.open('command.wav', 'wb')
-        wf.setframerate(self.node.sample_rate)
-        wf.setsampwidth(self.node.sample_width)
-        wf.setnchannels(self.node.audio_channels)
-        wf.writeframes(audio_data)
-        wf.close()
-
         time_sent = time.time()
 
         payload = {
             'node_id': self.node.node_id,
             'node_name': self.node.node_name,
             'node_area': self.node.node_area,
-            'command_audio_data_hex': audio_data.hex(), 
-            'command_audio_sample_rate': self.node.sample_rate, 
-            'command_audio_sample_width': self.node.sample_width, 
-            'command_audio_channels': self.node.audio_channels,
+            'command_audio_data': open('command.wav', 'rb'),
             'hub_callback': self.hub_callback,
             'last_time_engaged': self.node.last_time_engaged,
             'time_sent': time_sent
@@ -87,19 +74,12 @@ class Processor():
             print('- Run Pipeline: ', context['time_to_run_pipeline'])
             print('- Time to Return: ', time.time() - context['time_returned'])
             print('- Total: ', time.time() - context['time_sent'])
-
-            response_audio_data_hex = context['response_audio_data_hex']
-            response_sample_rate = context['response_audio_sample_rate']
-            response_sample_width = context['response_audio_sample_width']
-
-            if response is not None:
-                save_wave('response.wav',
-                            bytes.fromhex(response_audio_data_hex),
-                            response_sample_rate,
-                            response_sample_width,
-                            1)
-                
-                self.node.audio_player.play_audio_file('response.wav')
+            
+            response_audio_data = context['response_audio_data']
+            with open('response.wav', 'wb') as wav_file:
+                wav_file.write(response_audio_data)
+                    
+            self.node.audio_player.play_audio_file('response.wav')
         else:
             print('No response from HUB')
 

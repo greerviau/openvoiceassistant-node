@@ -26,6 +26,18 @@ def create_app(node: Node):
         config.set('vad_sensitivity', node_config.vad_sensitivity)
         node.restart()
         return node_config, 200
+       
+    @app.route('/api/play', methods=['PUT'])
+    def play():
+        try:
+            context = flask.request.json
+            response_audio_data = context['response_audio_data']
+            with open('play.wav', 'wb') as wav_file:
+                wav_file.write(response_audio_data)
+            node.audio_player.play_audio_file('play.wav')
+        except Exception as e:
+            print(e)
+        return {}, 200
     
     @app.route('/api/set_timer', methods=['POST'])
     def set_timer():
