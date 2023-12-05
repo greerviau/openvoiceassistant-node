@@ -6,6 +6,8 @@ After=multi-user.target
 WorkingDirectory=OVAPATH
 ExecStart=/bin/bash OVAPATH/scripts/start_node.sh
 User=USER
+Restart=always
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
