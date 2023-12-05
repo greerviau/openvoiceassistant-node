@@ -1,9 +1,9 @@
-from typing import List, Dict, Tuple, Union
-
-import sounddevice as sd
+import typing
 import pyaudio
+import sounddevice as sd
 
-def find_devices(kind) -> Dict[int, Dict]:
+
+def find_devices(kind) -> typing.Dict[int, typing.Dict]:
     if kind not in ['input', 'output']:
         raise RuntimeError('Device kind must be \"input\" or \"output\"')
     devices = sd.query_devices()
@@ -16,13 +16,13 @@ def find_devices(kind) -> Dict[int, Dict]:
             pass
     return filtered
 
-def find_microphones() -> Dict[int, Dict]:
+def find_microphones() -> typing.Dict[int, typing.Dict]:
     return find_devices('input')
 
-def find_speakers() -> Dict[int, Dict]:
+def find_speakers() -> typing.Dict[int, typing.Dict]:
     return find_devices('output')
 
-def list_microphones() -> List[str]:
+def list_microphones() -> typing.List[str]:
     mics = find_microphones()
     mic_list = []
     for i, info in mics.items():
@@ -31,7 +31,7 @@ def list_microphones() -> List[str]:
         mic_list.append(f'{i}: {name}')
     return mic_list
 
-def list_speakers() -> List[str]:
+def list_speakers() -> typing.List[str]:
     speakers = find_speakers()
     speaker_list = []
     for i, info in speakers.items():
@@ -40,7 +40,7 @@ def list_speakers() -> List[str]:
         speaker_list.append(f'{i}: {name}')
     return speaker_list
 
-def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
+def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
     microphones = find_microphones()
     try:
         if isinstance(mic, str):
@@ -54,7 +54,7 @@ def select_mic(mic: Union[str, int]) -> Tuple[int, str]:
         
     return mic_index, mic_tag
 
-def select_speaker(speaker: Union[str, int]) -> Tuple[int, str]:
+def select_speaker(speaker: typing.Union[str, int]) -> typing.Tuple[int, str]:
     speakers = find_speakers()
     try:
         if isinstance(speaker, str):
@@ -68,7 +68,7 @@ def select_speaker(speaker: Union[str, int]) -> Tuple[int, str]:
         
     return speaker_index, speaker_tag
 
-def get_supported_samplerates(mic_index: int, samplerates: List[int]):
+def get_supported_samplerates(mic_index: int, samplerates: typing.List[int]):
     paudio = pyaudio.PyAudio()
     supported_samplerates = []
     for fs in samplerates:

@@ -1,5 +1,3 @@
-import requests
-import wave
 import time
 import threading
 import alsaaudio

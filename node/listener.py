@@ -4,11 +4,9 @@ import collections
 import webrtcvad
 import queue
 import sounddevice as sd
-import soundfile as sf
 
 from node.wake import KaldiWake
 from node.utils.audio import *
-from node import config
 
 
 class Listener:

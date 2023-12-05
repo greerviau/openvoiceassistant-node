@@ -157,3 +157,4 @@ command.wav
 response.wav
 model
 vosk_model
+Dockerfile
