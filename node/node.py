@@ -75,7 +75,7 @@ class Node:
         print(f"- Name:           {self.node_name}")
         print(f"- HUB:            {self.hub_ip}")
         print(f"- Wake Word:      {self.wake_word}")
-        print(f"IO Settings")
+        print(f"\nIO Settings")
         print(f"- Microphone:     {self.mic_tag}")
         print(f"- Microphone IDX: {self.mic_idx}")
         print(f"- Sample Rate:    {self.sample_rate}")
