@@ -43,7 +43,7 @@ with sd.RawInputStream(samplerate=samplerate, device=DEVICE, callback=callback, 
 
             # Add audio frames to the Vosk recognizer
             if rec.AcceptWaveform(frame):
-                print('Recording stopped')
+                print("Recording stopped")
                 print(rec.Result())
                 dump_fn.close()
                 dump_fn = None
@@ -63,7 +63,7 @@ with sd.RawInputStream(samplerate=samplerate, device=DEVICE, callback=callback, 
                     for f in recording_buffer:  # Write the recording buffer to the file
                         dump_fn.writeframes(f)
                     speech_started = True
-                    print('Recording started...')
+                    print("Recording started...")
 
             # If we havent detected the hotword, write audio frames to the buffer
             # The recording buffer avoids a cutoff at the begining of the recording

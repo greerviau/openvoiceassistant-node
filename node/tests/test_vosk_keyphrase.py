@@ -16,10 +16,10 @@ device_info = sd.query_devices(DEVICE, "input")
 samplerate = int(device_info["default_samplerate"])
 
 # Define the Vosk model and its configuration
-model = vosk.Model(lang='en-us')
+model = vosk.Model(lang="en-us")
 rec = vosk.KaldiRecognizer(model, 
                            samplerate,
-                           '["computer"]')
+                           "['computer']")
 
 # Define a buffer to store audio frames
 buffer = queue.Queue()

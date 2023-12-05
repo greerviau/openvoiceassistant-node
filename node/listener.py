@@ -42,7 +42,7 @@ class Listener:
             buffer.put(bytes(in_data))
 
         if not engaged:        
-            print('Stream started')
+            print("Stream started")
             with sd.RawInputStream(samplerate=self.sample_rate, 
                                     device=self.mic_idx, 
                                     channels=self.channels, 
@@ -57,14 +57,14 @@ class Listener:
         self.node.pause_flag.set()
         
         if self.wakeup_sound:
-            self.node.audio_player.play_audio_file('node/sounds/activate.wav', asynchronous=True)
+            self.node.audio_player.play_audio_file("node/sounds/activate.wav", asynchronous=True)
             #audio_data = [chunk for chunk in stream.recording_buffer]
 
         audio_data = []
 
         buffer.queue.clear()
 
-        with wave.open('command.wav', "wb") as wav_file:
+        with wave.open("command.wav", "wb") as wav_file:
             wav_file.setframerate(self.sample_rate)
             wav_file.setsampwidth(self.sample_width)
             wav_file.setnchannels(self.channels)
@@ -96,31 +96,12 @@ class Listener:
                             # Speech in any chunk counts as speech
                             is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
                         
-                        
                         #print(is_speech)
-                        '''
-                        if is_speech:
-                            speech_end = 0
-                        else:
-                            if speech_end == 0:
-                                is_speech = True
-                                speech_end = time.time()
-                            elif time.time() - speech_end < 0.5:
-                                is_speech = True
-                        '''
 
                         if time.time() - start < self.engaged_delay:    # If we are engaged, wait a few seconds to hear something
                             is_speech = True
                         if not is_speech:
-                            '''
-                            # Capture ~0.5 seconds of audio
-                            s = time.time()
-                            while time.time() - s < 0.5:
-                                chunk = stream.get_chunk()
-                                audio_data.append(chunk)
-                            '''
-
                             if self.wakeup_sound:
-                                self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
-                            return b''.join(audio_data)
+                                self.node.audio_player.play_audio_file("node/sounds/deactivate.wav", asynchronous=True)
+                            return b"".join(audio_data)
                             

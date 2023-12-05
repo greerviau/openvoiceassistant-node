@@ -11,14 +11,14 @@ class KaldiWake:
         self.wake_word = wake_word
         self.sample_rate = sample_rate
         try:
-            self.model = vosk.Model(lang='en-us')
+            self.model = vosk.Model(lang="en-us")
         except:
-            self.model = vosk.Model('vosk_model')
+            self.model = vosk.Model("vosk_model")
 
     def reset(self):
         self.rec = vosk.KaldiRecognizer(self.model, 
                                         self.sample_rate,
-                                        #f'["{self.wake_word}", "[unk]"]'
+                                        #f"["{self.wake_word}", "[unk]"]"
                                         )
     
     def listen_for_wake_word(self, chunk: bytes):
@@ -26,8 +26,8 @@ class KaldiWake:
         if self.rec.AcceptWaveform(chunk):
             res = json.loads(self.rec.Result())
             #print(res)
-            if self.wake_word in res['text']:
-                print('Wake word!')
+            if self.wake_word in res["text"]:
+                print("Wake word!")
                 return True
             else:
                 return False
@@ -36,6 +36,6 @@ class KaldiWake:
             partial = json.loads(self.rec.PartialResult())
             #print(partial["partial"])
             if self.wake_word in partial["partial"]:
-                print('Wake word!')
+                print("Wake word!")
                 return True
 

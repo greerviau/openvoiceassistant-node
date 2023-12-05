@@ -17,7 +17,7 @@ def get_my_ip():
 
 
 def pinger(job_q, results_q):
-    DEVNULL = open(os.devnull, 'w')
+    DEVNULL = open(os.devnull, "w")
     while True:
 
         ip = job_q.get()
@@ -25,30 +25,30 @@ def pinger(job_q, results_q):
         if ip is None:
             break
 
-        if os.name != 'nt':
+        if os.name != "nt":
             try:
-                subprocess.check_call(['ping', '-c1', '-W1', ip], stdout=DEVNULL)
+                subprocess.check_call(["ping", "-c1", "-W1", ip], stdout=DEVNULL)
                 results_q.put(ip)
-                print(f'{ip} alive')
+                print(f"{ip} alive")
             except:
                 pass
         else:
             try:
-                subprocess.check_call(['ping', 'n 1', 'w 1', ip], stdout=DEVNULL)
+                subprocess.check_call(["ping", "n 1", "w 1", ip], stdout=DEVNULL)
                 results_q.put(ip)
-                print(f'{ip} alive')
+                print(f"{ip} alive")
             except:
                 pass
 
 
 def map_network(my_ip: str, pool_size=255):
-    print('Mapping network')
+    print("Mapping network")
     
-    ip_list = ['127.0.0.1']
+    ip_list = ["127.0.0.1"]
     
     # get my IP and compose a base like 192.168.1.xxx
-    ip_parts = my_ip.split('.')
-    base_ip = ip_parts[0] + '.' + ip_parts[1] + '.' + ip_parts[2] + '.'
+    ip_parts = my_ip.split(".")
+    base_ip = ip_parts[0] + "." + ip_parts[1] + "." + ip_parts[2] + "."
     
     # prepare the jobs queue
     jobs = multiprocessing.Queue()
@@ -61,7 +61,7 @@ def map_network(my_ip: str, pool_size=255):
     
     # queue the ping processes
     for i in range(1, 255):
-        jobs.put(base_ip + '{0}'.format(i))
+        jobs.put(base_ip + "{0}".format(i))
     
     for p in pool:
         jobs.put(None)
@@ -78,24 +78,24 @@ def map_network(my_ip: str, pool_size=255):
 
 
 def get_subnet(ip: str):
-    return str(ipaddress.ip_network(f'{ip}/255.255.255.0', strict=False))
+    return str(ipaddress.ip_network(f"{ip}/255.255.255.0", strict=False))
 
 
 def scan_for_hub(my_ip: str, port: int):
     run = True
-    print('Scanning for HUB')
+    print("Scanning for HUB")
     while run:
         devices = map_network(my_ip)
         for device in devices:
-            url = f'http://{device}:{port}/api'
-            print('Testing: ', url)
+            url = f"http://{device}:{port}/api"
+            print("Testing: ", url)
             try:
                 response = requests.get(url, timeout=5)
                 response.raise_for_status()
                 data = response.json()
-                if 'is_ova' in data:
-                    if 'is_ova':
-                        print('Hub Found')
+                if "is_ova" in data:
+                    if "is_ova":
+                        print("Hub Found")
                         return device
                 raise Exception
             except requests.exceptions.ConnectionError as e:

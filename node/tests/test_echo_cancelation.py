@@ -22,14 +22,14 @@ stream = p.open(format=FORMAT,
                 frames_per_buffer=CHUNK)
 
 def play_audio():
-    print('Playing audio...')
+    print("Playing audio...")
     wave_obj = sa.WaveObject.from_wave_file("recording.wav")
     play_obj = wave_obj.play()
 
 play_thread = threading.Thread(target=play_audio)
 play_thread.start()
 
-print('Recording...')
+print("Recording...")
 
 frames = []
 
@@ -43,9 +43,9 @@ stream.stop_stream()
 stream.close()
 p.terminate()
 
-wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+wf = wave.open(WAVE_OUTPUT_FILENAME, "wb")
 wf.setnchannels(CHANNELS)
 wf.setsampwidth(p.get_sample_size(FORMAT))
 wf.setframerate(RATE)
-wf.writeframes(b''.join(frames))
+wf.writeframes(b"".join(frames))
 wf.close()
