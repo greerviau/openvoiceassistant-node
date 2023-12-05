@@ -12,7 +12,7 @@ from node import config
 
 
 class Listener:
-    def __init__(self, node, frames_per_buffer: int = 1024):
+    def __init__(self, node, frames_per_buffer: int = 4000):
         self.node = node
         self.wake_word = node.wake_word
         self.mic_idx = node.mic_idx
