@@ -35,7 +35,7 @@ def create_app(node: Node):
             data = bytes.fromhex(response_audio_data)
             with open('play.wav', 'wb') as wav_file:
                 wav_file.write(data)
-            node.audio_player.play_audio_file('play.wav')
+            node.audio_player.play_audio_file('play.wav', asynchronous=True)
         except Exception as e:
             print(e)
         return {}, 200
