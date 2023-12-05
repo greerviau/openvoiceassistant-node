@@ -4,6 +4,7 @@ import collections
 import webrtcvad
 import queue
 import sounddevice as sd
+import soundfile as sf
 
 from node.wake import KaldiWake
 from node.utils.audio import *
@@ -65,26 +66,26 @@ class Listener:
 
         buffer.queue.clear()
 
-        with sd.RawInputStream(samplerate=self.sample_rate, 
-                                    device=self.mic_idx, 
-                                    channels=self.channels, 
-                                    blocksize=self.frames_per_buffer,
-                                    dtype="int16",
-                                    callback=callback):
+        with sf.SoundFile('command.wav', 
+                           samplerate=self.sample_rate, 
+                           channels=self.channels) as wav_file:
 
-            start = time.time()
+            with sd.RawInputStream(samplerate=self.sample_rate, 
+                                        device=self.mic_idx, 
+                                        channels=self.channels, 
+                                        blocksize=self.frames_per_buffer,
+                                        dtype="int16",
+                                        callback=callback):
 
-            while True:
-                chunk = buffer.get()
-                if chunk:
+                start = time.time()
 
-                    audio_data.append(chunk)
+                while True:
+                    chunk = buffer.get()
+                    if chunk:
 
-                    with wave.open('command.wav', "wb") as wav_file:
-                        wav_file.setframerate(self.sample_rate)
-                        wav_file.setsampwidth(self.sample_width)
-                        wav_file.setnchannels(self.channels)
-                        wav_file.writeframes(chunk)
+                        wav_file.write(chunk)
+
+                        audio_data.append(chunk)
 
                         is_speech = False
 
@@ -123,4 +124,4 @@ class Listener:
                             if self.wakeup_sound:
                                 self.node.audio_player.play_audio_file('node/sounds/deactivate.wav', asynchronous=True)
                             return b''.join(audio_data)
-                        
+                            
