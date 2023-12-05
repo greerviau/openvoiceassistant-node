@@ -92,7 +92,11 @@ def scan_for_hub(my_ip: str, port: int):
             try:
                 response = requests.get(url, timeout=5)
                 response.raise_for_status()
-                print('Hub Found')
-                return device
+                data = response.json()
+                if 'is_ova' in data:
+                    if 'is_ova':
+                        print('Hub Found')
+                        return device
+                raise Exception
             except requests.exceptions.ConnectionError as e:
                 pass

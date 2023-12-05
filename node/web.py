@@ -1,4 +1,5 @@
 import flask
+import requests
 
 from node import config
 from node.node import Node
@@ -15,7 +16,7 @@ def create_app(node: Node):
 
     @app.route('/api/config', methods=['GET'])
     def get_config() -> NodeConfig:
-        return config.config, 200
+        return config.get(), 200
 
     @app.route('/api/config', methods=['PUT'])
     def put_config():
@@ -27,10 +28,26 @@ def create_app(node: Node):
         node.restart()
         return node_config, 200
        
-    @app.route('/api/play', methods=['PUT'])
+    @app.route('/api/play/audio', methods=['POST'])
     def play():
         try:
             context = flask.request.json
+            response_audio_data = context['response_audio_data']
+            data = bytes.fromhex(response_audio_data)
+            with open('play.wav', 'wb') as wav_file:
+                wav_file.write(data)
+            node.audio_player.play_audio_file('play.wav', asynchronous=True)
+        except Exception as e:
+            print(e)
+        return {}, 200
+    
+    @app.route('/api/play/text', methods=['POST'])
+    def play():
+        try:
+            data = flask.request.json
+            text = data['text']
+            respond_response = requests.get(f'{node.hub_api_url}/synthesizer/synthesize/{text}')
+            context = respond_response.json()
             response_audio_data = context['response_audio_data']
             data = bytes.fromhex(response_audio_data)
             with open('play.wav', 'wb') as wav_file:
