@@ -70,7 +70,7 @@ class Node:
         _, self.speaker_tag = select_speaker(self.speaker_idx)
 
         # LISTENER SETTINGS
-        print("\n\nNode Info")
+        print("\nNode Info")
         print(f"- ID:             {self.node_id}")
         print(f"- Name:           {self.node_name}")
         print(f"- HUB:            {self.hub_ip}")
