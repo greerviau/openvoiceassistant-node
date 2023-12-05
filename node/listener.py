@@ -66,11 +66,10 @@ class Listener:
 
         buffer.queue.clear()
 
-        with sf.SoundFile('command.wav', 
-                            mode='w',
-                            samplerate=self.sample_rate, 
-                            channels=self.channels,
-                            subtype='PCM_16') as wav_file:
+        with wave.open('command.wav', "wb") as wav_file:
+            wav_file.setframerate(self.sample_rate)
+            wav_file.setsampwidth(self.sample_width)
+            wav_file.setnchannels(self.channels)
 
             with sd.RawInputStream(samplerate=self.sample_rate, 
                                         device=self.mic_idx, 
@@ -85,7 +84,7 @@ class Listener:
                     chunk = buffer.get()
                     if chunk:
 
-                        wav_file.write(chunk)
+                        wav_file.writeframes(chunk)
 
                         audio_data.append(chunk)
 
