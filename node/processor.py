@@ -18,7 +18,7 @@ class Processor():
             'node_id': self.node.node_id,
             'node_name': self.node.node_name,
             'node_area': self.node.node_area,
-            'command_audio_data': open('command.wav', 'rb'),
+            'command_audio_data': open('command.wav', 'rb').hex(),
             'hub_callback': self.hub_callback,
             'last_time_engaged': self.node.last_time_engaged,
             'time_sent': time_sent
@@ -76,8 +76,9 @@ class Processor():
             print('- Total: ', time.time() - context['time_sent'])
             
             response_audio_data = context['response_audio_data']
+            data = bytes.fromhex(response_audio_data)
             with open('response.wav', 'wb') as wav_file:
-                wav_file.write(response_audio_data)
+                wav_file.write(data)
                     
             self.node.audio_player.play_audio_file('response.wav')
         else:
