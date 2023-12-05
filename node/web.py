@@ -29,7 +29,7 @@ def create_app(node: Node):
         return node_config, 200
        
     @app.route('/api/play/audio', methods=['POST'])
-    def play():
+    def play_audio():
         try:
             context = flask.request.json
             response_audio_data = context['response_audio_data']
@@ -42,7 +42,7 @@ def create_app(node: Node):
         return {}, 200
     
     @app.route('/api/play/text', methods=['POST'])
-    def play():
+    def play_text():
         try:
             data = flask.request.json
             text = data['text']
