@@ -13,6 +13,9 @@ from node.utils.network import get_my_ip, scan_for_hub
 @click.option("--sync_up", is_flag=True)
 def run_node(debug, no_sync, sync_up):
 
+    if debug:
+        print("==DEBUG MODE==")
+
     if not no_sync:
 
         # Run Startup Sync with HUB
@@ -76,7 +79,7 @@ def run_node(debug, no_sync, sync_up):
             print(repr(e))
             raise RuntimeError("HUB Sync Failed")
 
-        print("Sync Complete")
+        print("Sync Complete!")
 
     node = Node(debug)
     
