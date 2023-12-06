@@ -97,7 +97,7 @@ class Listener:
                             # Speech in any chunk counts as speech
                             is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
                         
-                        #print(is_speech)
+                        print(is_speech)
 
                         if time.time() - start < self.engaged_delay:    # If we are engaged, wait a few seconds to hear something
                             is_speech = True
