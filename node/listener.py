@@ -10,7 +10,7 @@ from node.utils.audio import *
 
 
 class Listener:
-    def __init__(self, node, frames_per_buffer: int = 1024):
+    def __init__(self, node, frames_per_buffer: int = 4000):
         self.node = node
         self.wake_word = node.wake_word
         self.mic_idx = node.mic_idx
@@ -31,7 +31,6 @@ class Listener:
         self.vad.set_mode(self.sensitivity)
 
         self.vad_chunk_size = 960 # 30ms
-        self.vad_audio_data = bytes()
 
         self.engaged_delay = 2 # seconds
     
@@ -78,6 +77,7 @@ class Listener:
 
                 start = time.time()
                 not_speech_start_time = None
+                vad_audio_data = bytes()
                 while True:
                     chunk = buffer.get()
                     if chunk:
@@ -85,13 +85,14 @@ class Listener:
                         wav_file.writeframes(chunk)
 
                         audio_data.append(chunk)
+                        vad_audio_data.append(chunk)
 
                         is_speech = False
 
                         # Process in chunks of 30ms for webrtcvad
-                        while len(self.vad_audio_data) >= self.vad_chunk_size:
-                            vad_chunk = self.vad_audio_data[: self.vad_chunk_size]
-                            self.vad_audio_data = self.vad_audio_data[self.vad_chunk_size:]
+                        while len(vad_audio_data) >= self.vad_chunk_size:
+                            vad_chunk = vad_audio_data[: self.vad_chunk_size]
+                            vad_audio_data = vad_audio_data[self.vad_chunk_size:]
 
                             # Speech in any chunk counts as speech
                             is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
