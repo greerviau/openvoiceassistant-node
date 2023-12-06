@@ -80,6 +80,7 @@ class Listener:
 
                 while True:
                     chunk = buffer.get()
+                    not_speech_start_time = None
                     if chunk:
 
                         wav_file.writeframes(chunk)
@@ -101,7 +102,11 @@ class Listener:
                         if time.time() - start < self.engaged_delay:    # If we are engaged, wait a few seconds to hear something
                             is_speech = True
                         if not is_speech:
-                            if self.wakeup_sound:
-                                self.node.audio_player.play_audio_file("node/sounds/deactivate.wav", asynchronous=True)
-                            return b"".join(audio_data)
+                            if not not_speech_start_time:
+                                not_speech_start_time = time.time()
+                            if time.time() - not_speech_start_time > 0.5:   # Make sure we get at least .5 seconds of no speech
+                                not_speech_start_time = None
+                                if self.wakeup_sound:
+                                    self.node.audio_player.play_audio_file("node/sounds/deactivate.wav", asynchronous=True)
+                                return b"".join(audio_data)
                             
