@@ -25,7 +25,7 @@ class KaldiWake:
         # Add audio frames to the Vosk recognizer
         if self.rec.AcceptWaveform(chunk):
             res = json.loads(self.rec.Result())
-            print(res)
+            #print(res)
             if self.wake_word in res["text"]:
                 print("Wake word!")
                 return True
@@ -34,7 +34,7 @@ class KaldiWake:
         else:
             # Check if speech has started
             partial = json.loads(self.rec.PartialResult())
-            print(partial["partial"])
+            #print(partial["partial"])
             if self.wake_word in partial["partial"]:
                 print("Wake word!")
                 return True
