@@ -77,7 +77,7 @@ class Listener:
 
                 start = time.time()
                 not_speech_start_time = None
-                vad_audio_data =[]
+                vad_audio_data = bytes
                 while True:
                     chunk = buffer.get()
                     if chunk:
@@ -85,7 +85,7 @@ class Listener:
                         wav_file.writeframes(chunk)
 
                         audio_data.append(chunk)
-                        vad_audio_data.append(chunk)
+                        vad_audio_data += chunk
 
                         is_speech = False
 
