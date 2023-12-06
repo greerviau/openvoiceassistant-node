@@ -77,7 +77,7 @@ class Listener:
 
                 start = time.time()
                 not_speech_start_time = None
-                vad_audio_data = bytes
+                vad_audio_data = bytes()
                 while True:
                     chunk = buffer.get()
                     if chunk:
