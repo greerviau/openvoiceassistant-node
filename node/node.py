@@ -1,4 +1,5 @@
 import time
+import os
 import threading
 import alsaaudio
 
@@ -30,6 +31,13 @@ class Node:
         self.start()
 
     def initialize(self):
+
+        self.base_dir = os.path.realpath(os.path.dirname(__file__))
+        self.sounds_dir = os.path.join(self.base_dir, 'sounds')
+        self.file_dump = os.path.join(self.base_dir, 'file_dump')
+        
+        os.makedirs(self.sounds_dir, exist_ok=True)
+        os.makedirs(self.file_dump, exist_ok=True)
 
         self.pause_flag = threading.Event()
 
