@@ -1,4 +1,5 @@
 import requests
+import os
 import time
 
 class Processor():
@@ -14,7 +15,7 @@ class Processor():
 
         time_sent = time.time()
 
-        command_audio_data = open("command.wav", "rb").read()
+        command_audio_data = open(os.path.join(self.node.file_dump, "command.wav"), "rb").read()
 
         payload = {
             "node_id": self.node.node_id,
@@ -82,7 +83,7 @@ class Processor():
             with open("response.wav", "wb") as wav_file:
                 wav_file.write(data)
                     
-            self.node.audio_player.play_audio_file("response.wav")
+            self.node.audio_player.play_audio_file(os.path.join(self.node.file_dump, "response.wav"))
         else:
             print("No response from HUB")
 

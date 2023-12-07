@@ -1,5 +1,6 @@
 
 import time
+import os
 import collections
 import webrtcvad
 import queue
@@ -56,14 +57,14 @@ class Listener:
         self.node.pause_flag.set()
         
         if self.wakeup_sound:
-            self.node.audio_player.play_audio_file("node/sounds/activate.wav", asynchronous=True)
+            self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)
             #audio_data = [chunk for chunk in stream.recording_buffer]
 
         audio_data = []
 
         buffer.queue.clear()
 
-        with wave.open("command.wav", "wb") as wav_file:
+        with wave.open(os.path.join(self.node.file_dump, "command.wav"), "wb") as wav_file:
             wav_file.setframerate(self.sample_rate)
             wav_file.setsampwidth(self.sample_width)
             wav_file.setnchannels(self.channels)
@@ -107,6 +108,6 @@ class Listener:
                             if time.time() - not_speech_start_time > 0.5:   # Make sure we get at least .5 seconds of no speech
                                 not_speech_start_time = None
                                 if self.wakeup_sound:
-                                    self.node.audio_player.play_audio_file("node/sounds/deactivate.wav", asynchronous=True)
+                                    self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "deactivate.wav"), asynchronous=True)
                                 return b"".join(audio_data)
                             
