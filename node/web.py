@@ -1,4 +1,5 @@
 import flask
+import os
 import requests
 
 from node import config
@@ -31,9 +32,9 @@ def create_app(node: Node):
     @app.route("/api/play/audio", methods=["POST"])
     def play_audio():
         try:
-            context = flask.request.json
-            response_audio_data = context["response_audio_data"]
-            data = bytes.fromhex(response_audio_data)
+            data = flask.request.json
+            audio_data = data["audio_data"]
+            data = bytes.fromhex(audio_data)
             with open("play.wav", "wb") as wav_file:
                 wav_file.write(data)
             node.audio_player.play_audio_file("play.wav", asynchronous=True)
@@ -41,7 +42,21 @@ def create_app(node: Node):
             print(e)
         return {}, 200
     
-    @app.route("/api/play/text", methods=["POST"])
+    @app.route("/api/play/file", methods=["POST"])
+    def play_audio():
+        try:
+            data = flask.request.json
+            file = data["file"]
+            loop = data["loop"]
+            if os.file.exists(os.path.join(node.file_dump, file)):
+                node.audio_player.play_audio_file("play.wav", asynchronous=True, loop=loop)
+            else:
+                return {"error": "Could not find file"}, 404
+        except Exception as e:
+            print(e)
+        return {}, 200
+    
+    @app.route("/api/announce", methods=["POST"])
     def play_text():
         try:
             data = flask.request.json
