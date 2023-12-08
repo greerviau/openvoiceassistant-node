@@ -63,7 +63,9 @@ class Processor():
 
             if self.hub_callback: engaged = True
 
-            print("Command: ", context["cleaned_command"])
+            print("Command: ", context["command"])
+            print("Cleaned Command: ", context["cleaned_command"])
+            print("Encoded Command: ", context["encoded_command"])
             print("Skill:", context["skill"])
             print("Action:", context["action"])
             print("Conf:", context["conf"])
