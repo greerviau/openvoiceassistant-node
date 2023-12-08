@@ -43,7 +43,7 @@ def create_app(node: Node):
         return {}, 200
     
     @app.route("/api/play/file", methods=["POST"])
-    def play_audio():
+    def play_file():
         try:
             data = flask.request.json
             file = data["file"]
@@ -57,7 +57,7 @@ def create_app(node: Node):
         return {}, 200
     
     @app.route("/api/announce", methods=["POST"])
-    def play_text():
+    def announce():
         try:
             data = flask.request.json
             text = data["text"]
