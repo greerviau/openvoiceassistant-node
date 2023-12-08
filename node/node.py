@@ -122,7 +122,7 @@ class Node:
             def timer_finished():
                 self.timer.cancel()
                 self.timer = None
-                self.audio_player.play_audio_file(os.path.join(self.file_dump, "alarm.wav"), asynchronous=True, loop=True)
+                self.audio_player.play_audio_file(os.path.join(self.sounds_dir, "alarm.wav"), asynchronous=True, loop=True)
             self.timer = Timer(durration_seconds, timer_finished)
             self.timer.start()
 
