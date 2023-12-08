@@ -80,10 +80,11 @@ class Processor():
             
             response_audio_data = context["response_audio_data"]
             data = bytes.fromhex(response_audio_data)
-            with open("response.wav", "wb") as wav_file:
+            response_file_path = os.path.join(self.node.file_dump, "response.wav")
+            with open(response_file_path, "wb") as wav_file:
                 wav_file.write(data)
                     
-            self.node.audio_player.play_audio_file(os.path.join(self.node.file_dump, "response.wav"))
+            self.node.audio_player.play_audio_file(response_file_path)
         else:
             print("No response from HUB")
 
