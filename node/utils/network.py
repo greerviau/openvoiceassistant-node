@@ -41,8 +41,10 @@ def pinger(job_q, results_q):
                 pass
 
 
-def map_network(my_ip: str, pool_size=255):
+def map_network(my_ip: str):
     print("Mapping network")
+
+    pool_size = multiprocessing.cpu_count()
     
     ip_list = ["127.0.0.1"]
     
