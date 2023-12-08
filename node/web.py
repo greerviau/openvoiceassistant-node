@@ -78,6 +78,11 @@ def create_app(node: Node):
         durration = data["durration"]
         node.set_timer(durration)
         return {}, 200
+    
+    @app.route("/api/stop_timer", methods=["GET"])
+    def stop_timer():
+        node.stop_timer()
+        return {}, 200
 
     @app.route("/api/timer_remaining_time", methods=["GET"])
     def timer_remaining_time():

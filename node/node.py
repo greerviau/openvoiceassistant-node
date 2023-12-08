@@ -126,6 +126,10 @@ class Node:
             self.timer = Timer(durration_seconds, timer_finished)
             self.timer.start()
 
+    def stop_timer(self):
+        self.timer.cancel()
+        self.timer = None
+
     def get_timer(self):
         if self.timer:
             return int(self.timer.remaining())
