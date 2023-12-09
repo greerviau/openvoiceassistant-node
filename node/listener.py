@@ -53,10 +53,9 @@ class Listener:
                 while True:
                     if self.wake.listen_for_wake_word(buffer.get()): break
                     
-        self.node.audio_player.stop_playing()
-        self.node.pause_flag.set()
+        self.node.audio_player.interrupt()
         
-        if self.wakeup_sound:
+        if self.wakeup_sound:           
             self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)
             #audio_data = [chunk for chunk in stream.recording_buffer]
 
@@ -108,6 +107,7 @@ class Listener:
                             if time.time() - not_speech_start_time > 0.5:   # Make sure we get at least .5 seconds of no speech
                                 not_speech_start_time = None
                                 if self.wakeup_sound:
+                                    self.node.audio_player.interrupt()
                                     self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "deactivate.wav"), asynchronous=True)
                                 return b"".join(audio_data)
                             

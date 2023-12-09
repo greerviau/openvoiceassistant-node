@@ -39,8 +39,6 @@ class Node:
         os.makedirs(self.sounds_dir, exist_ok=True)
         os.makedirs(self.file_dump, exist_ok=True)
 
-        self.pause_flag = threading.Event()
-
         self.timer = None
 
         self.node_id = config.get("node_id")
@@ -104,7 +102,6 @@ class Node:
         while self.running:
             audio_data = self.listener.listen(engaged)
             engaged = self.processor.process_audio(audio_data)
-            self.pause_flag.clear()
 
                 
         print("Mainloop end")

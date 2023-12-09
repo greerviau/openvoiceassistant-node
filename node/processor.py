@@ -86,6 +86,7 @@ class Processor():
             with open(response_file_path, "wb") as wav_file:
                 wav_file.write(data)
                     
+            self.node.audio_player.interrupt()
             self.node.audio_player.play_audio_file(response_file_path)
         else:
             print("No response from HUB")

@@ -14,8 +14,8 @@ class AudioPlayer:
             data, fs = sf.read(file, dtype="float32")  
             sd.play(data, fs, device=self.speaker_idx, blocking=(not asynchronous), loop=loop)
 
-    def stop_playing(self):
-        print("Audio stopped")
+    def interrupt(self):
+        print("Audio interrupted")
         sd.stop()
 
     def play_sounddevice(self, file):
