@@ -18,7 +18,7 @@ class KaldiWake:
     def reset(self):
         self.rec = vosk.KaldiRecognizer(self.model, 
                                         self.sample_rate,
-                                        f'["{self.wake_word}", "[unk]"]'
+                                        #f'["{self.wake_word}", "[unk]"]' This makes a lot of false positives for some reason
                                         )
     
     def listen_for_wake_word(self, chunk: bytes):
