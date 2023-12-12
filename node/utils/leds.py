@@ -7,7 +7,9 @@ from node.utils import apa102
 class Pixels:
     def __init__(self):
         self.n_pixels = 0
-        self.dev = apa102.APA102(num_led=0)
+
+    def init(self):
+        self.dev = apa102.APA102(num_led=self.n_pixels)
         
         self.power = LED(5)
         self.power.on()
@@ -42,6 +44,7 @@ class Respeaker4MicHat(Pixels):
     def __init__(self):
         Pixels.__init__(self)
         self.n_pixels = 12
+        self.init()
         self.pixels = [[0,0,0] for _ in range(self.n_pixels)]
         self.stop = False
 
