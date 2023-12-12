@@ -11,7 +11,8 @@ def find_devices(kind) -> typing.Dict[int, typing.Dict]:
     for i, device in enumerate(devices):
         try:
             info = sd.query_devices(i, kind)
-            filtered[i] = info
+            if ':' in info["name"]:
+                filtered[i] = info
         except ValueError:
             pass
     return filtered
@@ -27,7 +28,7 @@ def list_microphones() -> typing.List[str]:
     mic_list = []
     for i, info in mics.items():
         #print(info)
-        name = info["name"]
+        name = info["name"].split(':')[0]
         mic_list.append(f"{i}: {name}")
     return mic_list
 
@@ -36,7 +37,7 @@ def list_speakers() -> typing.List[str]:
     speaker_list = []
     for i, info in speakers.items():
         #print(info)
-        name = info["name"]
+        name = info["name"].split(':')[0]
         speaker_list.append(f"{i}: {name}")
     return speaker_list
 

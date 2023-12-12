@@ -9,6 +9,7 @@ from node.audio_player import AudioPlayer
 from node.processor import Processor
 from node.timer import Timer
 from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
+from node.utils.leds import Pixels, Respeaker4MicHat
 
 class Node:
     def __init__(self, debug: bool):
@@ -90,6 +91,11 @@ class Node:
         print(f"- Speaker:        {self.speaker_tag}\n")
 
         self.set_volume(self.volume)
+
+        if "seeed-4mic-voicecard" in self.mic_tag:
+            self.led_controller = Respeaker4MicHat()
+        else:
+            self.led_controller = Pixels()
         
         # INITIALIZING COMPONENTS
         self.audio_player = AudioPlayer(self)
