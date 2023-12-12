@@ -75,13 +75,24 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             pos = 0
-            pattern = np.concatenate((self.color, self.color/2, self.color/4), axis=None)
+            color1 = self.color
+            color2 = self.color/2
+            color3 = self.color/4
             while not self.stop:
-                self.pixels[pos:pos+3] = pattern
-                self.pixels[pos+3:pos+6] = pattern
-                self.pixels[pos+6:pos+9] = pattern
-                pos += 1
+                self.pixels[pos] = color1
+                self.pixels[pos+1] = color2
+                self.pixels[pos+2] = color3
+                self.pixels[pos+3] = color1
+                self.pixels[pos+4] = color2
+                self.pixels[pos+5] = color3
+                self.pixels[pos+6] = color1
+                self.pixels[pos+7] = color2
+                self.pixels[pos+8] = color3
+                self.pixels[pos+9] = color1
+                self.pixels[pos+10] = color2
+                self.pixels[pos+11] = color3
                 self.show()
+                pos += 1
                 if pos >= 3: 
                     pos = 0
                 time.sleep(0.1)
@@ -92,8 +103,9 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             while not self.stop:
-                self.brightness = 1
+                self.brightness = 0
                 self.fade(direction = 1)
+                self.brightness = 1
                 self.fade(direction = -1)
 
         threading.Thread(target=run, daemon=True).start()
