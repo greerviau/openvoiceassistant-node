@@ -53,7 +53,7 @@ class Respeaker4MicHat(Pixels):
         def run():
             fade = 0
             while not self.stop:
-                self.pixels = [[0, 48, fade] for _ in range(self.n_pixels)]
+                self.pixels = [[0, 64, fade] for _ in range(self.n_pixels)]
                 self.show()
                 time.sleep(0.01)
                 fade += 1
@@ -67,7 +67,7 @@ class Respeaker4MicHat(Pixels):
             step = 1
             fade = 0
             while not self.stop:
-                self.pixels = [[0, 48, fade] for _ in range(self.n_pixels)]
+                self.pixels = [[0, 64, fade] for _ in range(self.n_pixels)]
                 self.show()
                 time.sleep(0.01)
                 if fade <= 0:
@@ -83,17 +83,17 @@ class Respeaker4MicHat(Pixels):
     def think(self):
         self.stop = False
         def run():
-            self.pixels = [[0, 48, 6] for _ in range(self.n_pixels)]
+            self.pixels = [[0, 64, 6] for _ in range(self.n_pixels)]
             self.show()
             pos = 1
             while not self.stop:
-                self.pixels[pos] = [0, 48, 0]
-                self.pixels[pos-1] = [0, 48, 6]
+                self.pixels[pos] = [0, 128, 0]
+                self.pixels[pos-1] = [0, 64, 6]
                 pos += 1
                 self.show()
                 if pos >= self.n_pixels: 
                     pos = 0
-                time.sleep(0.1)
+                time.sleep(0.05)
         threading.Thread(target=run, daemon=True).start()
 
     def speak(self):
@@ -102,7 +102,7 @@ class Respeaker4MicHat(Pixels):
             step = 1
             fade = 0
             while not self.stop:
-                self.pixels = [[0, 48, fade] for _ in range(self.n_pixels)]
+                self.pixels = [[0, 64, fade] for _ in range(self.n_pixels)]
                 self.show()
                 time.sleep(0.01)
                 if fade <= 0:
