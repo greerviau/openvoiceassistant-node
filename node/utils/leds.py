@@ -76,22 +76,22 @@ class Respeaker4MicHat(Pixels):
         def run():
             pos = 0
             color1 = self.color
-            color2 = self.color/8
-            color3 = self.color/16
+            color2 = self.color*0.5
+            color3 = self.color*0.25
             while not self.stop:
                 self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
                 self.pixels[pos] = color1
-                #self.pixels[pos+1] = color2
-                #self.pixels[pos+2] = color3
+                self.pixels[pos+1] = color2
+                self.pixels[pos+2] = color3
                 self.pixels[pos+3] = color1
-                #self.pixels[pos+4] = color2
-                #self.pixels[pos+5] = color3
+                self.pixels[pos+4] = color2
+                self.pixels[pos+5] = color3
                 self.pixels[pos+6] = color1
-                #self.pixels[pos+7] = color2
-                #self.pixels[pos+8] = color3
+                self.pixels[pos+7] = color2
+                self.pixels[pos+8] = color3
                 self.pixels[pos+9] = color1
-                #self.pixels[pos+10] = color2
-                #self.pixels[pos+11] = color3
+                self.pixels[pos+10] = color2
+                self.pixels[pos+11] = color3
                 self.show()
                 pos += 1
                 if pos >= 3: 
