@@ -27,10 +27,14 @@ class Pixels:
     def off(self):
         pass
 
-    def show(self, pixels):
+    def interrupt(self):
+        pass
+
+    def show(self):
         if self.n_pixels > 0:
             for i in range(self.n_pixels):
-                self.dev.set_pixel(i, int(pixels[i][0]), int(pixels[i][1]), int(pixels[i][2]))
+                pixel = self.pixels[i]
+                self.dev.set_pixel(i, int(pixel[0]), int(pixel[1]), int(pixel[2]))
 
             self.dev.show()
 
@@ -47,7 +51,7 @@ class Respeaker4MicHat(Pixels):
             fade = 0
             while not self.stop:
                 self.pixels = [[0, 128, fade] for _ in range(self.n_pixels)]
-                self.show(self.pixels)
+                self.show()
                 time.sleep(0.01)
                 fade += 1
                 if fade > 12:
@@ -61,7 +65,7 @@ class Respeaker4MicHat(Pixels):
             fade = 0
             while not self.stop:
                 self.pixels = [[0, 128, fade] for _ in range(self.n_pixels)]
-                self.show(self.pixels)
+                self.show()
                 time.sleep(0.01)
                 if fade <= 0:
                     step = 1
@@ -77,13 +81,13 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             self.pixels = [[0, 128, 12] for _ in range(self.n_pixels)]
-            self.show(self.pixels)
+            self.show()
             pos = 0
             while not self.stop:
                 self.pixels[pos] = [0, 128, 12]
                 pos += 1
                 self.pixels[pos-1] = [0, 128, 0]
-                self.show(self.pixels)
+                self.show()
                 if pos >= self.n_pixels: 
                     pos = 0
                 time.sleep(0.05)
@@ -96,7 +100,7 @@ class Respeaker4MicHat(Pixels):
             fade = 0
             while not self.stop:
                 self.pixels = [[0, 128, fade] for _ in range(self.n_pixels)]
-                self.show(self.pixels)
+                self.show()
                 time.sleep(0.01)
                 if fade <= 0:
                     step = 1
@@ -110,7 +114,8 @@ class Respeaker4MicHat(Pixels):
 
     def off(self):
         self.stop = True
-        self.show([[0,0,0] for _ in range(self.n_pixels)])
+        self.pixels = [[0,0,0] for _ in range(self.n_pixels)]
+        self.show()
 
     def interrupt(self):
         self.stop = True
