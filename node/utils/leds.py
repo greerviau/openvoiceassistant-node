@@ -78,9 +78,17 @@ class Respeaker4MicHat(Pixels):
             while not self.stop:
                 self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
                 self.pixels[pos] = self.color
+                self.pixels[pos+1] = self.color/2
+                self.pixels[pos+2] = self.color/4
                 self.pixels[pos+3] = self.color
+                self.pixels[pos+4] = self.color/2
+                self.pixels[pos+5] = self.color/4
                 self.pixels[pos+6] = self.color
+                self.pixels[pos+7] = self.color/2
+                self.pixels[pos+8] = self.color/4
                 self.pixels[pos+9] = self.color
+                self.pixels[pos+10] = self.color/2
+                self.pixels[pos+11] = self.color/4
                 pos += 1
                 self.show()
                 if pos >= 3: 
