@@ -81,7 +81,7 @@ class Respeaker4MicHat(Pixels):
                 self.show()
                 if pos >= 3: 
                     pos = 0
-                time.sleep(0.05)
+                time.sleep(0.1)
 
         threading.Thread(target=run, daemon=True).start()
 
