@@ -48,22 +48,25 @@ class Respeaker4MicHat(Pixels):
         self.color = np.array([0, 255, 0]) / 2
         self.init()
         self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
+        self.show()
+        time.sleep(0.1)
+        self.brightness = 1
         self.stop = False
 
     def fade(self, direction = 1, speed=0.05):
-        brightness = 0 if direction == 1 else 1
+        #brightness = 0 if direction == 1 else 1
         while not self.stop:
-            self.pixels = np.array([self.color for _ in range(self.n_pixels)]) * brightness
+            self.pixels = np.array([self.color for _ in range(self.n_pixels)]) * self.brightness
             self.show()
             time.sleep(0.05)
-            brightness += speed * direction
-            print(brightness)
-            if brightness <= 0 or brightness > 1:
+            self.brightness += speed * direction
+            if self.brightness <= 0 or self.brightness > 1:
                 break
 
     def listen(self):
         self.stop = False
         def run():
+            self.brightness = 0
             self.fade(direction = 1)
 
         threading.Thread(target=run, daemon=True).start()
@@ -90,6 +93,7 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             while not self.stop:
+                self.brightness = 1
                 self.fade(direction = 1)
                 self.fade(direction = -1)
 
@@ -98,7 +102,7 @@ class Respeaker4MicHat(Pixels):
     def off(self):
         self.stop = False
         def run():
-            self.fade(direction = -1)
+            self.fade(direction = -1, speed = 0.1)
             self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
             self.show()
             self.stop = True
