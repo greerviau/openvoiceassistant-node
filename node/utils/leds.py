@@ -85,7 +85,7 @@ class Respeaker4MicHat(Pixels):
         def run():
             self.pixels = [[0, 48, 12] for _ in range(self.n_pixels)]
             self.show()
-            pos = 1
+            pos = 0
             while not self.stop:
                 self.pixels[pos] = [0, 48, 12]
                 self.pixels[pos-1] = [0, 48, 0]
