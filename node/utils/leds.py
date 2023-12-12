@@ -99,10 +99,9 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             self.fade(direction = -1)
+            self.stop = True
 
         threading.Thread(target=run, daemon=True).start()
-        
-        self.stop = True
 
     def interrupt(self):
         self.stop = True
