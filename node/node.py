@@ -108,8 +108,8 @@ class Node:
         while self.running:
             audio_data = self.listener.listen(engaged)
             engaged = self.processor.process_audio(audio_data)
-            self.node.led_controller.interrupt()
-            self.node.led_controller.off()
+            self.led_controller.interrupt()
+            self.led_controller.off()
 
                 
         print("Mainloop end")

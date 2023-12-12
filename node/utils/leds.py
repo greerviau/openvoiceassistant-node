@@ -30,7 +30,7 @@ class Pixels:
     def show(self, pixels):
         if self.n_pixels > 0:
             for i in range(self.n_pixels):
-                self.dev.set_pixel(i, pixels[i])
+                self.dev.set_pixel(i, int(pixels[i][0]), int(pixels[i][1]), int(pixels[i][2]))
 
             self.dev.show()
 
