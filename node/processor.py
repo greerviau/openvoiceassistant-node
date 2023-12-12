@@ -49,8 +49,8 @@ class Processor():
                     else:
                         raise
                 except:
-                    print("Retrying in 5...")
-                    time.sleep(5)
+                    print("Retrying in 30 seconds...")
+                    time.sleep(30)
 
         if respond_response.status_code == 200:
 
