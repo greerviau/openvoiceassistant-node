@@ -57,7 +57,7 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             step = 1
-            fade = 12
+            fade = 0
             while not self.stop:
                 self.pixels = [[0, 128, fade] for _ in range(self.n_pixels)]
                 self.show(self.pixels)
@@ -107,10 +107,10 @@ class Respeaker4MicHat(Pixels):
                 fade += step
         threading.Thread(target=run, daemon=True).start()
 
-    def interrupt(self):
-        self.stop = True
-        time.sleep(0.1)
-
     def off(self):
         self.stop = True
         self.show([[0,0,0] for _ in range(self.n_pixels)])
+
+    def interrupt(self):
+        self.stop = True
+        time.sleep(0.1)

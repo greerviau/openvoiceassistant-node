@@ -54,6 +54,9 @@ class Listener:
                     if self.wake.listen_for_wake_word(buffer.get()): break
                     
         self.node.audio_player.interrupt()
+        self.node.led_controller.interrupt()
+
+        self.node.led_controller.listen()
         
         if self.wakeup_sound:           
             self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)

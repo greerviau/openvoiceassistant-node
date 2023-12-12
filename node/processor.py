@@ -11,6 +11,9 @@ class Processor():
     def process_audio(self, audio_data: bytes):
         print("Sending audio data to HUB for processing")
 
+        self.node.led_controller.interrupt()
+        self.node.led_controller.think()
+
         engaged = False
 
         time_sent = time.time()
@@ -51,8 +54,11 @@ class Processor():
                 except:
                     print("Retrying in 30 seconds...")
                     time.sleep(30)
-
+                    
         if respond_response.status_code == 200:
+            
+            self.node.led_controller.interrupt()
+            self.node.led_controller.think()
 
             self.last_time_engaged = time_sent
 
