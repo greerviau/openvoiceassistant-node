@@ -76,8 +76,8 @@ class Respeaker4MicHat(Pixels):
         def run():
             pos = 0
             color1 = self.color
-            color2 = self.color/2
-            color3 = self.color/4
+            color2 = self.color/4
+            color3 = self.color/8
             while not self.stop:
                 self.pixels[pos] = color1
                 self.pixels[pos+1] = color2
@@ -95,7 +95,7 @@ class Respeaker4MicHat(Pixels):
                 pos += 1
                 if pos >= 3: 
                     pos = 0
-                time.sleep(0.1)
+                time.sleep(0.05)
 
         threading.Thread(target=run, daemon=True).start()
 
@@ -103,7 +103,7 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             while not self.stop:
-                self.brightness = 0
+                self.brightness = 0.1
                 self.fade(direction = 1)
                 self.brightness = 1
                 self.fade(direction = -1)
