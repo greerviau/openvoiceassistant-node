@@ -1,7 +1,7 @@
 #!/bin/bash
 
 apt update
-apt install -y python3-pip python3.11-venv git wget \
+apt install -y python3-pip python3.9-venv git wget \
                 libatlas-base-dev libglib2.0-dev \
                 libgirepository1.0-dev libcairo2-dev \
                 gfortran gcc libopenblas-dev portaudio19-dev \
@@ -9,7 +9,7 @@ apt install -y python3-pip python3.11-venv git wget \
 
 CWD=$(pwd)
 
-python3.11 -m venv $CWD/env
+python3.9 -m venv $CWD/env
 
 source $CWD/env/bin/activate
  
