@@ -1,5 +1,6 @@
 import time
 import threading
+import numpy as np
 from gpiozero import LED
 
 from node.utils import apa102
@@ -44,97 +45,60 @@ class Respeaker4MicHat(Pixels):
     def __init__(self):
         Pixels.__init__(self)
         self.n_pixels = 12
+        self.color = np.array([0, 255, 0]) / 2
         self.init()
-        self.pixels = [[0,0,0] for _ in range(self.n_pixels)]
+        self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
         self.stop = False
 
-    def wakeup(self):
-        self.stop = False
-        def run():
-            brightness = 64
-            while not self.stop:
-                self.pixels = [[0, 64/brightness, 0] for _ in range(self.n_pixels)]
-                self.show()
-                time.sleep(0.01)
-                brightness -= 1
-                if brightness <= 1:
-                    break
-        threading.Thread(target=run, daemon=True).start()
+    def fade(self, direction = 1):
+        brightness = 0 if direction else 1
+        while not self.stop:
+            self.pixels = np.array([self.color for _ in range(self.n_pixels)]) * brightness
+            self.show()
+            time.sleep(0.01)
+            brightness += 0.1 * direction
+            if brightness <= 0 or brightness > 1:
+                break
 
     def listen(self):
         self.stop = False
         def run():
-            brightness = 32
-            while not self.stop:
-                self.pixels = [[0, 64/brightness, 0] for _ in range(self.n_pixels)]
-                self.show()
-                time.sleep(0.01)
-                brightness -= 2
-                if brightness <= 1:
-                    break
-            step = 1
-            fade = 0
-            while not self.stop:
-                self.pixels = [[0, 64, fade] for _ in range(self.n_pixels)]
-                self.show()
-                time.sleep(0.01)
-                if fade <= 0:
-                    step = 1
-                    time.sleep(0.4)
-                elif fade >= 6:
-                    step = -1
-                    time.sleep(0.4)
-
-                fade += step
+            self.fade(direction = 1)
+            
         threading.Thread(target=run, daemon=True).start()
 
     def think(self):
         self.stop = False
         def run():
-            self.pixels = [[0, 64, 6] for _ in range(self.n_pixels)]
-            self.show()
-            pos = 1
+            pos = 0
             while not self.stop:
-                self.pixels[pos] = [0, 128, 0]
-                self.pixels[pos-1] = [0, 64, 6]
+                self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
+                self.pixels[pos] = self.color
+                self.pixels[pos+3] = self.color
+                self.pixels[pos+6] = self.color
+                self.pixels[pos+9] = self.color
                 pos += 1
                 self.show()
-                if pos >= self.n_pixels: 
+                if pos >= 3: 
                     pos = 0
                 time.sleep(0.05)
+
         threading.Thread(target=run, daemon=True).start()
 
     def speak(self):
         self.stop = False
         def run():
-            step = 1
-            fade = 0
             while not self.stop:
-                self.pixels = [[0, 64, fade] for _ in range(self.n_pixels)]
-                self.show()
-                time.sleep(0.01)
-                if fade <= 0:
-                    step = 1
-                    time.sleep(0.4)
-                elif fade >= 6:
-                    step = -1
-                    time.sleep(0.4)
+                self.fade(1)
+                self.fade(-1)
 
-                fade += step
         threading.Thread(target=run, daemon=True).start()
 
     def off(self):
         self.stop = False
-        brightness = 2
-        while not self.stop:
-            self.pixels = [[0, 64/brightness, 0] for _ in range(self.n_pixels)]
-            self.show()
-            time.sleep(0.01)
-            brightness += 2
-            if brightness >= 32:
-                break
-        self.pixels = [[0,0,0] for _ in range(self.n_pixels)]
-        self.show()
+        def run():
+            self.fade(direction = -1)
+        threading.Thread(target=run, daemon=True).start()
         
         self.stop = True
 
