@@ -64,12 +64,12 @@ class Respeaker4MicHat(Pixels):
     def listen(self):
         self.stop = False
         def run():
-            brightness = 64
+            brightness = 65
             while not self.stop:
                 self.pixels = [[0, 64//brightness, 0] for _ in range(self.n_pixels)]
                 self.show()
                 time.sleep(0.01)
-                brightness -= 1
+                brightness -= 2
                 if brightness <= 1:
                     break
             step = 1
@@ -124,17 +124,18 @@ class Respeaker4MicHat(Pixels):
         threading.Thread(target=run, daemon=True).start()
 
     def off(self):
-        self.stop = True
-        brightness = 1
+        brightness = 2
         while not self.stop:
             self.pixels = [[0, 64//brightness, 0] for _ in range(self.n_pixels)]
             self.show()
             time.sleep(0.01)
             brightness += 1
-            if brightness <= 1:
+            if brightness >= 65:
                 break
         self.pixels = [[0,0,0] for _ in range(self.n_pixels)]
         self.show()
+        
+        self.stop = True
 
     def interrupt(self):
         self.stop = True
