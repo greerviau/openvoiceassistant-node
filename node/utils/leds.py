@@ -99,6 +99,8 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             self.fade(direction = -1)
+            self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
+            self.show()
             self.stop = True
 
         threading.Thread(target=run, daemon=True).start()
