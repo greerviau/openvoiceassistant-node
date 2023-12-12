@@ -76,8 +76,8 @@ class Respeaker4MicHat(Pixels):
         def run():
             pos = 0
             color1 = self.color
-            color2 = self.color/4
-            color3 = self.color/8
+            color2 = self.color/8
+            color3 = self.color/16
             while not self.stop:
                 self.pixels[pos] = color1
                 self.pixels[pos+1] = color2
@@ -113,7 +113,7 @@ class Respeaker4MicHat(Pixels):
     def off(self):
         self.stop = False
         def run():
-            self.fade(direction = -1, speed = 0.1)
+            self.fade(direction = -1, speed = 0.05)
             self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
             self.show()
             self.brightness = 0
