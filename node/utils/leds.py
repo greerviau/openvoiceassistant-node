@@ -57,6 +57,7 @@ class Respeaker4MicHat(Pixels):
             self.show()
             time.sleep(0.05)
             brightness += speed * direction
+            print(brightness)
             if brightness <= 0 or brightness > 1:
                 break
 
@@ -98,7 +99,7 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             self.fade(direction = -1)
-            
+
         threading.Thread(target=run, daemon=True).start()
         
         self.stop = True
