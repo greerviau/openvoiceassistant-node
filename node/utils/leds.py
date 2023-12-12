@@ -124,4 +124,4 @@ class Respeaker4MicHat(Pixels):
 
     def interrupt(self):
         self.stop = True
-        time.sleep(0.05)
+        time.sleep(0.1)
