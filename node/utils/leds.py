@@ -51,7 +51,7 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
 
     def fade(self, direction = 1, speed=0.05):
-        brightness = 0 if direction else 1
+        brightness = 0 if direction == 1 else 1
         while not self.stop:
             self.pixels = np.array([self.color for _ in range(self.n_pixels)]) * brightness
             self.show()
