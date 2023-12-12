@@ -58,7 +58,7 @@ class Processor():
         if respond_response.status_code == 200:
             
             self.node.led_controller.interrupt()
-            self.node.led_controller.think()
+            self.node.led_controller.speak()
 
             self.last_time_engaged = time_sent
 
