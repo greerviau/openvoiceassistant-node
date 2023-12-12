@@ -2,7 +2,7 @@ import time
 import threading
 from gpiozero import LED
 
-from node.backend import apa102
+from node.utils import apa102
 
 class Pixels:
     def __init__(self):
