@@ -67,7 +67,7 @@ class Respeaker4MicHat(Pixels):
         self.stop = False
         def run():
             self.brightness = 0
-            self.fade(direction = 1)
+            self.fade(direction = 1, speed = 0.1)
 
         threading.Thread(target=run, daemon=True).start()
 
@@ -114,7 +114,7 @@ class Respeaker4MicHat(Pixels):
     def off(self):
         self.stop = False
         def run():
-            self.fade(direction = -1, speed = 0.05)
+            self.fade(direction = -1, speed = 0.2)
             self.pixels = np.array([[0,0,0] for _ in range(self.n_pixels)])
             self.show()
             self.brightness = 0
