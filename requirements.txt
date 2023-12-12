@@ -16,3 +16,4 @@ soundfile==0.12.1
 vosk==0.3.45
 pyalsaaudio==0.10.0
 gpiozero==2.0
+spidev==3.6
