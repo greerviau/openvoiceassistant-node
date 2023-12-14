@@ -49,6 +49,7 @@ class Processor():
                     if retry_response.status_code == 200:
                         connect = True
                         print("\nConnected")
+                        return
                     else:
                         raise
                 except:
