@@ -57,44 +57,50 @@ class Processor():
                     time.sleep(30)
                     
         if respond_response.status_code == 200:
-            
-            self.node.led_controller.interrupt()
-            self.node.led_controller.speak()
-
-            self.last_time_engaged = time_sent
-
-            context = respond_response.json()
 
             response = context["response"]
-            self.hub_callback = context["hub_callback"]
-
-            if self.hub_callback: engaged = True
-
-            print("Command: ", context["command"])
-            print("Cleaned Command: ", context["cleaned_command"])
-            print("Encoded Command: ", context["encoded_command"])
-            print("Skill:", context["skill"])
-            print("Action:", context["action"])
-            print("Conf:", context["conf"])
-            print("Response: ", response)
-            print("Deltas")
-            print("- Time to Send: ", context["time_recieved"] - context["time_sent"])
-            print("- Transcribe: ", context["time_to_transcribe"])
-            print("- Understand: ", context["time_to_understand"])
-            print("- Action: ", context["time_to_action"])
-            print("- Synth: ", context["time_to_synthesize"])
-            print("- Run Pipeline: ", context["time_to_run_pipeline"])
-            print("- Time to Return: ", time.time() - context["time_returned"])
-            print("- Total: ", time.time() - context["time_sent"])
             
-            response_audio_data = context["response_audio_data"]
-            data = bytes.fromhex(response_audio_data)
-            response_file_path = os.path.join(self.node.file_dump, "response.wav")
-            with open(response_file_path, "wb") as wav_file:
-                wav_file.write(data)
-                    
-            self.node.audio_player.interrupt()
-            self.node.audio_player.play_audio_file(response_file_path)
+            if response:
+            
+                self.node.led_controller.interrupt()
+                self.node.led_controller.speak()
+
+                self.last_time_engaged = time_sent
+
+                context = respond_response.json()
+
+                self.hub_callback = context["hub_callback"]
+
+                if self.hub_callback: engaged = True
+
+                print("Command: ", context["command"])
+                print("Cleaned Command: ", context["cleaned_command"])
+                print("Encoded Command: ", context["encoded_command"])
+                print("Skill:", context["skill"])
+                print("Action:", context["action"])
+                print("Conf:", context["conf"])
+                print("Response: ", response)
+                print("Deltas")
+                print("- Time to Send: ", context["time_recieved"] - context["time_sent"])
+                print("- Transcribe: ", context["time_to_transcribe"])
+                print("- Understand: ", context["time_to_understand"])
+                print("- Action: ", context["time_to_action"])
+                print("- Synth: ", context["time_to_synthesize"])
+                print("- Run Pipeline: ", context["time_to_run_pipeline"])
+                print("- Time to Return: ", time.time() - context["time_returned"])
+                print("- Total: ", time.time() - context["time_sent"])
+                
+                response_audio_data = context["response_audio_data"]
+                data = bytes.fromhex(response_audio_data)
+                response_file_path = os.path.join(self.node.file_dump, "response.wav")
+                with open(response_file_path, "wb") as wav_file:
+                    wav_file.write(data)
+                        
+                self.node.audio_player.interrupt()
+                self.node.audio_player.play_audio_file(response_file_path)
+
+            else:
+                print("No response from HUB")
         else:
             print("No response from HUB")
 

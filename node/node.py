@@ -85,10 +85,11 @@ class Node:
         print(f"\nIO Settings")
         print(f"- Microphone:     {self.mic_tag}")
         print(f"- Microphone IDX: {self.mic_idx}")
+        print(f"- Speaker:        {self.speaker_tag}\n")
+        print(f"- Speaker IDX:    {self.speaker_idx}")
         print(f"- Sample Rate:    {self.sample_rate}")
         print(f"- Sample Width:   {self.sample_width}")
         print(f"- Audio Channels: {self.audio_channels}")
-        print(f"- Speaker:        {self.speaker_tag}\n")
 
         self.set_volume(self.volume)
 
