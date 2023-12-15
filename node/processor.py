@@ -58,6 +58,23 @@ class Processor():
                     
         if respond_response.status_code == 200:
 
+            print("Command: ", context["command"])
+            print("Cleaned Command: ", context["cleaned_command"])
+            print("Encoded Command: ", context["encoded_command"])
+            print("Skill:", context["skill"])
+            print("Action:", context["action"])
+            print("Conf:", context["conf"])
+            print("Response: ", response)
+            print("Deltas")
+            print("- Time to Send: ", context["time_recieved"] - context["time_sent"])
+            print("- Transcribe: ", context["time_to_transcribe"])
+            print("- Understand: ", context["time_to_understand"])
+            print("- Action: ", context["time_to_action"])
+            print("- Synth: ", context["time_to_synthesize"])
+            print("- Run Pipeline: ", context["time_to_run_pipeline"])
+            print("- Time to Return: ", time.time() - context["time_returned"])
+            print("- Total: ", time.time() - context["time_sent"])
+
             response = context["response"]
             
             if response:
@@ -72,23 +89,6 @@ class Processor():
                 self.hub_callback = context["hub_callback"]
 
                 if self.hub_callback: engaged = True
-
-                print("Command: ", context["command"])
-                print("Cleaned Command: ", context["cleaned_command"])
-                print("Encoded Command: ", context["encoded_command"])
-                print("Skill:", context["skill"])
-                print("Action:", context["action"])
-                print("Conf:", context["conf"])
-                print("Response: ", response)
-                print("Deltas")
-                print("- Time to Send: ", context["time_recieved"] - context["time_sent"])
-                print("- Transcribe: ", context["time_to_transcribe"])
-                print("- Understand: ", context["time_to_understand"])
-                print("- Action: ", context["time_to_action"])
-                print("- Synth: ", context["time_to_synthesize"])
-                print("- Run Pipeline: ", context["time_to_run_pipeline"])
-                print("- Time to Return: ", time.time() - context["time_returned"])
-                print("- Total: ", time.time() - context["time_sent"])
                 
                 response_audio_data = context["response_audio_data"]
                 data = bytes.fromhex(response_audio_data)
