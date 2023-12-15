@@ -58,6 +58,8 @@ class Processor():
                     
         if respond_response.status_code == 200:
 
+            context = respond_response.json()
+
             print("Command: ", context["command"])
             print("Cleaned Command: ", context["cleaned_command"])
             print("Encoded Command: ", context["encoded_command"])
@@ -83,8 +85,6 @@ class Processor():
                 self.node.led_controller.speak()
 
                 self.last_time_engaged = time_sent
-
-                context = respond_response.json()
 
                 self.hub_callback = context["hub_callback"]
 
