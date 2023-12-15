@@ -59,6 +59,7 @@ class Processor():
         if respond_response.status_code == 200:
 
             context = respond_response.json()
+            response = context["response"]
 
             print("Command: ", context["command"])
             print("Cleaned Command: ", context["cleaned_command"])
@@ -76,8 +77,6 @@ class Processor():
             print("- Run Pipeline: ", context["time_to_run_pipeline"])
             print("- Time to Return: ", time.time() - context["time_returned"])
             print("- Total: ", time.time() - context["time_sent"])
-
-            response = context["response"]
             
             if response:
             
