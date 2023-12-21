@@ -62,7 +62,7 @@ class Node:
         _, self.mic_tag = select_mic(self.mic_idx)
 
         print("\nMicrophone supported sample rates")
-        rates = [16000, 48000, 32000, 8000]
+        rates = [48000, 32000, 16000, 8000]
         supported_rates = get_supported_samplerates(self.mic_idx, rates)
         [print(f"- {rate}") for rate in supported_rates]
 

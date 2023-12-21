@@ -43,7 +43,7 @@ class Listener:
 
         if not engaged:        
             print("Stream started")
-            with sd.RawInputStream(samplerate=self.sample_rate, 
+            with sd.RawInputStream(samplerate=16000, 
                                     device=self.mic_idx, 
                                     channels=self.channels, 
                                     blocksize=self.frames_per_buffer,
