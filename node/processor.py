@@ -30,6 +30,8 @@ class Processor():
             "time_sent": time_sent
         }
 
+        self.hub_callback = ""
+
         try:
             respond_response = requests.post(
                 f"{self.node.hub_api_url}/respond/audio",
@@ -55,8 +57,10 @@ class Processor():
                 except:
                     print("Retrying in 30 seconds...")
                     time.sleep(30)
-                    
-        if respond_response.status_code == 200:
+            return
+
+        try:         
+            respond_response.raise_for_status()
 
             context = respond_response.json()
             response = context["response"]
@@ -99,8 +103,9 @@ class Processor():
                 self.node.audio_player.play_audio_file(response_file_path)
 
             else:
-                print("No response from HUB")
-        else:
-            print("No response from HUB")
+                raise Exception("No response from HUB")
+            
+        except Exception as e:
+            print(repr(e))
 
         return engaged
