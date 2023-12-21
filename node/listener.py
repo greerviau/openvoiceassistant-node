@@ -26,7 +26,7 @@ class Listener:
         self.recording_buffer = collections.deque(maxlen=2)
         
         self.wake = KaldiWake(wake_word=self.wake_word,
-                              sample_rate=self.sample_rate)
+                              sample_rate=16000)
         
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(self.sensitivity)
