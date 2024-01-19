@@ -1,7 +1,5 @@
 import time
 import os
-import threading
-import alsaaudio
 
 from node import config
 from node.listener import Listener
@@ -9,7 +7,6 @@ from node.audio_player import AudioPlayer
 from node.processor import Processor
 from node.timer import Timer
 from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
-from node.utils.leds import Pixels, Respeaker4MicHat
 
 class Node:
     def __init__(self, debug: bool):
@@ -32,7 +29,6 @@ class Node:
         self.start()
 
     def initialize(self):
-
         self.base_dir = os.path.realpath(os.path.dirname(__file__))
         self.sounds_dir = os.path.join(self.base_dir, 'sounds')
         self.file_dump = os.path.join(self.base_dir, 'file_dump')
@@ -91,13 +87,23 @@ class Node:
         print(f"- Sample Width:   {self.sample_width}")
         print(f"- Audio Channels: {self.audio_channels}")
 
-        self.set_volume(self.volume)
+        try:
+            from node.utils.leds import Pixels, Respeaker4MicHat
+            if "seeed-4mic-voicecard" in self.mic_tag:
+                self.led_controller = Respeaker4MicHat()
+            else:
+                self.led_controller = Pixels()
+        except:
+            self.led_controller = None
 
-        if "seeed-4mic-voicecard" in self.mic_tag:
-            self.led_controller = Respeaker4MicHat()
-        else:
-            self.led_controller = Pixels()
-        
+        try:
+            import alsaaudio
+            mixer_card = alsaaudio.mixers(cardindex=self.speaker_idx)[0]
+            self.mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
+            self.set_volume(self.volume)
+        except:
+            self.mixer = None
+
         # INITIALIZING COMPONENTS
         self.audio_player = AudioPlayer(self)
         self.listener = Listener(self, frames_per_buffer=1600)
@@ -109,17 +115,16 @@ class Node:
         while self.running:
             audio_data = self.listener.listen(engaged)
             engaged = self.processor.process_audio(audio_data)
-            self.led_controller.interrupt()
-            self.led_controller.off()
+            if self.led_controller:
+                self.led_controller.off()
 
                 
         print("Mainloop end")
 
     def set_volume(self, volume: int):
         if volume >= 0 and volume <= 100:
-            mixer_card = alsaaudio.mixers(cardindex=self.speaker_idx)[0]
-            mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
-            mixer.setvolume(volume)
+            if self.mixer:
+                self.mixer.setvolume(volume)
         else:
             print("Failed to set volume: (Out of range 0-1)")
 
