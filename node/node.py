@@ -53,7 +53,7 @@ class Node:
         self.vad_sensitivity = config.get("vad_sensitivity")
         self.volume = config.get("volume")
 
-        self.hub_api_url = f"http://{self.hub_ip}:{5010}/api"
+        self.hub_api_url = f"http://{self.hub_ip}:{7123}/api"
 
         # MICROPHONE SETTINGS
         print("\nAvailable Microphones:")
