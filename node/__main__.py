@@ -34,16 +34,16 @@ def run_node(debug, no_sync, sync_up):
         speaker_index = config.get("speaker_index")
 
         if not hub_ip:
-            hub_ip = scan_for_hub(device_ip, 5010)
+            hub_ip = scan_for_hub(device_ip, 7123)
             config.set("hub_ip", hub_ip)
 
-        hub_api_url = f"http://{hub_ip}:5010/api"
+        hub_api_url = f"http://{hub_ip}:7123/api"
 
         sync_data = {        
             "node_id": node_id,
             "node_name": node_name,
             "node_area": node_area,
-            "node_api_url": f"http://{device_ip}:5005/api",
+            "node_api_url": f"http://{device_ip}:7234/api",
             "wake_word": wake_word,
             "wakeup_sound": wakeup_sound,
             "mic_index": mic_index,
@@ -85,7 +85,7 @@ def run_node(debug, no_sync, sync_up):
     
     app = create_app(node)
 
-    web_thread = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=5005))
+    web_thread = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=7234))
     web_thread.daemon = True
     web_thread.start()
 
