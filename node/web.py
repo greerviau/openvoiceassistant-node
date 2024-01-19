@@ -81,7 +81,10 @@ def create_app(node: Node):
     
     @app.route("/api/stop_timer", methods=["GET"])
     def stop_timer():
-        node.stop_timer()
+        try:
+            node.stop_timer()
+        except AttributeError:
+            return {}, 400
         return {}, 200
 
     @app.route("/api/timer_remaining_time", methods=["GET"])
