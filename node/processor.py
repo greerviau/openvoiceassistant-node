@@ -11,8 +11,8 @@ class Processor():
     def process_audio(self, audio_data: bytes):
         print("Sending audio data to HUB for processing")
 
-        self.node.led_controller.interrupt()
-        self.node.led_controller.think()
+        if self.node.led_controller:
+            self.node.led_controller.think()
 
         engaged = False
 
@@ -84,8 +84,8 @@ class Processor():
             
             if response:
             
-                self.node.led_controller.interrupt()
-                self.node.led_controller.speak()
+                if self.node.led_controller:
+                    self.node.led_controller.speak()
 
                 self.last_time_engaged = time_sent
 

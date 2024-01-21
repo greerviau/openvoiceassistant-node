@@ -64,6 +64,7 @@ class Respeaker4MicHat(Pixels):
                 break
 
     def listen(self):
+        self.interrupt()
         self.stop = False
         def run():
             self.brightness = 0
@@ -72,6 +73,7 @@ class Respeaker4MicHat(Pixels):
         threading.Thread(target=run, daemon=True).start()
 
     def think(self):
+        self.interrupt()
         self.stop = False
         def run():
             pos = 0
@@ -101,6 +103,7 @@ class Respeaker4MicHat(Pixels):
         threading.Thread(target=run, daemon=True).start()
 
     def speak(self):
+        self.interrupt()
         self.stop = False
         def run():
             while not self.stop:
@@ -112,6 +115,7 @@ class Respeaker4MicHat(Pixels):
         threading.Thread(target=run, daemon=True).start()
 
     def off(self):
+        self.interrupt()
         self.stop = False
         def run():
             self.fade(direction = -1, speed = 0.2)

@@ -14,4 +14,6 @@ webrtcvad==2.0.10
 Werkzeug==2.2.2
 soundfile==0.12.1
 vosk==0.3.44
+pyalsaaudio==0.10.0
 gpiozero==2.0
+spidev==3.6
