@@ -28,6 +28,7 @@ def run_node(debug, no_sync, sync_up):
         device_ip = get_my_ip()
         hub_ip = config.get("hub_ip")
         wake_word = config.get("wake_word")
+        wake_word_engine = config.get("wake_word_engine")
         wakeup_sound = config.get("wakeup_sound")
         mic_index = config.get("mic_index")
         vad_sensitivity = config.get("vad_sensitivity")
@@ -39,25 +40,31 @@ def run_node(debug, no_sync, sync_up):
 
         hub_api_url = f"http://{hub_ip}:7123/api"
 
-        sync_data = {        
+        sync_data = {     
             "node_id": node_id,
-            "node_name": node_name,
-            "node_area": node_area,
-            "node_api_url": f"http://{device_ip}:7234/api",
-            "wake_word": wake_word,
-            "wakeup_sound": wakeup_sound,
-            "mic_index": mic_index,
-            "vad_sensitivity": vad_sensitivity,
-            "speaker_index": speaker_index
+            "config": {   
+                "node_id": node_id,
+                "node_name": node_name,
+                "node_area": node_area,
+                "node_api_url": f"http://{device_ip}:7234/api",
+                "wake_word": wake_word,
+                "wake_word_engine": wake_word_engine,
+                "wakeup_sound": wakeup_sound,
+                "mic_index": mic_index,
+                "vad_sensitivity": vad_sensitivity,
+                "speaker_index": speaker_index
+            }
         }
 
         try:
             if sync_up:
                 print("Pushing local configuration to HUB")
+                response = requests.put(f"{hub_api_url}/node/sync_up", json=sync_data, timeout=5)
             else:
                 print("Pulling configuration from HUB")
+                response = requests.put(f"{hub_api_url}/node/sync_down", json=sync_data, timeout=5)
 
-            response = requests.put(f"{hub_api_url}/node/{'sync_up' if sync_up else 'sync_down'}", json=sync_data, timeout=5)
+            
             if response.status_code != 200:
                 print("Failed to sync with HUB")
                 print(response.json())
@@ -70,6 +77,7 @@ def run_node(debug, no_sync, sync_up):
             config.set("node_name", config_json["node_name"])
             config.set("node_area", config_json["node_area"])
             config.set("wake_word", config_json["wake_word"])
+            config.set("wake_word_engine", config_json["wake_word_engine"])
             config.set("wakeup_sound", config_json["wakeup_sound"])
             config.set("mic_index", config_json["mic_index"])
             config.set("vad_sensitivity", config_json["vad_sensitivity"])
@@ -85,8 +93,7 @@ def run_node(debug, no_sync, sync_up):
     
     app = create_app(node)
 
-    web_thread = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=7234))
-    web_thread.daemon = True
+    web_thread = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=7234), daemon=True)
     web_thread.start()
 
     node.start()

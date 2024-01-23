@@ -17,3 +17,4 @@ vosk==0.3.44
 pyalsaaudio==0.10.0
 gpiozero==2.0
 spidev==3.6
+openwakeword==0.5.1

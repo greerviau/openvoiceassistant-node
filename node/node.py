@@ -43,6 +43,7 @@ class Node:
         self.node_area = config.get("node_area")
         self.hub_ip = config.get("hub_ip")
         self.wake_word = config.get("wake_word")
+        self.wake_word_engine = config.get("wake_word_engine")
         self.wakeup_sound = config.get("wakeup_sound")
         self.mic_idx = config.get("mic_index")
         self.speaker_idx = config.get("speaker_index")
