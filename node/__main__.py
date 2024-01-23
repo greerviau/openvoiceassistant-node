@@ -32,6 +32,8 @@ def run_node(debug, no_sync, sync_up):
         wakeup_sound = config.get("wakeup_sound")
         mic_index = config.get("mic_index")
         vad_sensitivity = config.get("vad_sensitivity")
+        vad_threshold = config.get("vad_threshold")
+        speex_noise_suppression = config.get("speex_noise_suppression")
         speaker_index = config.get("speaker_index")
 
         if not hub_ip:
@@ -52,6 +54,8 @@ def run_node(debug, no_sync, sync_up):
                 "wakeup_sound": wakeup_sound,
                 "mic_index": mic_index,
                 "vad_sensitivity": vad_sensitivity,
+                "vad_threshold": vad_threshold,
+                "speex_noise_suppression": speex_noise_suppression,
                 "speaker_index": speaker_index
             }
         }
@@ -81,6 +85,8 @@ def run_node(debug, no_sync, sync_up):
             config.set("wakeup_sound", config_json["wakeup_sound"])
             config.set("mic_index", config_json["mic_index"])
             config.set("vad_sensitivity", config_json["vad_sensitivity"])
+            config.set("vad_threshold", config_json["vad_threshold"])
+            config.set("speex_noise_suppression", config_json["speex_noise_suppression"])
             config.set("speaker_index", config_json["speaker_index"])
 
         except Exception as e:

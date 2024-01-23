@@ -15,8 +15,6 @@ source $CWD/env/bin/activate
  
 python -m pip install -r requirements.txt
 
-python -m pip install https://github.com/dscripka/openWakeWord/releases/download/v0.1.1/speexdsp_ns-0.1.2-cp38-cp38-linux_x86_64.whl
-
 cp $CWD/scripts/ova_node.service.sample /etc/systemd/system/ova_node.service
 sed -i -e "s|OVAPATH|$CWD|g" /etc/systemd/system/ova_node.service
 sed -i -e "s|USER|${USER}|g" /etc/systemd/system/ova_node.service

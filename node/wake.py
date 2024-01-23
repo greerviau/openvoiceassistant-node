@@ -59,7 +59,11 @@ class OpenWakeWord:
         if not os.path.exists(model_file):
             raise RuntimeError("Wake word model file does not exist")
         
-        self.owwModel = Model(wakeword_models=[model_file], inference_framework=inference_framework)
+        self.owwModel = Model(wakeword_models=[model_file], 
+                              enable_speex_noise_suppression=node.speex_noise_suppression,
+                              vad_threshold=node.vad_threshold,
+                              inference_framework=inference_framework
+                              )
 
     def reset(self):
         self.owwModel.reset()

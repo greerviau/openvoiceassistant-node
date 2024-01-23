@@ -48,6 +48,8 @@ class Node:
         self.mic_idx = config.get("mic_index")
         self.speaker_idx = config.get("speaker_index")
         self.vad_sensitivity = config.get("vad_sensitivity")
+        self.vad_threshold = config.get("vad_threshold")
+        self.speex_noise_suppression = config.get("speex_noise_suppression")
         self.volume = config.get("volume")
 
         self.hub_api_url = f"http://{self.hub_ip}:{7123}/api"

@@ -69,6 +69,8 @@ def __default_config():
         "wakeup_sound": True,
         "mic_index": 0,
         "vad_sensitivity": 3,
+        "vad_threshold": 0.0,
+        "speex_noise_suppression": False,
         "speaker_index": 0,
         "volume": 100
     }
