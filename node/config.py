@@ -64,13 +64,14 @@ def __default_config():
         "node_name": f"node_{node_id}",
         "node_area": "",
         "hub_ip": hub_ip,
-        "wake_word": "computer",
         "wake_word_engine": "openwakeword",
+        "wake_word": "ova",
+        "wake_word_conf_threshold": 0.8,
         "wakeup_sound": True,
-        "mic_index": 0,
         "vad_sensitivity": 3,
         "vad_threshold": 0.0,
-        "speex_noise_suppression": False,
+        "speex_noise_suppression": False,        
+        "mic_index": 0,
         "speaker_index": 0,
         "volume": 100
     }

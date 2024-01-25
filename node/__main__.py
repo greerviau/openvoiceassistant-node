@@ -27,14 +27,16 @@ def run_node(debug, no_sync, sync_up):
         node_area = config.get("node_area")
         device_ip = get_my_ip()
         hub_ip = config.get("hub_ip")
-        wake_word = config.get("wake_word")
         wake_word_engine = config.get("wake_word_engine")
+        wake_word = config.get("wake_word")
+        wake_word_conf_threshold = config.get("wake_word_conf_threshold")
         wakeup_sound = config.get("wakeup_sound")
-        mic_index = config.get("mic_index")
         vad_sensitivity = config.get("vad_sensitivity")
         vad_threshold = config.get("vad_threshold")
         speex_noise_suppression = config.get("speex_noise_suppression")
+        mic_index = config.get("mic_index")
         speaker_index = config.get("speaker_index")
+        volume = config.get("volume")
 
         if not hub_ip:
             hub_ip = scan_for_hub(device_ip, 7123)
@@ -49,14 +51,16 @@ def run_node(debug, no_sync, sync_up):
                 "node_name": node_name,
                 "node_area": node_area,
                 "node_api_url": f"http://{device_ip}:7234/api",
-                "wake_word": wake_word,
                 "wake_word_engine": wake_word_engine,
+                "wake_word": wake_word,
+                "wake_word_conf_threshold": wake_word_conf_threshold, 
                 "wakeup_sound": wakeup_sound,
-                "mic_index": mic_index,
                 "vad_sensitivity": vad_sensitivity,
                 "vad_threshold": vad_threshold,
                 "speex_noise_suppression": speex_noise_suppression,
-                "speaker_index": speaker_index
+                "mic_index": mic_index,
+                "speaker_index": speaker_index,
+                "volume": volume
             }
         }
 
@@ -80,14 +84,16 @@ def run_node(debug, no_sync, sync_up):
 
             config.set("node_name", config_json["node_name"])
             config.set("node_area", config_json["node_area"])
-            config.set("wake_word", config_json["wake_word"])
             config.set("wake_word_engine", config_json["wake_word_engine"])
+            config.set("wake_word", config_json["wake_word"])
+            config.set("wake_word_conf_threshold", config_json["wake_word_conf_threshold"])
             config.set("wakeup_sound", config_json["wakeup_sound"])
-            config.set("mic_index", config_json["mic_index"])
             config.set("vad_sensitivity", config_json["vad_sensitivity"])
             config.set("vad_threshold", config_json["vad_threshold"])
             config.set("speex_noise_suppression", config_json["speex_noise_suppression"])
+            config.set("mic_index", config_json["mic_index"])
             config.set("speaker_index", config_json["speaker_index"])
+            config.set("volume", config_json["volume"])
 
         except Exception as e:
             print(repr(e))

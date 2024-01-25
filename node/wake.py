@@ -51,10 +51,9 @@ class OpenWakeWord:
                  wake_word: str,
                  sample_rate: int,
                  inference_framework: str = 'onnx',
-                 confidence_threshold: int = 80
     ):
         self.wake_word = wake_word
-        self.confidence_threshold = confidence_threshold
+        self.confidence_threshold = node.wake_word_conf_threshold
         model_file = os.path.join(node.base_dir, "wakeword_models", f"{wake_word}.onnx")
         if not os.path.exists(model_file):
             raise RuntimeError("Wake word model file does not exist")
@@ -73,5 +72,5 @@ class OpenWakeWord:
         # Feed to openWakeWord model
         prediction = self.owwModel.predict(audio)
         #print(prediction)
-        if prediction[self.wake_word] * 100 > self.confidence_threshold: return True
+        if prediction[self.wake_word] > self.confidence_threshold: return True
         return False
