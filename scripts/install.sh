@@ -3,7 +3,7 @@
 apt update
 apt install -y python3-pip python3-venv git wget \
                 libatlas-base-dev libglib2.0-dev \
-                libgirepository1.0-dev libcairo2-dev \
+                libgirepository1.0-dev libcairo2-dev libspeexdsp-dev\
                 gfortran gcc libopenblas-dev portaudio19-dev \
                 libblas-dev llvm python3-scipy build-essential sox sed
 
