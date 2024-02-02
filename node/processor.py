@@ -21,9 +21,9 @@ class Processor():
         command_audio_data = open(os.path.join(self.node.file_dump, "command.wav"), "rb").read()
 
         payload = {
-            "node_id": self.node.node_id,
-            "node_name": self.node.node_name,
-            "node_area": self.node.node_area,
+            "node_id": self.node.id,
+            "node_name": self.node.name,
+            "node_area": self.node.area,
             "command_audio_data": command_audio_data.hex(),
             "hub_callback": self.hub_callback,
             "last_time_engaged": self.node.last_time_engaged,

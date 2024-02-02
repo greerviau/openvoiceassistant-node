@@ -49,7 +49,7 @@ class Listener:
             buffer.put(bytes(in_data))
 
         if not engaged:        
-            print("Stream started")
+            print("Listening for wake word")
             with sd.RawInputStream(samplerate=16000, 
                                     device=self.mic_idx, 
                                     channels=self.channels, 
@@ -58,7 +58,11 @@ class Listener:
                                     callback=callback):
                 self.wake.reset()
                 while True:
-                    if self.wake.listen_for_wake_word(buffer.get()): break
+                    if not self.node.running.is_set():
+                        return
+                    if self.wake.listen_for_wake_word(buffer.get()): 
+                        print("Wake word!")
+                        break
                     
         self.node.audio_player.interrupt()
         if self.node.led_controller:
@@ -88,6 +92,8 @@ class Listener:
                 not_speech_start_time = None
                 vad_audio_data = bytes()
                 while True:
+                    if not self.node.running.is_set():
+                        return
                     chunk = buffer.get()
                     if chunk:
 
@@ -100,6 +106,8 @@ class Listener:
 
                         # Process in chunks of 30ms for webrtcvad
                         while len(vad_audio_data) >= self.vad_chunk_size:
+                            if not self.node.running.is_set():
+                                return
                             vad_chunk = vad_audio_data[: self.vad_chunk_size]
                             vad_audio_data = vad_audio_data[self.vad_chunk_size:]
 

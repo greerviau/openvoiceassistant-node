@@ -60,9 +60,9 @@ def __default_config():
     node_id = f"{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}"
 
     return {
-        "node_id": node_id,
-        "node_name": f"node_{node_id}",
-        "node_area": "",
+        "id": node_id,
+        "name": f"node_{node_id}",
+        "area": "",
         "hub_ip": hub_ip,
         "wake_word_engine": "openwakeword",
         "wake_word": "ova",

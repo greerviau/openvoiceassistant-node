@@ -1,5 +1,7 @@
 import time
 import os
+import threading
+import requests
 
 from node import config
 from node.listener import Listener
@@ -7,28 +9,111 @@ from node.audio_player import AudioPlayer
 from node.processor import Processor
 from node.timer import Timer
 from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
+from node.utils.network import get_my_ip, scan_for_hub
 
 class Node:
-    def __init__(self, debug: bool):
+    def __init__(self, debug: bool, no_sync: bool, sync_up: bool):
         self.debug = debug
-
-        self.initialize()
-
-    def start(self):
-        print("Starting node")
-        self.running = True
-        self.run()
+        self.no_sync = no_sync
+        self.sync_up = sync_up
+        self.running = threading.Event()
+        self.running.set()
 
     def stop(self):
-        self.running = False
+        print("Stopping node")
+        self.running.clear()
 
-    def restart(self):
-        self.stop()
-        print("Restarting node...")
+    def start(self):
         self.initialize()
-        self.start()
+        print("Starting node")
+        self.running.set()
+        self.run()
+
+    def sync(self):
+        if not self.no_sync:
+            # Run Startup Sync with HUB
+            print("Node Syncing with HUB...")
+
+            node_id = config.get("id")
+            node_name = config.get("name")
+            node_area = config.get("area")
+            device_ip = get_my_ip()
+            hub_ip = config.get("hub_ip")
+            wake_word_engine = config.get("wake_word_engine")
+            wake_word = config.get("wake_word")
+            wake_word_conf_threshold = config.get("wake_word_conf_threshold")
+            wakeup_sound = config.get("wakeup_sound")
+            vad_sensitivity = config.get("vad_sensitivity")
+            vad_threshold = config.get("vad_threshold")
+            speex_noise_suppression = config.get("speex_noise_suppression")
+            mic_index = config.get("mic_index")
+            speaker_index = config.get("speaker_index")
+            volume = config.get("volume")
+
+            if not hub_ip:
+                hub_ip = scan_for_hub(device_ip, 7123)
+                config.set("hub_ip", hub_ip)
+
+            hub_api_url = f"http://{hub_ip}:7123/api"
+
+            sync_data = {     
+                    "id": node_id,
+                    "name": node_name,
+                    "area": node_area,
+                    "api_url": f"http://{device_ip}:7234/api",
+                    "wake_word_engine": wake_word_engine,
+                    "wake_word": wake_word,
+                    "wake_word_conf_threshold": wake_word_conf_threshold, 
+                    "wakeup_sound": wakeup_sound,
+                    "vad_sensitivity": vad_sensitivity,
+                    "vad_threshold": vad_threshold,
+                    "speex_noise_suppression": speex_noise_suppression,
+                    "mic_index": mic_index,
+                    "speaker_index": speaker_index,
+                    "volume": volume,
+                    "restart_required": False
+                }
+
+            try:
+                if self.sync_up:
+                    print("Pushing local configuration to HUB")
+                    response = requests.put(f"{hub_api_url}/node/{node_id}/sync_up", json=sync_data, timeout=5)
+                else:
+                    print("Pulling configuration from HUB")
+                    response = requests.put(f"{hub_api_url}/node/{node_id}/sync_down", json=sync_data, timeout=5)
+
+                
+                if response.status_code != 200:
+                    #print("Failed to sync with HUB")
+                    #print(response.json())
+                    raise RuntimeError(response.json()["detail"])
+
+                config_json = response.json()
+                print("Node config:")
+                print(config_json)
+
+                config.set("name", config_json["name"])
+                config.set("area", config_json["area"])
+                config.set("wake_word_engine", config_json["wake_word_engine"])
+                config.set("wake_word", config_json["wake_word"])
+                config.set("wake_word_conf_threshold", config_json["wake_word_conf_threshold"])
+                config.set("wakeup_sound", config_json["wakeup_sound"])
+                config.set("vad_sensitivity", config_json["vad_sensitivity"])
+                config.set("vad_threshold", config_json["vad_threshold"])
+                config.set("speex_noise_suppression", config_json["speex_noise_suppression"])
+                config.set("mic_index", config_json["mic_index"])
+                config.set("speaker_index", config_json["speaker_index"])
+                config.set("volume", config_json["volume"])
+
+            except Exception as e:
+                #print(repr(e))
+                raise RuntimeError(f"HUB Sync Failed | {repr(e)}")
+
+            print("Sync Complete!")
 
     def initialize(self):
+        self.sync()
+        print("Initializing...")
         self.base_dir = os.path.realpath(os.path.dirname(__file__))
         self.sounds_dir = os.path.join(self.base_dir, 'sounds')
         self.file_dump = os.path.join(self.base_dir, 'file_dump')
@@ -38,9 +123,9 @@ class Node:
 
         self.timer = None
 
-        self.node_id = config.get("node_id")
-        self.node_name = config.get("node_name")
-        self.node_area = config.get("node_area")
+        self.id = config.get("id")
+        self.name = config.get("name")
+        self.area = config.get("area")
         self.hub_ip = config.get("hub_ip")
         self.wake_word_engine = config.get("wake_word_engine")
         self.wake_word = config.get("wake_word")
@@ -62,7 +147,7 @@ class Node:
         _, self.mic_tag = select_mic(self.mic_idx)
 
         print("\nMicrophone supported sample rates")
-        rates = [48000, 32000, 16000, 8000]
+        rates = [16000, 48000, 32000, 8000]
         supported_rates = get_supported_samplerates(self.mic_idx, rates)
         [print(f"- {rate}") for rate in supported_rates]
 
@@ -76,10 +161,12 @@ class Node:
 
         _, self.speaker_tag = select_speaker(self.speaker_idx)
 
-        # LISTENER SETTINGS
+        # SETTINGS
+        if self.debug: print("==DEBUG MODE==")
         print("\nNode Info")
-        print(f"- ID:             {self.node_id}")
-        print(f"- Name:           {self.node_name}")
+        print(f"- ID:             {self.id}")
+        print(f"- Name:           {self.name}")
+        print(f"- Area:           {self.area}")
         print(f"- HUB:            {self.hub_ip}")
         print("\nWakeword Settings")
         print(f"- Wake Engine:    {self.wake_word_engine}")
@@ -123,13 +210,13 @@ class Node:
     def run(self):
         self.last_time_engaged = time.time()
         engaged = False
-        while self.running:
+        while self.running.is_set():
             audio_data = self.listener.listen(engaged)
+            if not self.running.is_set():
+                break
             engaged = self.processor.process_audio(audio_data)
             if self.led_controller:
-                self.led_controller.off()
-
-                
+                self.led_controller.off()         
         print("Mainloop end")
 
     def set_volume(self, volume: int):
