@@ -146,6 +146,7 @@ class Node:
         try:
             _, self.mic_tag = select_mic(self.mic_idx)
         except:
+            print("Specified mic does not exist")
             mic = list_microphones()[0]
             self.mic_tag = mic["name"]
             self.mic_idx = mic["idx"]
@@ -168,6 +169,7 @@ class Node:
         try:
             _, self.speaker_tag = select_speaker(self.speaker_idx)
         except:
+            print("Specified speaker does not exist")
             speaker = list_speakers()[0]
             self.speaker_tag = speaker["name"]
             self.speaker_idx = speaker["idx"]
