@@ -209,6 +209,7 @@ class Node:
 
         try:
             import alsaaudio
+            print(type(self.speaker_idx))
             mixer_card = alsaaudio.mixers(cardindex=self.speaker_idx)[0]
             self.mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
             self.set_volume(self.volume)
@@ -238,8 +239,8 @@ class Node:
             if self.mixer:
                 self.mixer.setvolume(volume)
                 print(f"Volume set {volume}")
-        else:
-            print("Failed to set volume: (Out of range 0-1)")
+                return
+        print("Failed to set volume: (Out of range 0-1)")
 
     def set_timer(self, durration_seconds: int):
         if self.timer == None:
