@@ -212,7 +212,8 @@ class Node:
             mixer_card = alsaaudio.mixers(cardindex=self.speaker_idx)[0]
             self.mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
             self.set_volume(self.volume)
-        except:
+        except Exception as e:
+            print(f"Failed to initialize mixer | {repr(e)}")
             self.mixer = None
 
         # INITIALIZING COMPONENTS
@@ -236,6 +237,7 @@ class Node:
         if volume >= 0 and volume <= 100:
             if self.mixer:
                 self.mixer.setvolume(volume)
+                print(f"Volume set {volume}")
         else:
             print("Failed to set volume: (Out of range 0-1)")
 
