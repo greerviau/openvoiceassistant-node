@@ -8,7 +8,7 @@ from node.listener import Listener
 from node.audio_player import AudioPlayer
 from node.processor import Processor
 from node.timer import Timer
-from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker, find_microphones, find_speakers
+from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
 from node.utils.network import get_my_ip, scan_for_hub
 
 class Node:
@@ -146,7 +146,7 @@ class Node:
         try:
             _, self.mic_tag = select_mic(self.mic_idx)
         except:
-            mic = find_microphones()[0]
+            mic = list_microphones()[0]
             self.mic_tag = mic["name"]
             self.mic_idx = mic["idx"]
             config.set("mic_index", self.mic_idx)
@@ -168,7 +168,7 @@ class Node:
         try:
             _, self.speaker_tag = select_speaker(self.speaker_idx)
         except:
-            speaker = find_speakers()[0]
+            speaker = list_speakers()[0]
             self.speaker_tag = speaker["name"]
             self.speaker_idx = speaker["idx"]
             config.set("speaker_index", self.speaker_idx)

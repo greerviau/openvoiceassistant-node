@@ -5,7 +5,7 @@ import uuid
 import random
 
 from node.utils.network import get_my_ip, scan_for_hub
-from node.utils.hardware import find_speakers, find_microphones
+from node.utils.hardware import list_speakers, list_microphones
 
 loc = os.path.realpath(os.path.dirname(__file__))
 config_path = f"{loc}/config.json"
@@ -71,8 +71,8 @@ def __default_config():
         "vad_sensitivity": 3,
         "vad_threshold": 0.0,
         "speex_noise_suppression": False,        
-        "mic_index": find_microphones()[0]["idx"],
-        "speaker_index": find_speakers()[0]["idx"],
+        "mic_index": list_microphones()[0]["idx"],
+        "speaker_index": list_speakers()[0]["idx"],
         "volume": 100
     }
 
