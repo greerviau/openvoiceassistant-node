@@ -8,7 +8,7 @@ from node.listener import Listener
 from node.audio_player import AudioPlayer
 from node.processor import Processor
 from node.timer import Timer
-from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker
+from node.utils.hardware import list_microphones, select_mic, get_supported_samplerates, list_speakers, select_speaker, find_microphones, find_speakers
 from node.utils.network import get_my_ip, scan_for_hub
 
 class Node:
@@ -29,90 +29,89 @@ class Node:
         self.running.set()
         self.run()
 
-    def sync(self):
-        if not self.no_sync:
-            # Run Startup Sync with HUB
-            print("Node Syncing with HUB...")
+    def sync(self, sync_up: bool = False):
+        # Run Startup Sync with HUB
+        print("Node Syncing with HUB...")
 
-            node_id = config.get("id")
-            node_name = config.get("name")
-            node_area = config.get("area")
-            device_ip = get_my_ip()
-            hub_ip = config.get("hub_ip")
-            wake_word_engine = config.get("wake_word_engine")
-            wake_word = config.get("wake_word")
-            wake_word_conf_threshold = config.get("wake_word_conf_threshold")
-            wakeup_sound = config.get("wakeup_sound")
-            vad_sensitivity = config.get("vad_sensitivity")
-            vad_threshold = config.get("vad_threshold")
-            speex_noise_suppression = config.get("speex_noise_suppression")
-            mic_index = config.get("mic_index")
-            speaker_index = config.get("speaker_index")
-            volume = config.get("volume")
+        node_id = config.get("id")
+        node_name = config.get("name")
+        node_area = config.get("area")
+        device_ip = get_my_ip()
+        hub_ip = config.get("hub_ip")
+        wake_word_engine = config.get("wake_word_engine")
+        wake_word = config.get("wake_word")
+        wake_word_conf_threshold = config.get("wake_word_conf_threshold")
+        wakeup_sound = config.get("wakeup_sound")
+        vad_sensitivity = config.get("vad_sensitivity")
+        vad_threshold = config.get("vad_threshold")
+        speex_noise_suppression = config.get("speex_noise_suppression")
+        mic_index = config.get("mic_index")
+        speaker_index = config.get("speaker_index")
+        volume = config.get("volume")
 
-            if not hub_ip:
-                hub_ip = scan_for_hub(device_ip, 7123)
-                config.set("hub_ip", hub_ip)
+        if not hub_ip:
+            hub_ip = scan_for_hub(device_ip, 7123)
+            config.set("hub_ip", hub_ip)
 
-            hub_api_url = f"http://{hub_ip}:7123/api"
+        hub_api_url = f"http://{hub_ip}:7123/api"
 
-            sync_data = {     
-                    "id": node_id,
-                    "name": node_name,
-                    "area": node_area,
-                    "api_url": f"http://{device_ip}:7234/api",
-                    "wake_word_engine": wake_word_engine,
-                    "wake_word": wake_word,
-                    "wake_word_conf_threshold": wake_word_conf_threshold, 
-                    "wakeup_sound": wakeup_sound,
-                    "vad_sensitivity": vad_sensitivity,
-                    "vad_threshold": vad_threshold,
-                    "speex_noise_suppression": speex_noise_suppression,
-                    "mic_index": mic_index,
-                    "speaker_index": speaker_index,
-                    "volume": volume,
-                    "restart_required": False
-                }
+        sync_data = {     
+                "id": node_id,
+                "name": node_name,
+                "area": node_area,
+                "api_url": f"http://{device_ip}:7234/api",
+                "wake_word_engine": wake_word_engine,
+                "wake_word": wake_word,
+                "wake_word_conf_threshold": wake_word_conf_threshold, 
+                "wakeup_sound": wakeup_sound,
+                "vad_sensitivity": vad_sensitivity,
+                "vad_threshold": vad_threshold,
+                "speex_noise_suppression": speex_noise_suppression,
+                "mic_index": mic_index,
+                "speaker_index": speaker_index,
+                "volume": volume,
+                "restart_required": False
+            }
 
-            try:
-                if self.sync_up:
-                    print("Pushing local configuration to HUB")
-                    response = requests.put(f"{hub_api_url}/node/{node_id}/sync_up", json=sync_data, timeout=5)
-                else:
-                    print("Pulling configuration from HUB")
-                    response = requests.put(f"{hub_api_url}/node/{node_id}/sync_down", json=sync_data, timeout=5)
+        try:
+            if sync_up:
+                print("Pushing local configuration to HUB")
+                response = requests.put(f"{hub_api_url}/node/{node_id}/sync_up", json=sync_data, timeout=5)
+            else:
+                print("Pulling configuration from HUB")
+                response = requests.put(f"{hub_api_url}/node/{node_id}/sync_down", json=sync_data, timeout=5)
 
-                
-                if response.status_code != 200:
-                    #print("Failed to sync with HUB")
-                    #print(response.json())
-                    raise RuntimeError(response.json()["detail"])
+            
+            if response.status_code != 200:
+                #print("Failed to sync with HUB")
+                #print(response.json())
+                raise RuntimeError(response.json()["detail"])
 
-                config_json = response.json()
-                print("Node config:")
-                print(config_json)
+            config_json = response.json()
+            print("Node config:")
+            print(config_json)
 
-                config.set("name", config_json["name"])
-                config.set("area", config_json["area"])
-                config.set("wake_word_engine", config_json["wake_word_engine"])
-                config.set("wake_word", config_json["wake_word"])
-                config.set("wake_word_conf_threshold", config_json["wake_word_conf_threshold"])
-                config.set("wakeup_sound", config_json["wakeup_sound"])
-                config.set("vad_sensitivity", config_json["vad_sensitivity"])
-                config.set("vad_threshold", config_json["vad_threshold"])
-                config.set("speex_noise_suppression", config_json["speex_noise_suppression"])
-                config.set("mic_index", config_json["mic_index"])
-                config.set("speaker_index", config_json["speaker_index"])
-                config.set("volume", config_json["volume"])
+            config.set("name", config_json["name"])
+            config.set("area", config_json["area"])
+            config.set("wake_word_engine", config_json["wake_word_engine"])
+            config.set("wake_word", config_json["wake_word"])
+            config.set("wake_word_conf_threshold", config_json["wake_word_conf_threshold"])
+            config.set("wakeup_sound", config_json["wakeup_sound"])
+            config.set("vad_sensitivity", config_json["vad_sensitivity"])
+            config.set("vad_threshold", config_json["vad_threshold"])
+            config.set("speex_noise_suppression", config_json["speex_noise_suppression"])
+            config.set("mic_index", config_json["mic_index"])
+            config.set("speaker_index", config_json["speaker_index"])
+            config.set("volume", config_json["volume"])
 
-            except Exception as e:
-                #print(repr(e))
-                raise RuntimeError(f"HUB Sync Failed | {repr(e)}")
+        except Exception as e:
+            #print(repr(e))
+            raise RuntimeError(f"HUB Sync Failed | {repr(e)}")
 
-            print("Sync Complete!")
+        print("Sync Complete!")
 
     def initialize(self):
-        self.sync()
+        if not self.no_sync: self.sync(self.sync_up)
         print("Initializing...")
         self.base_dir = os.path.realpath(os.path.dirname(__file__))
         self.sounds_dir = os.path.join(self.base_dir, 'sounds')
@@ -144,7 +143,14 @@ class Node:
         print("\nAvailable Microphones:")
         [print(f"- {mic}") for mic in list_microphones()]
 
-        _, self.mic_tag = select_mic(self.mic_idx)
+        try:
+            _, self.mic_tag = select_mic(self.mic_idx)
+        except:
+            mic = find_microphones()[0]
+            self.mic_tag = mic["name"]
+            self.mic_idx = mic["idx"]
+            config.set("mic_index", self.mic_idx)
+            self.sync(sync_up=True)
 
         print("\nMicrophone supported sample rates")
         rates = [16000, 48000, 32000, 8000]
@@ -159,7 +165,14 @@ class Node:
         print("\nAvailable Speakers")
         [print(f"- {speaker}") for speaker in list_speakers()]
 
-        _, self.speaker_tag = select_speaker(self.speaker_idx)
+        try:
+            _, self.speaker_tag = select_speaker(self.speaker_idx)
+        except:
+            speaker = find_speakers()[0]
+            self.speaker_tag = speaker["name"]
+            self.speaker_idx = speaker["idx"]
+            config.set("speaker_index", self.speaker_idx)
+            self.sync(sync_up=True)
 
         # SETTINGS
         if self.debug: print("==DEBUG MODE==")

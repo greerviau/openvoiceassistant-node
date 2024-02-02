@@ -71,8 +71,8 @@ def __default_config():
         "vad_sensitivity": 3,
         "vad_threshold": 0.0,
         "speex_noise_suppression": False,        
-        "mic_index": 0,
-        "speaker_index": 0,
+        "mic_index": find_microphones()[0]["idx"],
+        "speaker_index": find_speakers()[0]["idx"],
         "volume": 100
     }
 
