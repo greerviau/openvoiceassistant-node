@@ -211,7 +211,6 @@ class Node:
 
         try:
             import alsaaudio
-            print(type(self.speaker_idx))
             mixer_card = alsaaudio.mixers(cardindex=self.speaker_idx)[0]
             self.mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
             self.set_volume(self.volume)
