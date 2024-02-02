@@ -37,10 +37,10 @@ def list_speakers() -> typing.List[str]:
     return speaker_list
 
 def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
-    microphones = find_microphones()
+    microphones = list_microphones()
     try:
         if isinstance(mic, str):
-            mic_index = [idx for idx, info in microphones.items() if mic.lower() in info["name"].lower()][0]
+            mic_index = [info["idx"] for info in microphones if mic.lower() in info["name"].lower()][0]
         else:
             mic_index = mic
         
@@ -51,10 +51,10 @@ def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:
     return mic_index, mic_tag
 
 def select_speaker(speaker: typing.Union[str, int]) -> typing.Tuple[int, str]:
-    speakers = find_speakers()
+    speakers = list_speakers()
     try:
         if isinstance(speaker, str):
-            speaker_index = [idx for idx, info in speakers.items() if speaker.lower() in info["name"].lower()][0]
+            speaker_index = [info["idx"] for info in speakers if speaker.lower() in info["name"].lower()][0]
         else:
             speaker_index = speaker
         
