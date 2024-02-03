@@ -64,7 +64,6 @@ def __default_config():
         "name": f"node_{node_id}",
         "area": "",
         "hub_ip": hub_ip,
-        "wake_word_engine": "openwakeword",
         "wake_word": "ova",
         "wake_word_conf_threshold": 0.8,
         "wakeup_sound": True,

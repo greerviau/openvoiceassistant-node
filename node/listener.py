@@ -6,7 +6,7 @@ import webrtcvad
 import queue
 import sounddevice as sd
 
-from node.wake import KaldiWake, OpenWakeWord
+from node.wake import OpenWakeWord
 from node.utils.audio import *
 
 
@@ -14,7 +14,6 @@ class Listener:
     def __init__(self, node, frames_per_buffer: int = 4000):
         self.node = node
         self.wake_word = node.wake_word
-        self.wake_word_engine = node.wake_word_engine
         self.mic_idx = node.mic_idx
         self.sample_rate = node.sample_rate
         self.sample_width = node.sample_width
@@ -26,14 +25,8 @@ class Listener:
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
         
-        if self.wake_word_engine == "openwakeword":
-            self.wake = OpenWakeWord(node, wake_word=self.wake_word,
+        self.wake = OpenWakeWord(node, wake_word=self.wake_word,
                                 sample_rate=16000)
-        elif self.wake_word_engine == "kaldi":
-            self.wake = KaldiWake(node, wake_word=self.wake_word,
-                                sample_rate=16000)
-        else:
-            raise RuntimeError("Invalid wake word engine")
         
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(self.sensitivity)

@@ -54,7 +54,7 @@ class OpenWakeWord:
     ):
         self.wake_word = wake_word
         self.confidence_threshold = node.wake_word_conf_threshold
-        model_file = os.path.join(node.base_dir, "wakeword_models", f"{wake_word}.onnx")
+        model_file = os.path.join(node.wake_word_model_dump, f"{wake_word}.onnx")
         if not os.path.exists(model_file):
             raise RuntimeError("Wake word model file does not exist")
         

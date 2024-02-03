@@ -38,7 +38,6 @@ class Node:
         node_area = config.get("area")
         device_ip = get_my_ip()
         hub_ip = config.get("hub_ip")
-        wake_word_engine = config.get("wake_word_engine")
         wake_word = config.get("wake_word")
         wake_word_conf_threshold = config.get("wake_word_conf_threshold")
         wakeup_sound = config.get("wakeup_sound")
@@ -60,7 +59,6 @@ class Node:
                 "name": node_name,
                 "area": node_area,
                 "api_url": f"http://{device_ip}:7234/api",
-                "wake_word_engine": wake_word_engine,
                 "wake_word": wake_word,
                 "wake_word_conf_threshold": wake_word_conf_threshold, 
                 "wakeup_sound": wakeup_sound,
@@ -93,7 +91,6 @@ class Node:
 
             config.set("name", config_json["name"])
             config.set("area", config_json["area"])
-            config.set("wake_word_engine", config_json["wake_word_engine"])
             config.set("wake_word", config_json["wake_word"])
             config.set("wake_word_conf_threshold", config_json["wake_word_conf_threshold"])
             config.set("wakeup_sound", config_json["wakeup_sound"])
@@ -116,9 +113,11 @@ class Node:
         self.base_dir = os.path.realpath(os.path.dirname(__file__))
         self.sounds_dir = os.path.join(self.base_dir, 'sounds')
         self.file_dump = os.path.join(self.base_dir, 'file_dump')
+        self.wake_word_model_dump = os.path.join(self.base_dir, "wakeword_models")
         
         os.makedirs(self.sounds_dir, exist_ok=True)
         os.makedirs(self.file_dump, exist_ok=True)
+        os.makedirs(self.wake_word_model_dump, exist_ok=True)
 
         self.timer = None
 
@@ -126,7 +125,6 @@ class Node:
         self.name = config.get("name")
         self.area = config.get("area")
         self.hub_ip = config.get("hub_ip")
-        self.wake_word_engine = config.get("wake_word_engine")
         self.wake_word = config.get("wake_word")
         self.wakeup_sound = config.get("wakeup_sound")
         self.wake_word_conf_threshold = config.get("wake_word_conf_threshold")
@@ -184,7 +182,6 @@ class Node:
         print(f"- Area:           {self.area}")
         print(f"- HUB:            {self.hub_ip}")
         print("\nWakeword Settings")
-        print(f"- Wake Engine:    {self.wake_word_engine}")
         print(f"- Wake Word:      {self.wake_word}")
         print(f"- Wake Conf:      {self.wake_word_conf_threshold}")
         print(f"- Vad Thresh:     {self.vad_threshold}")

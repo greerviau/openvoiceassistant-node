@@ -13,7 +13,7 @@ def create_app(node: Node, node_thread: threading.Thread):
 
     app = flask.Flask("Node")
 
-    @app.route("/api/", methods=["GET"])
+    @app.route("/api", methods=["GET"])
     def index():
         return {"id": node.id}, 200
 
@@ -26,7 +26,6 @@ def create_app(node: Node, node_thread: threading.Thread):
         node_config = flask.request.json
         config.set("name", node_config["name"])
         config.set("area", node_config["area"])
-        config.set("wake_word_engine", node_config["wake_word_engine"])
         config.set("wake_word", node_config["wake_word"])
         config.set("wake_word_conf_threshold", node_config["wake_word_conf_threshold"])
         config.set("wakeup_sound", node_config["wakeup_sound"])
@@ -124,6 +123,10 @@ def create_app(node: Node, node_thread: threading.Thread):
     @app.route("/api/speakers", methods=["GET"])
     def get_speakers():
         return list_speakers(), 200
+    
+    @app.route("/api/wake_word_models", methods=["GET"])
+    def get_wake_word_models():
+        return [model.split(".")[0] for model in os.listdir(node.wake_word_model_dump) if ".onnx" in model], 200
 
     @app.route("/api/restart", methods=["POST"])
     def restart():
