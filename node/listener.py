@@ -25,8 +25,7 @@ class Listener:
         # Define a recording buffer for the start of the recording
         self.recording_buffer = collections.deque(maxlen=2)
         
-        self.wake = OpenWakeWord(node, wake_word=self.wake_word,
-                                sample_rate=16000)
+        self.wake = OpenWakeWord(node, wake_word=self.wake_word)
         
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(self.sensitivity)
@@ -43,7 +42,7 @@ class Listener:
 
         if not engaged:        
             print("Listening for wake word")
-            with sd.RawInputStream(samplerate=16000, 
+            with sd.RawInputStream(samplerate=self.sample_rate, 
                                     device=self.mic_idx, 
                                     channels=self.channels, 
                                     blocksize=self.frames_per_buffer,
@@ -67,7 +66,7 @@ class Listener:
 
         audio_data = []
 
-        buffer.queue.clear()
+        buffer = queue.Queue()
 
         with wave.open(os.path.join(self.node.file_dump, "command.wav"), "wb") as wav_file:
             wav_file.setframerate(self.sample_rate)

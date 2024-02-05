@@ -49,7 +49,6 @@ class OpenWakeWord:
     def __init__(self,
                  node,
                  wake_word: str,
-                 sample_rate: int,
                  inference_framework: str = 'onnx',
     ):
         self.wake_word = wake_word
