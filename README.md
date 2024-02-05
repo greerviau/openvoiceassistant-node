@@ -24,7 +24,9 @@ sudo ./scripts/install_rpi.sh
 
 The installation will automatically create a systemd service.
 
-The node should now be running! If you check your OVA Hub frontend you should see your node has been auto discovered. This can take a few minutes on initial install. If it takes longer than 5 minutes, check the status of the systemd service using ```sudo systemctl status ova_node.service```. On initial install, the node may show up with a strange ID name such as ```node_8917a474bc894ccd848780e6a8dfb988```. Use the Identify button to identify your node, it will announce "Hello World!" confirming which Node it is.
+The node should now be running! If you check your OVA Hub frontend you should see your node has been auto discovered. This can take a few minutes on initial install. If it takes longer than 5 minutes, check the status of the systemd service using ```sudo systemctl status ova_node.service```. 
+
+On initial install, the node may show up with an ID name such as ```node_8917a474bc894ccd848780e6a8dfb988```. Use the ```Identify``` button to identify your node, it will announce "Hello World!" confirming which Node it is.
 
 ## Configuration
 From the configuration page for a Node, there are several settings you can change.
@@ -45,10 +47,16 @@ From the configuration page for a Node, there are several settings you can chang
 It is recomended to give each Node a unique, human readable name.
 
 ### Area
-This indicates the are of the house that the node is located. This is primarily utilized when OVA is interacting with external smart home platforms. Ex. If integrating with Home Assistant, use the same naming scheme you have set up for rooms within Home Assistant. This will allow OVA to control devices such as lights without the need to specify a location. Ex. If the Node is in the living room and you say "Lights off", it will turn off the lights in that room.
+This indicates the are of the house that the node is located. This is primarily utilized when OVA is interacting with external smart home platforms. 
+
+For example if you are integrating with Home Assistant, use the same naming scheme you have set up for rooms within Home Assistant. This will allow OVA to control devices such as lights without the need to specify a location. 
+
+Ex. If the Node is in the living room and you say "Lights off", it will turn off the lights in that room.
 
 ### Wake Word
-This is the wake word that OVA Node will use to wakeup and listen to your command. There are some pretrained wake words provided for you to choose from, however if you want to customize your own, you can train your own by following the documentation on the [openWakeWord github](https://github.com/dscripka/openWakeWord?tab=readme-ov-file#training-new-models). You can then upload the ```.onnx``` file to the Node using the Upload Wake Word button.
+This is the wake word that OVA Node will use to wakeup and listen to your command. There are some pretrained wake words provided for you to choose from.
+
+If you want to customize your own, you can train your own by following the documentation on the [openWakeWord github](https://github.com/dscripka/openWakeWord?tab=readme-ov-file#training-new-models). You can then upload the ```.onnx``` file to the Node using the ```Upload Wake Word``` button.
 
 ### Wake Word Confidence
 This is a percentage value from 0-100% that indicates how confident the wake word model must be that the wake word was spoken in order to activate. This setting works in conjunction with **VAD Threshold**. The default of 80% is usually fine, but if you notice more False Positives then raise it. If you're getting too many False Negatives then maybe lower it.
@@ -69,4 +77,6 @@ This indicates whether or not you want to enable Speex Noise Supression. This se
 These options allow you to choose the respective devices to use as Microphones and Speakers. Any new devices should be auto detected.
 
 ### Volume
-This is the device volume. You can also adjust it through voice command. Ex. "Volume up/down", "Volume 5", "Volume 60 percent".
+This is the device volume. You can also adjust it through voice command. 
+
+Ex. "Volume up/down", "Volume 5", "Volume 60 percent".
