@@ -15,31 +15,44 @@ def create_app(node: Node, node_thread: threading.Thread):
 
     @app.route("/api", methods=["GET"])
     def index():
-        return {"id": node.id}, 200
+        try:
+            return {"id": node.id}, 200
+        except Exception as e:
+            print(e)
+            return {}, 400
 
     @app.route("/api/config", methods=["GET"])
     def get_config() -> NodeConfig:
-        return config.get(), 200
+        try:
+            return config.get(), 200
+        except Exception as e:
+            print(e)
+            return {}, 400
 
     @app.route("/api/config", methods=["PUT"])
     def put_config():
-        node_config = flask.request.json
-        config.set("name", node_config["name"])
-        config.set("area", node_config["area"])
-        config.set("wake_word", node_config["wake_word"])
-        config.set("wake_word_conf_threshold", node_config["wake_word_conf_threshold"])
-        config.set("wakeup_sound", node_config["wakeup_sound"])
-        config.set("vad_sensitivity", node_config["vad_sensitivity"])
-        config.set("vad_threshold", node_config["vad_threshold"])
-        config.set("speex_noise_suppression", node_config["speex_noise_suppression"])
-        config.set("mic_index", node_config["mic_index"])
-        config.set("speaker_index", node_config["speaker_index"])
-        config.set("volume", node_config["volume"])
-        return node_config, 200
+        try:
+            node_config = flask.request.json
+            config.set("name", node_config["name"])
+            config.set("area", node_config["area"])
+            config.set("wake_word", node_config["wake_word"])
+            config.set("wake_word_conf_threshold", node_config["wake_word_conf_threshold"])
+            config.set("wakeup_sound", node_config["wakeup_sound"])
+            config.set("vad_sensitivity", node_config["vad_sensitivity"])
+            config.set("vad_threshold", node_config["vad_threshold"])
+            config.set("speex_noise_suppression", node_config["speex_noise_suppression"])
+            config.set("mic_index", node_config["mic_index"])
+            config.set("speaker_index", node_config["speaker_index"])
+            config.set("volume", node_config["volume"])
+            return node_config, 200
+        except Exception as e:
+            print(e)
+            return {}, 400
        
     @app.route("/api/play/audio", methods=["POST"])
     def play_audio():
         try:
+            print(data)
             data = flask.request.json
             audio_data = data["audio_data"]
             data = bytes.fromhex(audio_data)
@@ -50,6 +63,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             node.audio_player.play_audio_file(audio_file_path, asynchronous=True)
         except Exception as e:
             print(e)
+            return {}, 400
         return {}, 200
     
     @app.route("/api/play/file", methods=["POST"])
@@ -66,6 +80,7 @@ def create_app(node: Node, node_thread: threading.Thread):
                 return {"error": "Could not find file"}, 404
         except Exception as e:
             print(e)
+            return {}, 400
         return {}, 200
     
     @app.route("/api/announce/<text>", methods=["POST"])
@@ -82,28 +97,38 @@ def create_app(node: Node, node_thread: threading.Thread):
             node.audio_player.play_audio_file(audio_file_path, asynchronous=True)
         except Exception as e:
             print(e)
+            return {}, 400
         return {}, 200
     
     @app.route("/api/set_timer", methods=["POST"])
     def set_timer():
-        data = flask.request.json
-        durration = data["durration"]
-        node.set_timer(durration)
+        try:
+            data = flask.request.json
+            durration = data["durration"]
+            node.set_timer(durration)
+        except Exception as e:
+            print(e)
+            return {}, 400
         return {}, 200
     
     @app.route("/api/stop_timer", methods=["GET"])
     def stop_timer():
         try:
             node.stop_timer()
-        except AttributeError:
+        except AttributeError as e:
+            print(e)
             return {}, 400
         return {}, 200
 
     @app.route("/api/timer_remaining_time", methods=["GET"])
     def timer_remaining_time():
-        return {
-            "time_remaining": node.get_timer()
-        }, 200
+        try:
+            return {
+                "time_remaining": node.get_timer()
+            }, 200
+        except AttributeError as e:
+            print(e)
+            return {}, 400
     
     @app.route("/api/set_volume", methods=["PUT"])
     def set_volume():
@@ -114,19 +139,32 @@ def create_app(node: Node, node_thread: threading.Thread):
             node.set_volume(volume)
         except Exception as e:
             print(e)
+            return {}, 400
         return {}, 200
 
     @app.route("/api/microphones", methods=["GET"])
     def get_microphones():
-        return list_microphones(), 200
+        try:
+            return list_microphones(), 200
+        except AttributeError as e:
+            print(e)
+            return {}, 400
 
     @app.route("/api/speakers", methods=["GET"])
     def get_speakers():
-        return list_speakers(), 200
+        try:
+            return list_speakers(), 200
+        except AttributeError as e:
+            print(e)
+            return {}, 400
     
     @app.route("/api/wake_word_models", methods=["GET"])
     def get_wake_word_models():
-        return [model.split(".")[0] for model in os.listdir(node.wake_word_model_dump) if ".onnx" in model], 200
+        try:
+            return [model.split(".")[0] for model in os.listdir(node.wake_word_model_dump) if ".onnx" in model], 200
+        except AttributeError as e:
+            print(e)
+            return {}, 400
 
     @app.route("/api/restart", methods=["POST"])
     def restart():
@@ -157,13 +195,31 @@ def create_app(node: Node, node_thread: threading.Thread):
                 filename = os.path.join(node.wake_word_model_dump, file.filename)
                 with open(filename, "wb") as file_to_save:
                     file_to_save.write(file.read())
-
-                return {}, 200
             else:
                raise Exception("Invalid file type")
         except Exception as e:
             print(e)
             return {}, 400
+        return {}, 200
+
+    @app.route("/api/upload/file", methods=["POST"])
+    def upload_file():
+        try:
+            if "file" not in flask.request.files:
+                raise Exception("No file part")
+
+            file = flask.request.files["file"]
+
+            if file.filename == "":
+                raise Exception("No file selected")
+
+            filename = os.path.join(node.file_dump, file.filename)
+            with open(filename, "wb") as file_to_save:
+                file_to_save.write(file.read())
+        except Exception as e:
+            print(e)
+            return {}, 400
+        return {}, 200
 
     return app
     
