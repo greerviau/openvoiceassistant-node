@@ -87,7 +87,8 @@ class Node:
                     synced = True
             except Exception as e:
                 print(f"HUB Sync Failed | {repr(e)}")
-                print("Retrying...")
+                print("Retrying in 30 seconds...")
+                time.sleep(30)
 
         try:
             config_json = response.json()

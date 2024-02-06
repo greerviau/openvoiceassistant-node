@@ -44,7 +44,7 @@ class Processor():
                 try:
                     retry_response = requests.get(
                         self.node.hub_api_url,
-                        timeout=30
+                        timeout=5
                     )
                     if retry_response.status_code == 200:
                         connect = True
@@ -53,7 +53,8 @@ class Processor():
                     else:
                         raise
                 except:
-                    print("Retrying...")
+                    print("Retrying in 30 seconds...")
+                    time.sleep(30)
             return
 
         try:         
