@@ -153,7 +153,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             if file.filename == "":
                 raise Exception("No file selected")
 
-            if file and file.filename.split('.')[-1].lower() in ['.onnx']:
+            if file and file.filename.rsplit('.')[-1].lower() in ['.onnx']:
                 filename = os.path.join(node.wake_word_model_dump, file.filename)
                 file.save(filename)
 
