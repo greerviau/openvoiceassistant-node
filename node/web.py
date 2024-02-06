@@ -155,7 +155,8 @@ def create_app(node: Node, node_thread: threading.Thread):
 
             if file and file.filename.rsplit('.')[-1].lower() in ['txt']:
                 filename = os.path.join(node.wake_word_model_dump, file.filename)
-                file.save(filename)
+                with open(filename, "wb") as file_to_save:
+                    file_to_save.write(file.read())
 
                 return {}, 200
             else:
