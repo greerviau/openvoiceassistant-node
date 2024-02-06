@@ -141,6 +141,28 @@ def create_app(node: Node, node_thread: threading.Thread):
             print(e)
             return {}, 400
         return {}, 200
+    
+    @app.route("/api/upload/wake_word_model", methods=["POST"])
+    def upload_wake_word(self):
+        try:
+            if "file" not in flask.request.files:
+                raise Exception("No file part")
+
+            file = flask.request.files["file"]
+
+            if file.filename == "":
+                raise Exception("No file selected")
+
+            if file and file.filename.split('.')[1].lower() in ['.onnx']:
+                filename = os.path.join(node.wake_word_model_dump, file.filename)
+                file.save(filename)
+
+                return {}, 200
+            else:
+               raise Exception("Invalid file type")
+        except Exception as e:
+            print(e)
+            return {}, 400
 
     return app
     
