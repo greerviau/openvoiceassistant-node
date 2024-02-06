@@ -154,7 +154,7 @@ cython_debug/
 .DS_Store
 config.json
 file_dump/
-wakeword_models/*
+wakeword_models/
 !wakeword_models/alexa.onnx
 !wakeword_models/hey_jarvis.onnx
 !wakeword_models/hey_mycroft.onnx
