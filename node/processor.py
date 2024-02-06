@@ -39,22 +39,6 @@ class Processor():
             )
         except Exception as e:
             print(f"Lost connection to HUB | {repr(e)}")
-            connect = False
-            while not connect:
-                try:
-                    retry_response = requests.get(
-                        self.node.hub_api_url,
-                        timeout=5
-                    )
-                    if retry_response.status_code == 200:
-                        connect = True
-                        print("\nConnected")
-                        return
-                    else:
-                        raise
-                except:
-                    print("Retrying in 30 seconds...")
-                    time.sleep(30)
             return
 
         try:         
