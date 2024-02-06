@@ -52,8 +52,8 @@ def create_app(node: Node, node_thread: threading.Thread):
     @app.route("/api/play/audio", methods=["POST"])
     def play_audio():
         try:
-            print(data)
             data = flask.request.json
+            print(data)
             audio_data = data["audio_data"]
             data = bytes.fromhex(audio_data)
             audio_file_path = os.path.join(node.file_dump, "play.wav")
