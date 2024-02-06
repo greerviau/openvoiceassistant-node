@@ -38,14 +38,12 @@ class Processor():
                 json=payload
             )
         except Exception as e:
-            print(repr(e))
-            print("Lost connection to HUB")
+            print(f"Lost connection to HUB | {repr(e)}")
             connect = False
             while not connect:
                 try:
                     retry_response = requests.get(
                         self.node.hub_api_url,
-                        json=payload,
                         timeout=30
                     )
                     if retry_response.status_code == 200:
@@ -55,8 +53,7 @@ class Processor():
                     else:
                         raise
                 except:
-                    print("Retrying in 30 seconds...")
-                    time.sleep(30)
+                    print("Retrying...")
             return
 
         try:         
@@ -106,6 +103,6 @@ class Processor():
                 raise Exception("No response from HUB")
             
         except Exception as e:
-            print(repr(e))
+            print(e)
 
         return engaged

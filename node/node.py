@@ -71,20 +71,25 @@ class Node:
                 "restart_required": False
             }
 
-        try:
-            if sync_up:
-                print("Pushing local configuration to HUB")
-                response = requests.put(f"{hub_api_url}/node/{node_id}/sync_up", json=sync_data, timeout=5)
-            else:
-                print("Pulling configuration from HUB")
-                response = requests.put(f"{hub_api_url}/node/{node_id}/sync_down", json=sync_data, timeout=5)
-
+        synced = False
+        while not synced:
+            try:
+                if sync_up:
+                    print("Pushing local configuration to HUB")
+                    response = requests.put(f"{hub_api_url}/node/{node_id}/sync_up", json=sync_data, timeout=5)
+                else:
+                    print("Pulling configuration from HUB")
+                    response = requests.put(f"{hub_api_url}/node/{node_id}/sync_down", json=sync_data, timeout=5)
             
-            if response.status_code != 200:
-                #print("Failed to sync with HUB")
-                #print(response.json())
-                raise RuntimeError(response.json()["detail"])
+                if response.status_code != 200:
+                    raise RuntimeError(response.json()["detail"])
+                else:
+                    synced = True
+            except Exception as e:
+                print(f"HUB Sync Failed | {repr(e)}")
+                print("Retrying...")
 
+        try:
             config_json = response.json()
             print("Node config:")
             print(config_json)
