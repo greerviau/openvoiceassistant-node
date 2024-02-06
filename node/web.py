@@ -143,7 +143,7 @@ def create_app(node: Node, node_thread: threading.Thread):
         return {}, 200
     
     @app.route("/api/upload/wake_word_model", methods=["POST"])
-    def upload_wake_word(self):
+    def upload_wake_word():
         try:
             if "file" not in flask.request.files:
                 raise Exception("No file part")
