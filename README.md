@@ -56,7 +56,7 @@ Ex. If the Node is in the living room and you say "Lights off", it will turn off
 ### Wake Word
 This is the wake word that OVA Node will use to wakeup and listen to your command. There are some pretrained wake words provided for you to choose from.
 
-If you want to customize your own, you can train your own by following the documentation on the [openWakeWord github](https://github.com/dscripka/openWakeWord?tab=readme-ov-file#training-new-models). You can then upload the ```.onnx``` file to the Node using the ```Upload Wake Word``` button.
+If you want to customize your own, you can train your own by following the documentation on the [openWakeWord github](https://github.com/dscripka/openWakeWord?tab=readme-ov-file#training-new-models). You can then upload the ```.onnx``` file to the Node using the ```Upload Wake Word``` option in the dropdown.
 
 ### Wake Word Confidence
 This is a percentage value from 0-100% that indicates how confident the wake word model must be that the wake word was spoken in order to activate. This setting works in conjunction with **VAD Threshold**. The default of 80% is usually fine, but if you notice more False Positives then raise it. If you're getting too many False Negatives then maybe lower it.
