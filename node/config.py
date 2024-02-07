@@ -42,6 +42,21 @@ def save_config():
     with open(config_path, "w") as config_file:
         config_file.write(json.dumps(config, indent=4))
 
+def verify_config():
+    global config
+    default_config = __default_config()
+    if list(default_config.keys()) == list(config.keys()):
+        return
+    config_clone = config.copy()
+    for key, value in default_config.items():
+        if key not in config_clone:
+            set(key, value)
+    for key, value in config.items():
+        if key not in default_config:
+            config_clone.pop(key)
+    config = config_clone
+    save_config()
+
 def load_config() -> typing.Dict:
     global config, config_path
     print(f"Loading config: {config_path}")
@@ -52,6 +67,7 @@ def load_config() -> typing.Dict:
     else:
         print("Loading existing config")
         config = json.load(open(config_path, "r"))
+        verify_config()
 
 def __default_config():
     def check_speex():
@@ -61,7 +77,6 @@ def __default_config():
         except: 
             return False
     device_ip = get_my_ip()
-    hub_ip = scan_for_hub(device_ip, 7123)
     random.seed(device_ip)
     node_id = f"{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}"
 
@@ -69,14 +84,14 @@ def __default_config():
         "id": node_id,
         "name": f"node_{node_id}",
         "area": "",
-        "hub_ip": hub_ip,
+        "hub_ip": "",
         "wake_word": "ova",
         "wake_word_conf_threshold": 0.8,
         "wakeup_sound": True,
         "vad_sensitivity": 3,
         "vad_threshold": 0.0,
         "speex_noise_suppression": False,
-        "speex_available": check_speex,    
+        "speex_available": check_speex(),    
         "mic_index": list_microphones()[0]["idx"],
         "speaker_index": list_speakers()[0]["idx"],
         "volume": 100
