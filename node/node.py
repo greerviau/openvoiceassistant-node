@@ -44,6 +44,7 @@ class Node:
         vad_sensitivity = config.get("vad_sensitivity")
         vad_threshold = config.get("vad_threshold")
         speex_noise_suppression = config.get("speex_noise_suppression")
+        speex_available = config.get("speex_available")
         mic_index = config.get("mic_index")
         speaker_index = config.get("speaker_index")
         volume = config.get("volume")
@@ -65,6 +66,7 @@ class Node:
                 "vad_sensitivity": vad_sensitivity,
                 "vad_threshold": vad_threshold,
                 "speex_noise_suppression": speex_noise_suppression,
+                "speex_available": speex_available,
                 "mic_index": mic_index,
                 "speaker_index": speaker_index,
                 "volume": volume,
@@ -134,7 +136,7 @@ class Node:
         self.wake_word = config.get("wake_word")
         self.wakeup_sound = config.get("wakeup_sound")
         self.wake_word_conf_threshold = config.get("wake_word_conf_threshold")
-        self.speex_noise_suppression = config.get("speex_noise_suppression")
+        self.speex_noise_suppression = config.get("speex_noise_suppression") and config.get("speex_available")
         self.mic_idx = config.get("mic_index")
         self.speaker_idx = config.get("speaker_index")
         self.vad_sensitivity = config.get("vad_sensitivity")
@@ -223,7 +225,7 @@ class Node:
 
         # INITIALIZING COMPONENTS
         self.audio_player = AudioPlayer(self)
-        self.listener = Listener(self, frames_per_buffer=1600)
+        self.listener = Listener(self, frames_per_buffer=256)
         self.processor = Processor(self)
     
     def run(self):

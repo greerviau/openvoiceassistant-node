@@ -54,6 +54,12 @@ def load_config() -> typing.Dict:
         config = json.load(open(config_path, "r"))
 
 def __default_config():
+    def check_speex():
+        try: 
+            import speexdsp_ns 
+            return True
+        except: 
+            return False
     device_ip = get_my_ip()
     hub_ip = scan_for_hub(device_ip, 7123)
     random.seed(device_ip)
@@ -69,7 +75,8 @@ def __default_config():
         "wakeup_sound": True,
         "vad_sensitivity": 3,
         "vad_threshold": 0.0,
-        "speex_noise_suppression": False,        
+        "speex_noise_suppression": False,
+        "speex_available": check_speex,    
         "mic_index": list_microphones()[0]["idx"],
         "speaker_index": list_speakers()[0]["idx"],
         "volume": 100

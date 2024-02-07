@@ -21,9 +21,12 @@ class Listener:
         self.frames_per_buffer = frames_per_buffer
         self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = node.wakeup_sound
-
-        # Define a recording buffer for the start of the recording
-        self.recording_buffer = collections.deque(maxlen=2)
+        self.enable_speex = node.speex_noise_suppression
+        self.noise_suppression = None
+        if self.enable_speex:
+            from speexdsp_ns import NoiseSuppression
+            self.noise_suppression = NoiseSuppression.create(self.frames_per_buffer*2, self.sample_rate)
+            pass
         
         self.wake = OpenWakeWord(node, wake_word=self.wake_word)
         
@@ -41,7 +44,6 @@ class Listener:
             buffer.put(bytes(in_data))
 
         if not engaged:        
-            print("Listening for wake word")
             with sd.RawInputStream(samplerate=self.sample_rate, 
                                     device=self.mic_idx, 
                                     channels=self.channels, 
@@ -49,6 +51,7 @@ class Listener:
                                     dtype="int16",
                                     callback=callback):
                 self.wake.reset()
+                print("Listening for wake word")
                 while True:
                     if not self.node.running.is_set():
                         return
@@ -62,11 +65,10 @@ class Listener:
         
         if self.wakeup_sound:           
             self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)
-            #audio_data = [chunk for chunk in stream.recording_buffer]
 
         audio_data = []
 
-        buffer = queue.Queue()
+        buffer.queue.clear()
 
         with wave.open(os.path.join(self.node.file_dump, "command.wav"), "wb") as wav_file:
             wav_file.setframerate(self.sample_rate)
@@ -88,7 +90,9 @@ class Listener:
                         return
                     chunk = buffer.get()
                     if chunk:
-
+                        #print(len(chunk))
+                        if self.enable_speex and self.noise_suppression:
+                            chunk = self.noise_suppression.process(chunk)
                         wav_file.writeframes(chunk)
 
                         audio_data.append(chunk)
