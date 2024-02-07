@@ -50,8 +50,8 @@ def verify_config():
     config_clone = config.copy()
     for key, value in default_config.items():
         if key not in config_clone:
-            set(key, value)
-    for key, value in config.items():
+            config_clone[key] = value
+    for key, value in config_clone.items():
         if key not in default_config:
             config_clone.pop(key)
     config = config_clone
