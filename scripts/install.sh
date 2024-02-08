@@ -13,7 +13,7 @@ source $CWD/env/bin/activate
  
 python -m pip install --upgrade pip
 python -m pip install --upgrade wheel
-python -m pip install -r requirements_rpi.txt
+python -m pip install -r requirements.txt
 
 cat <<EOF > "/etc/systemd/system/ova_hub_backend.service"
 [Unit]
