@@ -225,7 +225,7 @@ class Node:
 
         # INITIALIZING COMPONENTS
         self.audio_player = AudioPlayer(self)
-        self.listener = Listener(self, frames_per_buffer=256)
+        self.listener = Listener(self)
         self.processor = Processor(self)
     
     def run(self):

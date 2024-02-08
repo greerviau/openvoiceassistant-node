@@ -65,7 +65,6 @@ class Processor():
             print("- Total: ", time.time() - context["time_sent"])
             
             if response:
-            
                 if self.node.led_controller:
                     self.node.led_controller.speak()
 
