@@ -21,9 +21,9 @@ class Processor():
         command_audio_data = open(os.path.join(self.node.file_dump, "command.wav"), "rb").read()
 
         payload = {
-            "node_id": self.node.node_id,
-            "node_name": self.node.node_name,
-            "node_area": self.node.node_area,
+            "node_id": self.node.id,
+            "node_name": self.node.name,
+            "node_area": self.node.area,
             "command_audio_data": command_audio_data.hex(),
             "hub_callback": self.hub_callback,
             "last_time_engaged": self.node.last_time_engaged,
@@ -38,25 +38,7 @@ class Processor():
                 json=payload
             )
         except Exception as e:
-            print(repr(e))
-            print("Lost connection to HUB")
-            connect = False
-            while not connect:
-                try:
-                    retry_response = requests.get(
-                        self.node.hub_api_url,
-                        json=payload,
-                        timeout=30
-                    )
-                    if retry_response.status_code == 200:
-                        connect = True
-                        print("\nConnected")
-                        return
-                    else:
-                        raise
-                except:
-                    print("Retrying in 30 seconds...")
-                    time.sleep(30)
+            print(f"Lost connection to HUB | {repr(e)}")
             return
 
         try:         
@@ -83,7 +65,6 @@ class Processor():
             print("- Total: ", time.time() - context["time_sent"])
             
             if response:
-            
                 if self.node.led_controller:
                     self.node.led_controller.speak()
 
@@ -106,6 +87,6 @@ class Processor():
                 raise Exception("No response from HUB")
             
         except Exception as e:
-            print(repr(e))
+            print(e)
 
         return engaged

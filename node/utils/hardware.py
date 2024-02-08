@@ -26,18 +26,14 @@ def list_microphones() -> typing.List[str]:
     mics = find_microphones()
     mic_list = []
     for i, info in mics.items():
-        #print(info)
-        name = info["name"]
-        mic_list.append(f"{i}: {name}")
+        mic_list.append({"name": info["name"], "idx": int(i)})
     return mic_list
 
 def list_speakers() -> typing.List[str]:
     speakers = find_speakers()
     speaker_list = []
     for i, info in speakers.items():
-        #print(info)
-        name = info["name"]
-        speaker_list.append(f"{i}: {name}")
+        speaker_list.append({"name": info["name"], "idx": int(i)})
     return speaker_list
 
 def select_mic(mic: typing.Union[str, int]) -> typing.Tuple[int, str]:

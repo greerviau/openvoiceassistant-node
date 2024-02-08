@@ -1,20 +1,20 @@
 
 import time
 import os
-import collections
+from collections import deque
 import webrtcvad
 import queue
 import sounddevice as sd
+import numpy as np
 
-from node.wake import KaldiWake, OpenWakeWord
+from node.wake import OpenWakeWord
 from node.utils.audio import *
 
 
 class Listener:
-    def __init__(self, node, frames_per_buffer: int = 4000):
+    def __init__(self, node, frames_per_buffer: int = 1280):
         self.node = node
         self.wake_word = node.wake_word
-        self.wake_word_engine = node.wake_word_engine
         self.mic_idx = node.mic_idx
         self.sample_rate = node.sample_rate
         self.sample_width = node.sample_width
@@ -22,18 +22,13 @@ class Listener:
         self.frames_per_buffer = frames_per_buffer
         self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = node.wakeup_sound
-
-        # Define a recording buffer for the start of the recording
-        self.recording_buffer = collections.deque(maxlen=2)
+        self.enable_speex = node.speex_noise_suppression
+        self.noise_suppression = None
+        if self.enable_speex:
+            from speexdsp_ns import NoiseSuppression
+            self.noise_suppression = NoiseSuppression.create(self.frames_per_buffer, self.sample_rate)
         
-        if self.wake_word_engine == "openwakeword":
-            self.wake = OpenWakeWord(node, wake_word=self.wake_word,
-                                sample_rate=16000)
-        elif self.wake_word_engine == "kaldi":
-            self.wake = KaldiWake(node, wake_word=self.wake_word,
-                                sample_rate=16000)
-        else:
-            raise RuntimeError("Invalid wake word engine")
+        self.wake = OpenWakeWord(node, wake_word=self.wake_word)
         
         self.vad = webrtcvad.Vad()
         self.vad.set_mode(self.sensitivity)
@@ -43,54 +38,50 @@ class Listener:
         self.engaged_delay = 1 # seconds
     
     def listen(self, engaged: bool=False): 
-        buffer = queue.Queue()
+        self.wake.reset()
 
-        def callback(in_data, frame_count, time_info, status):
-            buffer.put(bytes(in_data))
-
-        if not engaged:        
-            print("Stream started")
-            with sd.RawInputStream(samplerate=16000, 
-                                    device=self.mic_idx, 
-                                    channels=self.channels, 
-                                    blocksize=self.frames_per_buffer,
-                                    dtype="int16",
-                                    callback=callback):
-                self.wake.reset()
+        with sd.InputStream(samplerate=self.sample_rate, 
+                        device=self.mic_idx, 
+                        channels=self.channels, 
+                        blocksize=self.frames_per_buffer,
+                        dtype="int16") as stream:
+            
+            if not engaged:        
+                print("Listening for wake word")
                 while True:
-                    if self.wake.listen_for_wake_word(buffer.get()): break
+                    if not self.node.running.is_set():
+                        return
+                    chunk, _ = stream.read(self.frames_per_buffer)
+                    if self.wake.listen_for_wake_word(chunk): 
+                        print("Wake word!")
+                        break
                     
-        self.node.audio_player.interrupt()
-        if self.node.led_controller:
-            self.node.led_controller.listen()
-        
-        if self.wakeup_sound:           
-            self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)
-            #audio_data = [chunk for chunk in stream.recording_buffer]
+            self.node.audio_player.interrupt()
+            if self.node.led_controller:
+                self.node.led_controller.listen()
+            
+            if self.wakeup_sound:           
+                self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)
 
-        audio_data = []
+            audio_data = []
 
-        buffer.queue.clear()
-
-        with wave.open(os.path.join(self.node.file_dump, "command.wav"), "wb") as wav_file:
-            wav_file.setframerate(self.sample_rate)
-            wav_file.setsampwidth(self.sample_width)
-            wav_file.setnchannels(self.channels)
-
-            with sd.RawInputStream(samplerate=self.sample_rate, 
-                                        device=self.mic_idx, 
-                                        channels=self.channels, 
-                                        blocksize=self.frames_per_buffer,
-                                        dtype="int16",
-                                        callback=callback):
+            with wave.open(os.path.join(self.node.file_dump, "command.wav"), "wb") as wav_file:
+                wav_file.setframerate(self.sample_rate)
+                wav_file.setsampwidth(self.sample_width)
+                wav_file.setnchannels(self.channels)
 
                 start = time.time()
                 not_speech_start_time = None
                 vad_audio_data = bytes()
                 while True:
-                    chunk = buffer.get()
+                    if not self.node.running.is_set():
+                        return
+                    chunk, _ = stream.read(self.frames_per_buffer)
+                    chunk = bytes(chunk)
                     if chunk:
-
+                        #print(len(chunk))
+                        if self.enable_speex and self.noise_suppression:
+                            chunk = self.noise_suppression.process(chunk)
                         wav_file.writeframes(chunk)
 
                         audio_data.append(chunk)
@@ -100,6 +91,8 @@ class Listener:
 
                         # Process in chunks of 30ms for webrtcvad
                         while len(vad_audio_data) >= self.vad_chunk_size:
+                            if not self.node.running.is_set():
+                                return
                             vad_chunk = vad_audio_data[: self.vad_chunk_size]
                             vad_audio_data = vad_audio_data[self.vad_chunk_size:]
 

@@ -30,7 +30,6 @@ soundfile==0.12.1
 spidev==3.6
 srt==3.5.3
 sympy==1.12
-tflite-runtime==2.14.0
 threadpoolctl==3.2.0
 tqdm==4.66.1
 urllib3==1.26.12
@@ -39,3 +38,4 @@ vosk==0.3.44
 webrtcvad==2.0.10
 websockets==12.0
 Werkzeug==2.2.2
+speexdsp-ns==0.1.2
