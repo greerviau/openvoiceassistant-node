@@ -26,7 +26,7 @@ class Listener:
         self.noise_suppression = None
         if self.enable_speex:
             from speexdsp_ns import NoiseSuppression
-            self.noise_suppression = NoiseSuppression.create(self.frames_per_buffer*2, self.sample_rate)
+            self.noise_suppression = NoiseSuppression.create(self.frames_per_buffer, self.sample_rate)
         
         self.wake = OpenWakeWord(node, wake_word=self.wake_word)
         
