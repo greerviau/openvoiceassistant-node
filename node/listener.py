@@ -38,11 +38,17 @@ class Listener:
         self.wake.reset()
 
         audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16, 
-                        channels=self.channels, 
-                        rate=self.sample_rate, 
-                        input=True, 
-                        frames_per_buffer=self.frames_per_buffer)
+        while True:
+            try:
+                stream = audio.open(format=pyaudio.paInt16, 
+                                channels=self.channels, 
+                                rate=self.sample_rate, 
+                                input=True, 
+                                frames_per_buffer=self.frames_per_buffer)
+                break
+            except:
+                print("Failed to reserve microphone, retrying...")
+                time.sleep(1)
             
         if not engaged:        
             print("Listening for wake word")
