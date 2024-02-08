@@ -66,11 +66,7 @@ class OpenWakeWord:
         )
 
     def reset(self):
-        self.owwModel = Model(wakeword_models=[self.model_file], 
-                              enable_speex_noise_suppression=self.node.speex_noise_suppression,
-                              vad_threshold=self.node.vad_threshold,
-                              inference_framework=self.inference_framework
-        )
+        self.owwModel.reset()
 
     def listen_for_wake_word(self, chunk: bytes):
         audio = np.frombuffer(chunk, dtype=np.int16)
