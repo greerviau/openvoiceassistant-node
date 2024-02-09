@@ -1,11 +1,9 @@
 
 import time
 import os
-from collections import deque
 import webrtcvad
 import queue
 import sounddevice as sd
-import numpy as np
 
 from node.wake import OpenWakeWord
 from node.utils.audio import *
@@ -39,11 +37,16 @@ class Listener:
     
     def listen(self, engaged: bool=False): 
         self.wake.reset()
+        buffer = queue.Queue()
+
+        def callback(indata, frames, time, status):
+            buffer.put(bytes(indata))
 
         with sd.InputStream(samplerate=self.sample_rate, 
                         device=self.mic_idx, 
                         channels=self.channels, 
                         blocksize=self.frames_per_buffer,
+                        callback=callback,
                         dtype="int16") as stream:
             
             if not engaged:        
@@ -51,9 +54,10 @@ class Listener:
                 while True:
                     if not self.node.running.is_set():
                         return
-                    chunk, _ = stream.read(self.frames_per_buffer)
+                    chunk = buffer.get()
                     if self.wake.listen_for_wake_word(chunk): 
                         print("Wake word!")
+                        buffer.queue.clear()
                         break
                     
             self.node.audio_player.interrupt()
@@ -76,8 +80,7 @@ class Listener:
                 while True:
                     if not self.node.running.is_set():
                         return
-                    chunk, _ = stream.read(self.frames_per_buffer)
-                    chunk = bytes(chunk)
+                    chunk = buffer.get()
                     if chunk:
                         #print(len(chunk))
                         if self.enable_speex and self.noise_suppression:
