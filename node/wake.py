@@ -3,6 +3,7 @@ import os
 import json
 
 import numpy as np
+import openwakeword
 from openwakeword.model import Model
 
 vosk.SetLogLevel(-1)
@@ -53,20 +54,22 @@ class OpenWakeWord:
     ):
         self.node = node
         self.wake_word = wake_word
-        self.inference_framework = inference_framework
+        inference_framework = inference_framework
         self.confidence_threshold = node.wake_word_conf_threshold
-        self.model_file = os.path.join(node.wake_word_model_dump, f"{wake_word}.onnx")
-        if not os.path.exists(self.model_file):
+
+        model_file = os.path.join(node.wake_word_model_dump, f"{wake_word}.onnx")
+        if not os.path.exists(model_file):
             raise RuntimeError("Wake word model file does not exist")
         
-        self.reset()
-
-    def reset(self):
-        self.owwModel = Model(wakeword_models=[self.model_file], 
+        openwakeword.utils.download_models()
+        self.owwModel = Model(wakeword_models=[model_file], 
                               enable_speex_noise_suppression=self.node.speex_noise_suppression,
                               vad_threshold=self.node.vad_threshold,
-                              inference_framework=self.inference_framework
+                              inference_framework=inference_framework
         )
+
+    def reset(self):
+        self.owwModel.reset()
 
     def listen_for_wake_word(self, chunk: bytes):
         audio = np.frombuffer(chunk, dtype=np.int16)

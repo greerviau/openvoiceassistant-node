@@ -14,7 +14,7 @@ MarkupSafe==2.1.1
 mpmath==1.3.0
 numpy==1.26.3
 onnxruntime==1.16.3
-openwakeword==0.5.1
+openwakeword==0.6.0
 packaging==23.2
 protobuf==4.25.2
 PyAudio==0.2.12
