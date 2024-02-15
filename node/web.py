@@ -3,6 +3,8 @@ import os
 import requests
 import time 
 import threading
+import logging
+logger = logging.getLogger("werkzeug")
 
 from node import config
 from node.node import Node
@@ -18,15 +20,29 @@ def create_app(node: Node, node_thread: threading.Thread):
         try:
             return {"id": node.id}, 200
         except Exception as e:
-            print(e)
+            logger.exception("Exception in GET /api")
             return {}, 400
+    
+    @app.route("/api/restart", methods=["POST"])
+    def restart():
+        try:
+            nonlocal node_thread
+            node.stop()
+            node_thread.join()
+            time.sleep(3)
+            node_thread = threading.Thread(target=node.start, daemon=True)
+            node_thread.start()
+        except Exception as e:
+            logger.exception("Exception in POST /api/restart")
+            return {}, 400
+        return {}, 200
 
     @app.route("/api/config", methods=["GET"])
     def get_config() -> NodeConfig:
         try:
             return config.get(), 200
         except Exception as e:
-            print(e)
+            logger.exception("Exception in GET /api/config")
             return {}, 400
 
     @app.route("/api/config", methods=["PUT"])
@@ -46,7 +62,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             config.set("volume", node_config["volume"])
             return node_config, 200
         except Exception as e:
-            print(e)
+            logger.exception("Exception in PUT /api/config")
             return {}, 400
        
     @app.route("/api/play/audio", methods=["POST"])
@@ -61,7 +77,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             node.audio_player.interrupt()
             node.audio_player.play_audio_file(audio_file_path, asynchronous=True)
         except Exception as e:
-            print(e)
+            logger.exception("Exception in POST /api/play/audio")
             return {}, 400
         return {}, 200
     
@@ -78,7 +94,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             else:
                 return {"error": "Could not find file"}, 404
         except Exception as e:
-            print(e)
+            logger.exception("Exception in POST /api/play/file")
             return {}, 400
         return {}, 200
     
@@ -95,41 +111,41 @@ def create_app(node: Node, node_thread: threading.Thread):
             node.audio_player.interrupt()
             node.audio_player.play_audio_file(audio_file_path, asynchronous=True)
         except Exception as e:
-            print(e)
+            logger.exception("Exception in POST /api/announce/<text>")
             return {}, 400
         return {}, 200
     
-    @app.route("/api/set_timer", methods=["POST"])
+    @app.route("/api/timer/set", methods=["POST"])
     def set_timer():
         try:
             data = flask.request.json
             durration = data["durration"]
             node.set_timer(durration)
         except Exception as e:
-            print(e)
+            logger.exception("Exception in POST /api/timer/set")
             return {}, 400
         return {}, 200
     
-    @app.route("/api/stop_timer", methods=["GET"])
+    @app.route("/api/timer/stop", methods=["POST"])
     def stop_timer():
         try:
             node.stop_timer()
         except AttributeError as e:
-            print(e)
+            logger.exception("Exception in POST /api/timer/stop")
             return {}, 400
         return {}, 200
 
-    @app.route("/api/timer_remaining_time", methods=["GET"])
+    @app.route("/api/timer/remaining", methods=["GET"])
     def timer_remaining_time():
         try:
             return {
                 "time_remaining": node.get_timer()
             }, 200
         except AttributeError as e:
-            print(e)
+            logger.exception("Exception in GET /api/timer/remaining")
             return {}, 400
     
-    @app.route("/api/set_volume", methods=["PUT"])
+    @app.route("/api/volume/set", methods=["PUT"])
     def set_volume():
         try:
             data = flask.request.json
@@ -137,24 +153,24 @@ def create_app(node: Node, node_thread: threading.Thread):
             config.set("volume", volume)
             node.set_volume(volume)
         except Exception as e:
-            print(e)
+            logger.exception("Exception in PUT /api/volume/set")
             return {}, 400
         return {}, 200
 
-    @app.route("/api/microphones", methods=["GET"])
+    @app.route("/api/hardware/microphones", methods=["GET"])
     def get_microphones():
         try:
             return list_microphones(), 200
         except AttributeError as e:
-            print(e)
+            logger.exception("Exception in GET /api/hardware/microphones")
             return {}, 400
 
-    @app.route("/api/speakers", methods=["GET"])
+    @app.route("/api/hardware/speakers", methods=["GET"])
     def get_speakers():
         try:
             return list_speakers(), 200
         except AttributeError as e:
-            print(e)
+            logger.exception("Exception in GET /api/hardware/speakers")
             return {}, 400
     
     @app.route("/api/wake_word_models", methods=["GET"])
@@ -162,24 +178,10 @@ def create_app(node: Node, node_thread: threading.Thread):
         try:
             return [model.split(".")[0] for model in os.listdir(node.wake_word_model_dump) if ".onnx" in model], 200
         except AttributeError as e:
-            print(e)
+            logger.exception("Exception in GET /api/wake_word_models")
             return {}, 400
-
-    @app.route("/api/restart", methods=["POST"])
-    def restart():
-        try:
-            nonlocal node_thread
-            node.stop()
-            node_thread.join()
-            time.sleep(3)
-            node_thread = threading.Thread(target=node.start, daemon=True)
-            node_thread.start()
-        except Exception as e:
-            print(e)
-            return {}, 400
-        return {}, 200
     
-    @app.route("/api/upload/wake_word_model", methods=["POST"])
+    @app.route("/api/wake_word_model/upload", methods=["POST"])
     def upload_wake_word():
         try:
             if "file" not in flask.request.files:
@@ -197,7 +199,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             else:
                raise Exception("Invalid file type")
         except Exception as e:
-            print(e)
+            logger.exception("Exception in POST /api/wake_word_models/upload")
             return {}, 400
         return {}, 200
 
@@ -216,7 +218,7 @@ def create_app(node: Node, node_thread: threading.Thread):
             with open(filename, "wb") as file_to_save:
                 file_to_save.write(file.read())
         except Exception as e:
-            print(e)
+            logger.exception("Exception in POST /api/upload_file")
             return {}, 400
         return {}, 200
 

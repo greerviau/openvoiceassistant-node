@@ -2,6 +2,8 @@ import time
 import os
 import threading
 import requests
+import logging
+logger = logging.getLogger("node")
 
 from node import config
 from node.listener import Listener
@@ -20,18 +22,18 @@ class Node:
         self.running.set()
 
     def stop(self):
-        print("Stopping node")
+        logger.info("Stopping node")
         self.running.clear()
 
     def start(self):
         self.initialize()
-        print("Starting node")
+        logger.info("Starting node")
         self.running.set()
         self.run()
 
     def sync(self, sync_up: bool = False):
         # Run Startup Sync with HUB
-        print("Node Syncing with HUB...")
+        logger.info("Node Syncing with HUB...")
 
         node_id = config.get("id")
         node_name = config.get("name")
@@ -77,10 +79,10 @@ class Node:
         while not synced:
             try:
                 if sync_up:
-                    print("Pushing local configuration to HUB")
+                    logger.info("Pushing local configuration to HUB")
                     response = requests.put(f"{hub_api_url}/node/{node_id}/sync_up", json=sync_data, timeout=5)
                 else:
-                    print("Pulling configuration from HUB")
+                    logger.info("Pulling configuration from HUB")
                     response = requests.put(f"{hub_api_url}/node/{node_id}/sync_down", json=sync_data, timeout=5)
             
                 if response.status_code != 200:
@@ -88,14 +90,14 @@ class Node:
                 else:
                     synced = True
             except Exception as e:
-                print(f"HUB Sync Failed | {repr(e)}")
-                print("Retrying in 30 seconds...")
+                logger.error("HUB Sync Failed")
+                logger.info("Retrying in 30 seconds...")
                 time.sleep(30)
 
         try:
             config_json = response.json()
-            print("Node config:")
-            print(config_json)
+            logger.info("Node config:")
+            logger.info(config_json)
 
             config.set("name", config_json["name"])
             config.set("area", config_json["area"])
@@ -110,14 +112,14 @@ class Node:
             config.set("volume", config_json["volume"])
 
         except Exception as e:
-            #print(repr(e))
-            raise RuntimeError(f"HUB Sync Failed | {repr(e)}")
+            logger.exception("HUB Sync Failed")
+            raise
 
-        print("Sync Complete!")
+        logger.info("Sync Complete!")
 
     def initialize(self):
         if not self.no_sync: self.sync(self.sync_up)
-        print("Initializing...")
+        logger.info("Initializing...")
         self.base_dir = os.path.realpath(os.path.dirname(__file__))
         self.sounds_dir = os.path.join(self.base_dir, 'sounds')
         self.file_dump = os.path.join(self.base_dir, 'file_dump')
@@ -146,36 +148,36 @@ class Node:
         self.hub_api_url = f"http://{self.hub_ip}:{7123}/api"
 
         # MICROPHONE SETTINGS
-        print("\nAvailable Microphones:")
-        [print(f"- {mic}") for mic in list_microphones()]
+        logger.info("Available Microphones:")
+        [logger.info(f"- {mic}") for mic in list_microphones()]
 
         try:
             _, self.mic_tag = select_mic(self.mic_idx)
         except:
-            print("Specified mic does not exist")
+            logger.warning("Specified mic does not exist")
             mic = list_microphones()[0]
             self.mic_tag = mic["name"]
             self.mic_idx = mic["idx"]
             config.set("mic_index", self.mic_idx)
             self.sync(sync_up=True)
 
-        print("\nMicrophone supported sample rates")
+        logger.info("Microphone supported sample rates")
         rates = [16000, 48000, 32000, 8000]
         supported_rates = get_supported_samplerates(self.mic_idx, rates)
-        [print(f"- {rate}") for rate in supported_rates]
+        [logger.info(f"- {rate}") for rate in supported_rates]
 
         self.sample_rate = supported_rates[0]
         self.sample_width = 2
         self.audio_channels = 1
 
         # SPEAKER SETTINGS
-        print("\nAvailable Speakers")
-        [print(f"- {speaker}") for speaker in list_speakers()]
+        logger.info("Available Speakers")
+        [logger.info(f"- {speaker}") for speaker in list_speakers()]
 
         try:
             _, self.speaker_tag = select_speaker(self.speaker_idx)
         except:
-            print("Specified speaker does not exist")
+            logger.warning("Specified speaker does not exist")
             speaker = list_speakers()[0]
             self.speaker_tag = speaker["name"]
             self.speaker_idx = speaker["idx"]
@@ -183,27 +185,27 @@ class Node:
             self.sync(sync_up=True)
 
         # SETTINGS
-        if self.debug: print("==DEBUG MODE==")
-        print("\nNode Info")
-        print(f"- ID:             {self.id}")
-        print(f"- Name:           {self.name}")
-        print(f"- Area:           {self.area}")
-        print(f"- HUB:            {self.hub_ip}")
-        print("\nWakeword Settings")
-        print(f"- Wake Word:      {self.wake_word}")
-        print(f"- Wake Conf:      {self.wake_word_conf_threshold}")
-        print(f"- Vad Thresh:     {self.vad_threshold}")
-        print(f"- Noise Suppress: {self.speex_noise_suppression}")
-        print(f"- Wakeup Sound:   {self.wakeup_sound}")
-        print(f"\nIO Settings")
-        print(f"- Microphone:     {self.mic_tag}")
-        print(f"- Microphone IDX: {self.mic_idx}")
-        print(f"- Speaker:        {self.speaker_tag}")
-        print(f"- Speaker IDX:    {self.speaker_idx}")
-        print(f"- Sample Rate:    {self.sample_rate}")
-        print(f"- Sample Width:   {self.sample_width}")
-        print(f"- Audio Channels: {self.audio_channels}")
-        print(f"- Volume:         {self.volume}")
+        if self.debug: logger.info("==DEBUG MODE==")
+        logger.info("Node Info")
+        logger.info(f"- ID:             {self.id}")
+        logger.info(f"- Name:           {self.name}")
+        logger.info(f"- Area:           {self.area}")
+        logger.info(f"- HUB:            {self.hub_ip}")
+        logger.info("Wakeword Settings")
+        logger.info(f"- Wake Word:      {self.wake_word}")
+        logger.info(f"- Wake Conf:      {self.wake_word_conf_threshold}")
+        logger.info(f"- Vad Thresh:     {self.vad_threshold}")
+        logger.info(f"- Noise Suppress: {self.speex_noise_suppression}")
+        logger.info(f"- Wakeup Sound:   {self.wakeup_sound}")
+        logger.info(f"IO Settings")
+        logger.info(f"- Microphone:     {self.mic_tag}")
+        logger.info(f"- Microphone IDX: {self.mic_idx}")
+        logger.info(f"- Speaker:        {self.speaker_tag}")
+        logger.info(f"- Speaker IDX:    {self.speaker_idx}")
+        logger.info(f"- Sample Rate:    {self.sample_rate}")
+        logger.info(f"- Sample Width:   {self.sample_width}")
+        logger.info(f"- Audio Channels: {self.audio_channels}")
+        logger.info(f"- Volume:         {self.volume}")
 
         try:
             from node.utils.leds import Pixels, Respeaker4MicHat
@@ -220,7 +222,7 @@ class Node:
             self.mixer = alsaaudio.Mixer(mixer_card, cardindex=self.speaker_idx, device=mixer_card)
             self.set_volume(self.volume)
         except Exception as e:
-            print(f"Failed to initialize mixer | {repr(e)}")
+            logger.error(f"Failed to initialize mixer")
             self.mixer = None
 
         # INITIALIZING COMPONENTS
@@ -229,6 +231,7 @@ class Node:
         self.processor = Processor(self)
     
     def run(self):
+        logger.info("Mainloop running")
         self.last_time_engaged = time.time()
         engaged = False
         while self.running.is_set():
@@ -238,15 +241,15 @@ class Node:
             engaged = self.processor.process_audio(audio_data)
             if self.led_controller:
                 self.led_controller.off()         
-        print("Mainloop end")
+        logger.warning("Mainloop end")
 
     def set_volume(self, volume: int):
         if volume >= 0 and volume <= 100:
             if self.mixer:
                 self.mixer.setvolume(volume)
-                print(f"Volume set {volume}")
+                logger.info(f"Volume set {volume}")
                 return
-        print("Failed to set volume: (Out of range 0-1)")
+        logger.error("Failed to set volume: (Out of range 0-1)")
 
     def set_timer(self, durration_seconds: int):
         if self.timer == None:

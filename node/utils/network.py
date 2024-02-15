@@ -1,12 +1,12 @@
 import requests
 import socket
 import ipaddress
-
 import os
 import socket    
 import multiprocessing
 import subprocess
-
+import logging
+logger = logging.getLogger("network")
 
 def get_my_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -29,20 +29,20 @@ def pinger(job_q, results_q):
             try:
                 subprocess.check_call(["ping", "-c1", "-W1", ip], stdout=DEVNULL)
                 results_q.put(ip)
-                print(f"{ip} alive")
+                logger.info(f"{ip} alive")
             except:
                 pass
         else:
             try:
                 subprocess.check_call(["ping", "n 1", "w 1", ip], stdout=DEVNULL)
                 results_q.put(ip)
-                print(f"{ip} alive")
+                logger.info(f"{ip} alive")
             except:
                 pass
 
 
 def map_network(my_ip: str):
-    print("Mapping network")
+    logger.info("Mapping network")
 
     pool_size = multiprocessing.cpu_count()
     
@@ -85,19 +85,19 @@ def get_subnet(ip: str):
 
 def scan_for_hub(my_ip: str, port: int):
     run = True
-    print("Scanning for HUB")
+    logger.info("Scanning for HUB")
     while run:
         devices = map_network(my_ip)
         for device in devices:
             url = f"http://{device}:{port}/api"
-            print("Testing: ", url)
+            logger.info("Testing: ", url)
             try:
                 response = requests.get(url, timeout=5)
                 response.raise_for_status()
                 data = response.json()
                 if "is_ova" in data:
                     if "is_ova":
-                        print("Hub Found")
+                        logger.info(f"HUB Found at {device}!")
                         return device
                 raise Exception
             except requests.exceptions.ConnectionError as e:

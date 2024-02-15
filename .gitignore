@@ -160,3 +160,4 @@ wakeword_models/
 !wakeword_models/hey_mycroft.onnx
 !wakeword_models/hey_rhaspy.onnx
 !wakeword_models/ova.onnx
+logs/
