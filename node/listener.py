@@ -4,6 +4,8 @@ import os
 import webrtcvad
 import queue
 import sounddevice as sd
+import logging
+logger = logging.getLogger("listener")
 
 from node.wake import OpenWakeWord
 from node.utils.audio import *
@@ -50,13 +52,13 @@ class Listener:
                         dtype="int16") as stream:
             
             if not engaged:        
-                print("Listening for wake word")
+                logger.info("Listening for wake word")
                 while True:
                     if not self.node.running.is_set():
                         return
                     chunk = buffer.get()
                     if self.wake.listen_for_wake_word(chunk): 
-                        print("Wake word!")
+                        logger.info("Wake word!")
                         buffer.queue.clear()
                         break
                     
@@ -82,7 +84,6 @@ class Listener:
                         return
                     chunk = buffer.get()
                     if chunk:
-                        #print(len(chunk))
                         if self.enable_speex and self.noise_suppression:
                             chunk = self.noise_suppression.process(chunk)
                         wav_file.writeframes(chunk)
@@ -101,8 +102,6 @@ class Listener:
 
                             # Speech in any chunk counts as speech
                             is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
-                        
-                        #print(is_speech)
 
                         if time.time() - start < self.engaged_delay:    # If we are engaged, wait a few seconds to hear something
                             is_speech = True
