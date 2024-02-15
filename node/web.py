@@ -11,7 +11,7 @@ from node.node import Node
 from node.utils.hardware import list_microphones, list_speakers
 from node.schemas import NodeConfig
 
-def create_app(node: Node, node_thread: threading.Thread):
+def create_app(node: Node, node_thread: threading.Thread, log_file_path: str):
 
     app = flask.Flask("Node")
 
@@ -221,6 +221,17 @@ def create_app(node: Node, node_thread: threading.Thread):
             logger.exception("Exception in POST /api/upload_file")
             return {}, 400
         return {}, 200
+    
+    @app.route("/api/logs", methods=["GET"], defaults={'n': 10})
+    @app.route("/api/logs/<n>", methods=["GET"])
+    def get_logs(n):
+        try:
+           n = int(n)
+           with open(log_file_path, "r") as file:
+                return file.readlines()[-n:], 200
+        except Exception as e:
+            logger.exception("Exception in GET /api/logs")
+            return {}, 400
 
     return app
     

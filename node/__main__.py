@@ -14,13 +14,14 @@ from node.web import create_app
 def main(debug, no_sync, sync_up):
     now = datetime.now()
     folder = now.strftime("logs/%m-%Y/%d")
-    file = now.strftime("log_%H-%M-%S")
+    file = now.strftime("log_%H-%M-%S.log")
+    log_file_path = os.path.join(folder, file)
     os.makedirs(folder, exist_ok=True)
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # Create a file handler and set its level to DEBUG or INFO
-    file_handler = logging.FileHandler(f'{folder}/{file}.log', mode='w')
+    file_handler = logging.FileHandler(log_file_path, mode='w')
     file_handler.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # Create a console handler and set its level to DEBUG or INFO
@@ -40,7 +41,7 @@ def main(debug, no_sync, sync_up):
     node_thread = threading.Thread(target=node.start, daemon=True)
     node_thread.start()
     
-    app = create_app(node, node_thread)
+    app = create_app(node, node_thread, log_file_path)
     app.run(host="0.0.0.0", port=7234)
 
 if __name__ == "__main__":
