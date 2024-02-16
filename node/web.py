@@ -6,31 +6,25 @@ import logging
 logger = logging.getLogger("werkzeug")
 
 from node import config
-from node.dir import FILESDIR, WAKEWORDMODELSDIR
+from node.dir import BASEDIR, FILESDIR, WAKEWORDMODELSDIR, LOGFILE
 from node.node import Node
 from node.updater import Updater
 from node.utils.hardware import list_microphones, list_speakers
 from node.schemas import NodeConfig
 
-def create_app(node: Node, updater: Updater, log_file_path: str):
+def create_app(node: Node, updater: Updater):
 
     app = flask.Flask("Node")
-
+        
     @app.route("/api", methods=["GET"])
     def index():
         try:
-            return {"id": config.get("id")}, 200
-        except Exception as e:
-            logger.exception("Exception in GET /api")
-            return {}, 400
-        
-    @app.route("/api/status", methods=["GET"])
-    def status():
-        try:
             updater.check_for_updates()
             update_available = updater.update_available
+            version = open(os.path.join(BASEDIR, "VERSION")).read()
             return {
                     "id": config.get("id"),
+                    "version": version,
                     "status": "online" if node.run_thread.is_alive() else "crashed",
                     "update_available": update_available
                     }, 200
@@ -252,7 +246,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
     def get_logs(n):
         try:
            n = int(n)
-           with open(log_file_path, "r") as file:
+           with open(LOGFILE, "r") as file:
                 return file.readlines()[-n:], 200
         except Exception as e:
             logger.exception("Exception in GET /api/logs")

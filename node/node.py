@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger("node")
 
 from node import config
-from node.dir import SOUNDSDIR
+from node.dir import BASEDIR, SOUNDSDIR
 from node.listener import Listener
 from node.audio_player import AudioPlayer
 from node.processor import Processor
@@ -40,6 +40,7 @@ class Node:
         node_id = config.get("id")
         node_name = config.get("name")
         node_area = config.get("area")
+        version = open(os.path.join(BASEDIR, "VERSION")).read()
         device_ip = get_my_ip()
         hub_ip = config.get("hub_ip")
         wake_word = config.get("wake_word")
@@ -63,6 +64,7 @@ class Node:
                 "id": node_id,
                 "name": node_name,
                 "area": node_area,
+                "version": version,
                 "api_url": f"http://{device_ip}:7234/api",
                 "wake_word": wake_word,
                 "wake_word_conf_threshold": wake_word_conf_threshold, 
