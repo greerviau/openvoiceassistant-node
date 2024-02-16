@@ -99,6 +99,5 @@ def scan_for_hub(my_ip: str, port: int):
                     if "is_ova":
                         logger.info(f"HUB Found at {device}!")
                         return device
-                raise Exception
             except requests.exceptions.ConnectionError as e:
                 pass

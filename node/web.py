@@ -2,23 +2,50 @@ import flask
 import os
 import requests
 import time 
-import threading
 import logging
 logger = logging.getLogger("werkzeug")
 
 from node import config
 from node.node import Node
+from node.updater import Updater
 from node.utils.hardware import list_microphones, list_speakers
 from node.schemas import NodeConfig
 
-def create_app(node: Node, node_thread: threading.Thread, log_file_path: str):
+def create_app(node: Node, updater: Updater, log_file_path: str):
 
     app = flask.Flask("Node")
 
     @app.route("/api", methods=["GET"])
     def index():
         try:
-            return {"id": node.id}, 200
+            return {"id": config.get("id")}, 200
+        except Exception as e:
+            logger.exception("Exception in GET /api")
+            return {}, 400
+        
+    @app.route("/api/status", methods=["GET"])
+    def status():
+        try:
+            updater.check_for_updates()
+            update_available = updater.update_available
+            return {
+                    "id": config.get("id"),
+                    "status": "online" if node.run_thread.is_alive() else "crashed",
+                    "update_available": update_available
+                    }, 200
+        except Exception as e:
+            logger.exception("Exception in GET /api")
+            return {}, 400
+    
+    @app.route("/api/update", methods=["POST"])
+    def update():
+        try:
+            updater.check_for_updates()
+            if updater.update_available:
+                updater.update()
+                return {}, 200
+            else:
+                return {"No update available"}, 400
         except Exception as e:
             logger.exception("Exception in GET /api")
             return {}, 400
@@ -26,12 +53,9 @@ def create_app(node: Node, node_thread: threading.Thread, log_file_path: str):
     @app.route("/api/restart", methods=["POST"])
     def restart():
         try:
-            nonlocal node_thread
             node.stop()
-            node_thread.join()
             time.sleep(3)
-            node_thread = threading.Thread(target=node.start, daemon=True)
-            node_thread.start()
+            node.start()
         except Exception as e:
             logger.exception("Exception in POST /api/restart")
             return {}, 400

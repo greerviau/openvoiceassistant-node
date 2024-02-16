@@ -20,16 +20,17 @@ class Node:
         self.sync_up = sync_up
         self.running = threading.Event()
         self.running.set()
+        self.run_thread = threading.Thread(target=self.run, daemon=True)
 
     def stop(self):
         logger.info("Stopping node")
         self.running.clear()
+        self.run_thread.join()
 
     def start(self):
-        self.initialize()
         logger.info("Starting node")
         self.running.set()
-        self.run()
+        self.run_thread.start()
 
     def sync(self, sync_up: bool = False):
         # Run Startup Sync with HUB
@@ -231,6 +232,8 @@ class Node:
         self.processor = Processor(self)
     
     def run(self):
+        self.initialize()
+        raise
         logger.info("Mainloop running")
         self.last_time_engaged = time.time()
         engaged = False

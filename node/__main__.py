@@ -1,10 +1,10 @@
 import click
-import threading
 import logging
 import os
 from datetime import datetime
 
 from node.node import Node
+from node.updater import Updater
 from node.web import create_app
 
 @click.command()
@@ -36,12 +36,14 @@ def main(debug, no_sync, sync_up):
     # Add the handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+
+    updater = Updater()
+    updater.start()
     
     node = Node(debug, no_sync, sync_up)
-    node_thread = threading.Thread(target=node.start, daemon=True)
-    node_thread.start()
+    node.start()
     
-    app = create_app(node, node_thread, log_file_path)
+    app = create_app(node, updater, log_file_path)
     app.run(host="0.0.0.0", port=7234)
 
 if __name__ == "__main__":
