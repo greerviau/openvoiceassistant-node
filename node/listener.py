@@ -113,4 +113,4 @@ class Listener:
                                 if self.wakeup_sound:
                                     self.node.audio_player.interrupt()
                                     self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "deactivate.wav"), asynchronous=True)
-                            
+                                return
