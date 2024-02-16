@@ -10,7 +10,7 @@ class Processor():
         
         self.hub_callback = ""
 
-    def process_audio(self, audio_data: bytes):
+    def process_audio(self):
         logger.info("Sending audio data to HUB for processing")
 
         if self.node.led_controller:
@@ -19,8 +19,10 @@ class Processor():
         engaged = False
 
         time_sent = time.time()
-
-        command_audio_data = open(os.path.join(self.node.file_dump, "command.wav"), "rb").read()
+        try:
+            command_audio_data = open(os.path.join(self.node.file_dump, "command.wav"), "rb").read()
+        except:
+            logger.error("No command audio file")
 
         payload = {
             "node_id": self.node.id,
@@ -41,7 +43,7 @@ class Processor():
             )
         except Exception as e:
             logger.error(f"Lost connection to HUB | {repr(e)}")
-            return
+            return False
 
         try:         
             respond_response.raise_for_status()
@@ -86,7 +88,7 @@ class Processor():
                 self.node.audio_player.play_audio_file(response_file_path)
 
             else:
-                raise Exception("No response from HUB")
+                logger.error("No response from HUB")
             
         except Exception as e:
             logger.exception("Exception while processing audio")

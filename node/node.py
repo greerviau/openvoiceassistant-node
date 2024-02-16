@@ -235,10 +235,10 @@ class Node:
         self.last_time_engaged = time.time()
         engaged = False
         while self.running.is_set():
-            audio_data = self.listener.listen(engaged)
+            self.listener.listen(engaged)
             if not self.running.is_set():
                 break
-            engaged = self.processor.process_audio(audio_data)
+            engaged = self.processor.process_audio()
             if self.led_controller:
                 self.led_controller.off()         
         logger.warning("Mainloop end")
