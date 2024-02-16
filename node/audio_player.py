@@ -1,6 +1,8 @@
 import threading
 import sounddevice as sd
 import soundfile as sf
+import logging
+logger = logging.getLogger("audio_player")
 
 class AudioPlayer:
     def __init__(self, node):
@@ -15,7 +17,7 @@ class AudioPlayer:
             sd.play(data, fs, device=self.speaker_idx, blocking=(not asynchronous), loop=loop)
 
     def interrupt(self):
-        print("Audio interrupted")
+        logger.warning("Audio interrupted")
         sd.stop()
 
     def play_sounddevice(self, file):

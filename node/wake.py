@@ -1,9 +1,11 @@
 import vosk
 import os
 import json
-
 import numpy as np
 import openwakeword
+import logging
+logger = logging.getLogger("wake")
+
 from openwakeword.model import Model
 
 vosk.SetLogLevel(-1)
@@ -32,18 +34,14 @@ class KaldiWake:
         # Add audio frames to the Vosk recognizer
         if self.rec.AcceptWaveform(chunk):
             res = json.loads(self.rec.Result())
-            #print(res)
             if self.wake_word in res["text"]:
-                print("Wake word!")
                 return True
             else:
                 return False
         else:
             # Check if speech has started
             partial = json.loads(self.rec.PartialResult())
-            #print(partial["partial"])
             if self.wake_word in partial["partial"]:
-                print("Wake word!")
                 return True
 
 class OpenWakeWord:
@@ -75,6 +73,6 @@ class OpenWakeWord:
         audio = np.frombuffer(chunk, dtype=np.int16)
         # Feed to openWakeWord model
         prediction = self.owwModel.predict(audio)
-        #print(self.owwModel.prediction_buffer)
+        logger.debug(prediction)
         if prediction[self.wake_word] > self.confidence_threshold: return True
         return False

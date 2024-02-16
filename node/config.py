@@ -3,8 +3,10 @@ import json
 import typing
 import uuid
 import random
+import logging
+logger = logging.getLogger("config")
 
-from node.utils.network import get_my_ip, scan_for_hub
+from node.utils.network import get_my_ip
 from node.utils.hardware import list_speakers, list_microphones
 
 loc = os.path.realpath(os.path.dirname(__file__))
@@ -41,6 +43,7 @@ def save_config():
     global config, config_path
     with open(config_path, "w") as config_file:
         config_file.write(json.dumps(config, indent=4))
+    logger.debug("Config saved")
 
 def verify_config():
     global config
@@ -59,13 +62,13 @@ def verify_config():
 
 def load_config() -> typing.Dict:
     global config, config_path
-    print(f"Loading config: {config_path}")
+    logger.info(f"Loading config: {config_path}")
     if not os.path.exists(config_path):
-        print("Initializing default config")
+        logger.info("Initializing default config")
         config = __default_config()
         save_config()
     else:
-        print("Loading existing config")
+        logger.info("Loading existing config")
         config = json.load(open(config_path, "r"))
         verify_config()
 

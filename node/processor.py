@@ -1,6 +1,8 @@
 import requests
 import os
 import time
+import logging
+logger = logging.getLogger("processor")
 
 class Processor():
     def __init__(self, node):
@@ -9,7 +11,7 @@ class Processor():
         self.hub_callback = ""
 
     def process_audio(self, audio_data: bytes):
-        print("Sending audio data to HUB for processing")
+        logger.info("Sending audio data to HUB for processing")
 
         if self.node.led_controller:
             self.node.led_controller.think()
@@ -38,7 +40,7 @@ class Processor():
                 json=payload
             )
         except Exception as e:
-            print(f"Lost connection to HUB | {repr(e)}")
+            logger.error(f"Lost connection to HUB | {repr(e)}")
             return
 
         try:         
@@ -47,22 +49,22 @@ class Processor():
             context = respond_response.json()
             response = context["response"]
 
-            print("Command: ", context["command"])
-            print("Cleaned Command: ", context["cleaned_command"])
-            print("Encoded Command: ", context["encoded_command"])
-            print("Skill:", context["skill"])
-            print("Action:", context["action"])
-            print("Conf:", context["conf"])
-            print("Response: ", response)
-            print("Deltas")
-            print("- Time to Send: ", context["time_recieved"] - context["time_sent"])
-            print("- Transcribe: ", context["time_to_transcribe"])
-            print("- Understand: ", context["time_to_understand"])
-            print("- Action: ", context["time_to_action"])
-            print("- Synth: ", context["time_to_synthesize"])
-            print("- Run Pipeline: ", context["time_to_run_pipeline"])
-            print("- Time to Return: ", time.time() - context["time_returned"])
-            print("- Total: ", time.time() - context["time_sent"])
+            logger.info(f"Command: {context['command']}")
+            logger.info(f"Cleaned Command: {context['cleaned_command']}")
+            logger.info(f"Encoded Command: {context['encoded_command']}")
+            logger.info(f"Skill: {context['skill']}")
+            logger.info(f"Action: {context['action']}")
+            logger.info(f"Conf: {context['conf']}")
+            logger.info(f"Response: {response}")
+            logger.info("Deltas")
+            logger.info(f"- Time to Send: {context['time_received'] - context['time_sent']}")
+            logger.info(f"- Transcribe: {context['time_to_transcribe']}")
+            logger.info(f"- Understand: {context['time_to_understand']}")
+            logger.info(f"- Action: {context['time_to_action']}")
+            logger.info(f"- Synth: {context['time_to_synthesize']}")
+            logger.info(f"- Run Pipeline: {context['time_to_run_pipeline']}")
+            logger.info(f"- Time to Return: {time.time() - context['time_returned']}")
+            logger.info(f"- Total: {time.time() - context['time_sent']}")
             
             if response:
                 if self.node.led_controller:
@@ -87,6 +89,6 @@ class Processor():
                 raise Exception("No response from HUB")
             
         except Exception as e:
-            print(e)
+            logger.exception("Exception while processing audio")
 
         return engaged
