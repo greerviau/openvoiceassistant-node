@@ -19,7 +19,7 @@ Once OS is flashed, ssh to the device and run the following command:
 sudo apt install git && \
 git clone https://github.com/greerviau/openvoiceassistant-node.git && \
 cd openvoiceassistant-node && \
-sudo ./scripts/install_rpi.sh
+sudo ./scripts/install.sh
 ```
 
 The installation will automatically create a systemd service.
