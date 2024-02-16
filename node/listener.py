@@ -7,6 +7,7 @@ import sounddevice as sd
 import logging
 logger = logging.getLogger("listener")
 
+from node.dir import FILESDIR, SOUNDSDIR
 from node.wake import OpenWakeWord
 from node.utils.audio import *
 
@@ -67,11 +68,11 @@ class Listener:
                 self.node.led_controller.listen()
             
             if self.wakeup_sound:           
-                self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "activate.wav"), asynchronous=True)
+                self.node.audio_player.play_audio_file(os.path.join(SOUNDSDIR, "activate.wav"), asynchronous=True)
 
             audio_data = []
 
-            with wave.open(os.path.join(self.node.file_dump, "command.wav"), "wb") as wav_file:
+            with wave.open(os.path.join(FILESDIR, "command.wav"), "wb") as wav_file:
                 wav_file.setframerate(self.sample_rate)
                 wav_file.setsampwidth(self.sample_width)
                 wav_file.setnchannels(self.channels)
@@ -112,5 +113,5 @@ class Listener:
                                 not_speech_start_time = None
                                 if self.wakeup_sound:
                                     self.node.audio_player.interrupt()
-                                    self.node.audio_player.play_audio_file(os.path.join(self.node.sounds_dir, "deactivate.wav"), asynchronous=True)
+                                    self.node.audio_player.play_audio_file(os.path.join(SOUNDSDIR, "deactivate.wav"), asynchronous=True)
                                 return

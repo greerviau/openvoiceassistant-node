@@ -8,6 +8,8 @@ logger = logging.getLogger("wake")
 
 from openwakeword.model import Model
 
+from node.dir import WAKEWORDMODELSDIR
+
 vosk.SetLogLevel(-1)
 
 class KaldiWake:
@@ -55,7 +57,7 @@ class OpenWakeWord:
         inference_framework = inference_framework
         self.confidence_threshold = node.wake_word_conf_threshold
 
-        model_file = os.path.join(node.wake_word_model_dump, f"{wake_word}.onnx")
+        model_file = os.path.join(WAKEWORDMODELSDIR, f"{wake_word}.onnx")
         if not os.path.exists(model_file):
             raise RuntimeError("Wake word model file does not exist")
         

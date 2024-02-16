@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger("node")
 
 from node import config
+from node.dir import SOUNDSDIR
 from node.listener import Listener
 from node.audio_player import AudioPlayer
 from node.processor import Processor
@@ -121,14 +122,6 @@ class Node:
     def initialize(self):
         if not self.no_sync: self.sync(self.sync_up)
         logger.info("Initializing...")
-        self.base_dir = os.path.realpath(os.path.dirname(__file__))
-        self.sounds_dir = os.path.join(self.base_dir, 'sounds')
-        self.file_dump = os.path.join(self.base_dir, 'file_dump')
-        self.wake_word_model_dump = os.path.join(self.base_dir, "wakeword_models")
-        
-        os.makedirs(self.sounds_dir, exist_ok=True)
-        os.makedirs(self.file_dump, exist_ok=True)
-        os.makedirs(self.wake_word_model_dump, exist_ok=True)
 
         self.timer = None
 
@@ -258,7 +251,7 @@ class Node:
             def timer_finished():
                 self.timer.cancel()
                 self.timer = None
-                self.audio_player.play_audio_file(os.path.join(self.sounds_dir, "alarm.wav"), asynchronous=True, loop=True)
+                self.audio_player.play_audio_file(os.path.join(SOUNDSDIR, "alarm.wav"), asynchronous=True, loop=True)
             self.timer = Timer(durration_seconds, timer_finished)
             self.timer.start()
 

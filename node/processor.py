@@ -4,6 +4,8 @@ import time
 import logging
 logger = logging.getLogger("processor")
 
+from node.dir import FILESDIR
+
 class Processor():
     def __init__(self, node):
         self.node = node
@@ -20,7 +22,7 @@ class Processor():
 
         time_sent = time.time()
         try:
-            command_audio_data = open(os.path.join(self.node.file_dump, "command.wav"), "rb").read()
+            command_audio_data = open(os.path.join(FILESDIR, "command.wav"), "rb").read()
         except:
             logger.error("No command audio file")
 
@@ -80,7 +82,7 @@ class Processor():
                 
                 response_audio_data = context["response_audio_data"]
                 data = bytes.fromhex(response_audio_data)
-                response_file_path = os.path.join(self.node.file_dump, "response.wav")
+                response_file_path = os.path.join(FILESDIR, "response.wav")
                 with open(response_file_path, "wb") as wav_file:
                     wav_file.write(data)
                         

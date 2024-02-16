@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger("werkzeug")
 
 from node import config
+from node.dir import FILESDIR, WAKEWORDMODELSDIR
 from node.node import Node
 from node.updater import Updater
 from node.utils.hardware import list_microphones, list_speakers
@@ -95,7 +96,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
             data = flask.request.json
             audio_data = data["audio_data"]
             data = bytes.fromhex(audio_data)
-            audio_file_path = os.path.join(node.file_dump, "play.wav")
+            audio_file_path = os.path.join(FILESDIR, "play.wav")
             with open(audio_file_path, "wb") as wav_file:
                 wav_file.write(data)
             node.audio_player.interrupt()
@@ -111,7 +112,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
             data = flask.request.json
             file = data["file"]
             loop = data["loop"]
-            audio_file_path = os.path.join(node.file_dump, file)
+            audio_file_path = os.path.join(FILESDIR, file)
             if os.file.exists(audio_file_path):
                 node.audio_player.interrupt()
                 node.audio_player.play_audio_file(audio_file_path, asynchronous=True, loop=loop)
@@ -129,7 +130,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
             context = respond_response.json()
             response_audio_data = context["response_audio_data"]
             data = bytes.fromhex(response_audio_data)
-            audio_file_path = os.path.join(node.file_dump, "play.wav")
+            audio_file_path = os.path.join(FILESDIR, "play.wav")
             with open(audio_file_path, "wb") as wav_file:
                 wav_file.write(data)
             node.audio_player.interrupt()
@@ -200,7 +201,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
     @app.route("/api/wake_word_models", methods=["GET"])
     def get_wake_word_models():
         try:
-            return [model.split(".")[0] for model in os.listdir(node.wake_word_model_dump) if ".onnx" in model], 200
+            return [model.split(".")[0] for model in os.listdir(WAKEWORDMODELSDIR) if ".onnx" in model], 200
         except AttributeError as e:
             logger.exception("Exception in GET /api/wake_word_models")
             return {}, 400
@@ -217,7 +218,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
                 raise Exception("No file selected")
 
             if file and file.filename.rsplit('.')[-1].lower() in ['onnx']:
-                filename = os.path.join(node.wake_word_model_dump, file.filename)
+                filename = os.path.join(WAKEWORDMODELSDIR, file.filename)
                 with open(filename, "wb") as file_to_save:
                     file_to_save.write(file.read())
             else:
@@ -238,7 +239,7 @@ def create_app(node: Node, updater: Updater, log_file_path: str):
             if file.filename == "":
                 raise Exception("No file selected")
 
-            filename = os.path.join(node.file_dump, file.filename)
+            filename = os.path.join(FILESDIR, file.filename)
             with open(filename, "wb") as file_to_save:
                 file_to_save.write(file.read())
         except Exception as e:

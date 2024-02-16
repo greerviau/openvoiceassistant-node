@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 
+from node.dir import LOGSDIR, FILESDIR, SOUNDSDIR, WAKEWORDMODELSDIR
 from node.node import Node
 from node.updater import Updater
 from node.web import create_app
@@ -12,11 +13,19 @@ from node.web import create_app
 @click.option("--no_sync", is_flag=True)
 @click.option("--sync_up", is_flag=True)
 def main(debug, no_sync, sync_up):
+
+    os.makedirs(LOGSDIR, exist_ok=True)
+    os.makedirs(SOUNDSDIR, exist_ok=True)
+    os.makedirs(FILESDIR, exist_ok=True)
+    os.makedirs(WAKEWORDMODELSDIR, exist_ok=True)
+
     now = datetime.now()
-    folder = now.strftime("logs/%m-%Y/%d")
+    folder = now.strftime("%m-%Y/%d")
     file = now.strftime("log_%H-%M-%S.log")
-    log_file_path = os.path.join(folder, file)
-    os.makedirs(folder, exist_ok=True)
+    log_dir = os.path.join(LOGSDIR, folder)
+    os.makedirs(LOGSDIR, exist_ok=True)
+    log_file_path = os.path.join(log_dir, file)
+    
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
