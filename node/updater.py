@@ -36,6 +36,7 @@ class Updater:
         if self.update_available:
             try:
                 subprocess.run(["git", "pull"])
+                subprocess.run(["./scripts/install.sh"])
                 subprocess.run(["systemctl", "restart", "ova_node.service"])
             except Exception as e:
                 logger.exception("Exception while updating")
