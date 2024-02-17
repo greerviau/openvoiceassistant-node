@@ -13,4 +13,3 @@ LOGFILE = os.path.join(LOGSDIR, file)
 
 os.makedirs(FILESDIR, exist_ok=True)
 os.makedirs(LOGSDIR, exist_ok=True)
-test = 0
