@@ -7,6 +7,8 @@ apt-get update && apt-get install -y python3-pip python3-venv git wget \
 
 CWD=$(pwd)
 
+rm -r $CWD/env
+
 python3 -m venv $CWD/env
 
 source $CWD/env/bin/activate
@@ -14,6 +16,8 @@ source $CWD/env/bin/activate
 python -m pip install --upgrade pip
 python -m pip install --upgrade wheel
 python -m pip install -r requirements_rpi.txt
+
+rm /etc/systemd/system/ova_node.service
 
 cat <<EOF > "/etc/systemd/system/ova_node.service"
 [Unit]
