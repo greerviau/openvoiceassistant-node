@@ -2,6 +2,7 @@ import subprocess
 import threading
 import typing
 import time
+import git
 import logging
 logger = logging.getLogger("updater")
 
@@ -12,9 +13,10 @@ UPDATE_BRANCHES = ["main", "develop", "release"]
 class Updater:
     def __init__(self):
         self.update_available = False
+        self.repo = git.Repo(BASEDIR)
 
         # Get current branch
-        self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        self.current_branch = self.repo.active_branch.name
         logger.info(f"Current branch: {self.current_branch}")
 
     def run_cmd(self, command: typing.List[str]):
@@ -26,14 +28,19 @@ class Updater:
             return
 
         # Fetch latest changes from remote repository
-        self.run_cmd(["git", "fetch"])
+        self.repo.remotes.origin.fetch()
 
         # Get latest commit hashes for local and remote branches
-        local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
-        remote_commit = self.run_cmd(["git", "rev-parse", f"origin/{self.current_branch}"])
+        local_branch = self.repo.active_branch
+
+        # Get the corresponding remote tracking branch
+        remote_branch = self.repo.remotes.origin.refs[local_branch.name]
+
+        # Compare the local branch to the corresponding remote tracking branch
+        comparison = local_branch.commit.diff(remote_branch.commit)
 
         # Compare commit hashes
-        if local_commit != remote_commit:
+        if comparison:
             logger.info("Updates available!")
             self.update_available = True
         else:
@@ -43,7 +50,7 @@ class Updater:
     def update(self):
         if self.update_available:
             try:
-                self.run_cmd(["git", "pull", "origin", self.current_branch])
+                self.repo.remotes.origin.pull()
                 self.run_cmd(["./scripts/install.sh"])
             except Exception as e:
                 logger.exception("Exception while updating")
