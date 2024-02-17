@@ -13,7 +13,7 @@ class Updater:
         # Get current branch
         result = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True)
         self.current_branch = result.stdout.strip()
-        print(f"Current branch: {self.current_branch}")
+        logger.info(f"Current branch: {self.current_branch}")
 
     def check_for_updates(self):
         if self.current_branch not in UPDATE_BRANCHES:
