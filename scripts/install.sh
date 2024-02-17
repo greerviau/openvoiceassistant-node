@@ -28,7 +28,7 @@ ExecStart=/bin/bash $CWD/scripts/start_node.sh
 WorkingDirectory=$CWD
 Restart=always
 RestartSec=30
-User=$USER
+User=root
 
 [Install]
 WantedBy=multi-user.target
