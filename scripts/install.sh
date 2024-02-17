@@ -15,7 +15,7 @@ python -m pip install --upgrade pip
 python -m pip install --upgrade wheel
 python -m pip install -r requirements_rpi.txt
 
-cat <<EOF > "/etc/systemd/system/ova_hub_backend.service"
+cat <<EOF > "/etc/systemd/system/ova_node.service"
 [Unit]
 Description=openvoiceassistant Node
 
