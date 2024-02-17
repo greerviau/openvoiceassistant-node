@@ -4,6 +4,8 @@ import time
 import logging
 logger = logging.getLogger("updater")
 
+from node.dir import BASEDIR
+
 UPDATE_BRANCHES = ["main", "develop", "release"]
 
 class Updater:
@@ -12,7 +14,7 @@ class Updater:
 
         # Get current branch
         result = subprocess.run(["/usr/bin/git", "rev-parse", "--abbrev-ref", "HEAD"],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                                cwd=BASEDIR, stdout=subprocess.PIPE, text=True)
         self.current_branch = result.stdout.strip()
         logger.info(f"Current branch: {self.current_branch}")
 
