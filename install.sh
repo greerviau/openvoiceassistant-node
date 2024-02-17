@@ -24,7 +24,7 @@ cat <<EOF > "/etc/systemd/system/ova_node.service"
 Description=openvoiceassistant Node
 
 [Service]
-ExecStart=/bin/bash $CWD/scripts/start_node.sh
+ExecStart=/bin/bash $CWD/start_node.sh
 WorkingDirectory=$CWD
 Restart=always
 RestartSec=30
