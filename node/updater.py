@@ -1,5 +1,6 @@
 import subprocess
 import threading
+import typing
 import time
 import logging
 logger = logging.getLogger("updater")
@@ -13,8 +14,11 @@ class Updater:
         self.update_available = False
 
         # Get current branch
-        self.current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip()
+        self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         logger.info(f"Current branch: {self.current_branch}")
+
+    def run_cmd(self, command: typing.List[str]):
+        return subprocess.check_output(command, encoding='utf8').strip()
 
     def check_for_updates(self):
         if self.current_branch not in UPDATE_BRANCHES:
@@ -25,8 +29,8 @@ class Updater:
         subprocess.run(["git", "fetch"])
 
         # Get latest commit hashes for local and remote branches
-        local_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
-        remote_commit = subprocess.check_output(["git", "rev-parse", f"origin/{self.current_branch}"]).strip()
+        local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
+        remote_commit = self.run_cmd(["git", "rev-parse", f"origin/{self.current_branch}"])
 
         # Compare commit hashes
         if local_commit != remote_commit:
@@ -39,8 +43,8 @@ class Updater:
     def update(self):
         if self.update_available:
             try:
-                subprocess.run(["git", "pull", "origin", self.current_branch])
-                subprocess.run(["./scripts/install.sh"])
+                self.run_cmd(["git", "pull", "origin", self.current_branch])
+                self.run_cmd(["./scripts/install.sh"])
             except Exception as e:
                 logger.exception("Exception while updating")
         else:
