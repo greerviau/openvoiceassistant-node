@@ -14,6 +14,7 @@ class Updater:
         self.update_available = False
 
         # Get current branch
+        logger.info(self.run_cmd(["ls"]))
         self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         logger.info(f"Current branch: {self.current_branch}")
 
