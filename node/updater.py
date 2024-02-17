@@ -16,7 +16,7 @@ class Updater:
 
     def check_for_updates(self):
         if self.current_branch not in UPDATE_BRANCHES:
-            logger.warning(f"You are not on the {self.update_branch_name} branch. Skipping update check.")
+            logger.warning(f"You are not on an update branch. Skipping update check.")
             return
 
         # Fetch latest changes from remote repository
@@ -32,6 +32,7 @@ class Updater:
             self.update_available = True
         else:
             logger.info("No updates available.")
+            self.update_available = False
     
     def update(self):
         if self.update_available:
