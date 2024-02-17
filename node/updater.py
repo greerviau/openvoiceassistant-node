@@ -11,7 +11,8 @@ class Updater:
         self.update_available = False
 
         # Get current branch
-        result = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True, stderr=subprocess.STDOUT)
+        result = subprocess.run(["/usr/bin/git", "rev-parse", "--abbrev-ref", "HEAD"],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         self.current_branch = result.stdout.strip()
         logger.info(f"Current branch: {self.current_branch}")
 
