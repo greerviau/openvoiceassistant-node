@@ -13,7 +13,7 @@ class Updater:
         self.update_available = False
 
         # Get current branch
-        result = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip()
+        self.current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip()
         logger.info(f"Current branch: {self.current_branch}")
 
     def check_for_updates(self):
