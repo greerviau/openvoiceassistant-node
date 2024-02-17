@@ -1,7 +1,6 @@
 import click
 import logging
-import os
-from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
 
 from node.dir import LOGFILE
 from node.node import Node
@@ -15,11 +14,12 @@ from node.web import create_app
 def main(debug, no_sync, sync_up):
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    logger.setLevel(logging.INFO)
 
     # Create a file handler and set its level to DEBUG or INFO
-    file_handler = logging.FileHandler(LOGFILE, mode='w')
-    file_handler.setLevel(logging.DEBUG if debug else logging.INFO)
+    file_handler = TimedRotatingFileHandler(LOGFILE, when='midnight', interval=1, backupCount=10)
+    file_handler.suffix = "%Y-%m-%d.log"  # Append date to log file name
+    file_handler.setLevel(logging.INFO)
 
     # Create a console handler and set its level to DEBUG or INFO
     console_handler = logging.StreamHandler()
@@ -33,6 +33,8 @@ def main(debug, no_sync, sync_up):
     # Add the handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+
+    logger.info("======STARTING NODE======")
 
     updater = Updater()
     updater.start()
