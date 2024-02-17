@@ -18,7 +18,7 @@ class Updater:
         logger.info(f"Current branch: {self.current_branch}")
 
     def run_cmd(self, command: typing.List[str]):
-        return subprocess.check_output(command, encoding='utf8').strip()
+        return subprocess.run(command, capture_output=True, text=True, universal_newlines=True).strip()
 
     def check_for_updates(self):
         if self.current_branch not in UPDATE_BRANCHES:
@@ -26,7 +26,7 @@ class Updater:
             return
 
         # Fetch latest changes from remote repository
-        subprocess.run(["git", "fetch"])
+        self.run_cmd(["git", "fetch"])
 
         # Get latest commit hashes for local and remote branches
         local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
