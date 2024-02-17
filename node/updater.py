@@ -18,7 +18,7 @@ class Updater:
         logger.info(f"Current branch: {self.current_branch}")
 
     def run_cmd(self, command: typing.List[str]):
-        return subprocess.run(command, capture_output=True, text=True, universal_newlines=True).stdout.strip()
+        return subprocess.run(command, capture_output=True, text=True,  cwd=BASEDIR).stdout.strip()
 
     def check_for_updates(self):
         if self.current_branch not in UPDATE_BRANCHES:
