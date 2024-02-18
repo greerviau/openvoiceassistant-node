@@ -21,7 +21,6 @@ class Node:
         self.sync_up = sync_up
         self.running = threading.Event()
         self.running.set()
-        self.run_thread = threading.Thread(target=self.run, daemon=True)
 
     def stop(self):
         logger.info("Stopping node")
@@ -31,7 +30,14 @@ class Node:
     def start(self):
         logger.info("Starting node")
         self.running.set()
+        self.run_thread = threading.Thread(target=self.run, daemon=True)
         self.run_thread.start()
+
+    def restart(self):
+        logger.info("Restarting node")
+        self.stop()
+        time.sleep(3)
+        self.start()
 
     def sync(self, sync_up: bool = False):
         # Run Startup Sync with HUB

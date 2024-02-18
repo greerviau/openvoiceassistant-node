@@ -1,7 +1,6 @@
 import flask
 import os
 import requests
-import time 
 import threading
 import logging
 logger = logging.getLogger("werkzeug")
@@ -49,9 +48,7 @@ def create_app(node: Node, updater: Updater):
     @app.route("/api/restart", methods=["POST"])
     def restart():
         try:
-            node.stop()
-            time.sleep(3)
-            node.start()
+            node.restart()
         except Exception as e:
             logger.exception("Exception in POST /api/restart")
             return {}, 400
