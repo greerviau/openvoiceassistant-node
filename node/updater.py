@@ -12,6 +12,7 @@ UPDATE_BRANCHES = ["main", "develop", "release"]
 class Updater:
     def __init__(self):
         self.update_available = False
+        self.updating = False
 
         # Get current branch
         self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
@@ -43,6 +44,7 @@ class Updater:
     def update(self):
         if self.update_available:
             try:
+                self.updating = True
                 self.run_cmd(["git", "pull", "origin", self.current_branch])
                 self.run_cmd(["./scripts/install.sh"])
             except Exception as e:
