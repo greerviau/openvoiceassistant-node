@@ -17,7 +17,7 @@ def create_app(node: Node, updater: Updater):
     app = flask.Flask("Node")
         
     @app.route("/api", methods=["GET"])
-    def index():
+    def status():
         try:
             updater.check_for_updates()
             update_available = updater.update_available

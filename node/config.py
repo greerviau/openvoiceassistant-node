@@ -13,7 +13,7 @@ loc = os.path.realpath(os.path.dirname(__file__))
 config_path = f"{loc}/config.json"
 config = {}
 
-def get(*keys: typing.List[str]):
+def get(*keys: typing.List[str]) -> typing.Any:
     global config
     keys = list(keys)
     dic = config.copy()
@@ -24,7 +24,7 @@ def get(*keys: typing.List[str]):
             return None
     return dic
 
-def set(*keys: typing.List[typing.Any]):
+def set(*keys: typing.List[typing.Any]) -> typing.Any:
     global config
     keys = list(keys)
     value = keys.pop(-1)
@@ -35,7 +35,7 @@ def set(*keys: typing.List[typing.Any]):
     save_config()
     return value
     
-def config_exists():
+def config_exists() -> bool:
     global config_path
     return os.path.exists(config_path)
 
@@ -72,7 +72,7 @@ def load_config() -> typing.Dict:
         config = json.load(open(config_path, "r"))
         verify_config()
 
-def __default_config():
+def __default_config() -> typing.Dict:
     def check_speex():
         try: 
             import speexdsp_ns 

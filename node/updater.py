@@ -18,7 +18,7 @@ class Updater:
         self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         logger.info(f"Current branch: {self.current_branch}")
 
-    def run_cmd(self, command: typing.List[str]):
+    def run_cmd(self, command: typing.List[str]) -> str:
         return subprocess.check_output(command, encoding='utf8').strip()
 
     def check_for_updates(self):

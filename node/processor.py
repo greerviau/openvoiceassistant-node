@@ -18,7 +18,7 @@ class Processor():
         if self.node.led_controller:
             self.node.led_controller.think()
 
-        engaged = False
+        self.node.engaged = False
 
         time_sent = time.time()
         try:
@@ -45,7 +45,7 @@ class Processor():
             )
         except Exception as e:
             logger.error(f"Lost connection to HUB | {repr(e)}")
-            return False
+            return
 
         try:         
             respond_response.raise_for_status()
@@ -78,7 +78,7 @@ class Processor():
 
                 self.hub_callback = context["hub_callback"]
 
-                if self.hub_callback: engaged = True
+                if self.hub_callback: self.node.engaged = True
                 
                 response_audio_data = context["response_audio_data"]
                 data = bytes.fromhex(response_audio_data)
@@ -94,5 +94,3 @@ class Processor():
             
         except Exception as e:
             logger.exception("Exception while processing audio")
-
-        return engaged

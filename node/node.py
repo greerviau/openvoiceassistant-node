@@ -132,6 +132,7 @@ class Node:
         logger.info("Initializing...")
 
         self.timer = None
+        self.engaged = False
 
         self.id = config.get("id")
         self.name = config.get("name")
@@ -164,8 +165,7 @@ class Node:
             self.sync(sync_up=True)
 
         logger.info("Microphone supported sample rates")
-        rates = [16000, 48000, 32000, 8000]
-        supported_rates = get_supported_samplerates(self.mic_idx, rates)
+        supported_rates = get_supported_samplerates(self.mic_idx, [16000, 48000, 32000, 8000])
         [logger.info(f"- {rate}") for rate in supported_rates]
 
         self.sample_rate = supported_rates[0]
@@ -236,12 +236,11 @@ class Node:
         self.initialize()
         logger.info("Mainloop running")
         self.last_time_engaged = time.time()
-        engaged = False
         while self.running.is_set():
-            self.listener.listen(engaged)
+            self.listener.listen()
             if not self.running.is_set():
                 break
-            engaged = self.processor.process_audio()
+            self.processor.process_audio()
             if self.led_controller:
                 self.led_controller.off()         
         logger.warning("Mainloop end")
@@ -267,7 +266,7 @@ class Node:
         self.timer.cancel()
         self.timer = None
 
-    def get_timer(self):
+    def get_timer(self) -> int:
         if self.timer:
             return int(self.timer.remaining())
         else:

@@ -3,14 +3,14 @@ import pyaudio
 import sounddevice as sd
 
 
-def find_devices(kind) -> typing.Dict[int, typing.Dict]:
-    if kind not in ["input", "output"]:
+def find_devices(device_type: str) -> typing.Dict[int, typing.Dict]:
+    if device_type not in ["input", "output"]:
         raise RuntimeError("Device kind must be \"input\" or \"output\"")
     devices = sd.query_devices()
     filtered = {}
-    for i, device in enumerate(devices):
+    for i, _ in enumerate(devices):
         try:
-            info = sd.query_devices(i, kind)
+            info = sd.query_devices(i, device_type)
             filtered[i] = info
         except ValueError:
             pass
@@ -64,7 +64,7 @@ def select_speaker(speaker: typing.Union[str, int]) -> typing.Tuple[int, str]:
         
     return speaker_index, speaker_tag
 
-def get_supported_samplerates(mic_index: int, samplerates: typing.List[int]):
+def get_supported_samplerates(mic_index: int, samplerates: typing.List[int]) -> typing.List[int]:
     paudio = pyaudio.PyAudio()
     supported_samplerates = []
     for fs in samplerates:

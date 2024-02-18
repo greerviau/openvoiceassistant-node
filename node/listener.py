@@ -1,6 +1,7 @@
 
 import time
 import os
+import wave
 import webrtcvad
 import queue
 import sounddevice as sd
@@ -9,7 +10,6 @@ logger = logging.getLogger("listener")
 
 from node.dir import FILESDIR, SOUNDSDIR
 from node.wake import OpenWakeWord
-from node.utils.audio import *
 
 
 class Listener:
@@ -38,7 +38,7 @@ class Listener:
 
         self.engaged_delay = 1 # seconds
     
-    def listen(self, engaged: bool=False): 
+    def listen(self): 
         self.wake.reset()
         buffer = queue.Queue()
 
@@ -52,7 +52,7 @@ class Listener:
                         callback=callback,
                         dtype="int16") as stream:
             
-            if not engaged:        
+            if not self.node.engaged:        
                 logger.info("Listening for wake word")
                 while True:
                     if not self.node.running.is_set():
