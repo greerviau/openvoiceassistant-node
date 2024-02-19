@@ -50,17 +50,14 @@ class Listener:
                         channels=self.channels, 
                         blocksize=self.frames_per_buffer,
                         callback=callback,
-                        dtype="int16") as stream:
+                        dtype="int16"):
             
             if not self.node.engaged:        
                 logger.info("Listening for wake word")
-                while True:
-                    if not self.node.running.is_set():
-                        return
+                while self.node.running.is_set():
                     chunk = buffer.get()
                     if self.wake.listen_for_wake_word(chunk): 
                         logger.info("Wake word!")
-                        buffer.queue.clear()
                         break
                     
             self.node.audio_player.interrupt()
@@ -80,9 +77,7 @@ class Listener:
                 start = time.time()
                 not_speech_start_time = None
                 vad_audio_data = bytes()
-                while True:
-                    if not self.node.running.is_set():
-                        return
+                while self.node.running.is_set():
                     chunk = buffer.get()
                     if chunk:
                         if self.enable_speex and self.noise_suppression:
@@ -95,9 +90,7 @@ class Listener:
                         is_speech = False
 
                         # Process in chunks of 30ms for webrtcvad
-                        while len(vad_audio_data) >= self.vad_chunk_size:
-                            if not self.node.running.is_set():
-                                return
+                        while len(vad_audio_data) >= self.vad_chunk_size and self.node.running.is_set():
                             vad_chunk = vad_audio_data[: self.vad_chunk_size]
                             vad_audio_data = vad_audio_data[self.vad_chunk_size:]
 

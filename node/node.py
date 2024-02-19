@@ -15,16 +15,17 @@ from node.utils.hardware import list_microphones, select_mic, get_supported_samp
 from node.utils.network import get_my_ip, scan_for_hub
 
 class Node:
-    def __init__(self, debug: bool, no_sync: bool, sync_up: bool):
-        self.debug = debug
+    def __init__(self, no_sync: bool, sync_up: bool, hub_port: int):
         self.no_sync = no_sync
         self.sync_up = sync_up
+        self.hub_port = hub_port
         self.running = threading.Event()
         self.running.set()
 
     def stop(self):
         logger.info("Stopping node")
         self.running.clear()
+        self.stop_timer()
         self.run_thread.join()
 
     def start(self):
@@ -61,10 +62,10 @@ class Node:
         volume = config.get("volume")
 
         if not hub_ip:
-            hub_ip = scan_for_hub(device_ip, 7123)
+            hub_ip = scan_for_hub(device_ip, self.hub_port)
             config.set("hub_ip", hub_ip)
 
-        hub_api_url = f"http://{hub_ip}:7123/api"
+        hub_api_url = f"http://{hub_ip}:{self.hub_port}/api"
 
         sync_data = {     
                 "id": node_id,
@@ -187,7 +188,6 @@ class Node:
             self.sync(sync_up=True)
 
         # SETTINGS
-        if self.debug: logger.info("==DEBUG MODE==")
         logger.info("Node Info")
         logger.info(f"- ID:             {self.id}")
         logger.info(f"- Name:           {self.name}")

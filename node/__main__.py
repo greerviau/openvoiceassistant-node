@@ -11,15 +11,17 @@ from node.web import create_app
 @click.option("--debug", is_flag=True)
 @click.option("--no_sync", is_flag=True)
 @click.option("--sync_up", is_flag=True)
-def main(debug, no_sync, sync_up):
+@click.option("--port", required=False, default = 7234, type=int)
+@click.option("--hub_port", required=False, default = 7123, type=int)
+def main(debug, no_sync, sync_up, port, hub_port):
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # Create a file handler and set its level to DEBUG or INFO
     file_handler = TimedRotatingFileHandler(LOGFILE, when='midnight', interval=1, backupCount=10)
     file_handler.suffix = "%Y-%m-%d.log"  # Append date to log file name
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # Create a console handler and set its level to DEBUG or INFO
     console_handler = logging.StreamHandler()
@@ -34,16 +36,17 @@ def main(debug, no_sync, sync_up):
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
 
-    logger.info("======STARTING NODE======")
+    logger.info("==== STARTING NODE ====")
+    logger.debug("===== DEBUG MODE ======")
 
     updater = Updater()
     updater.start()
     
-    node = Node(debug, no_sync, sync_up)
+    node = Node(no_sync, sync_up, hub_port)
     node.start()
     
     app = create_app(node, updater)
-    app.run(host="0.0.0.0", port=7234)
+    app.run(host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     main()

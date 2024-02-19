@@ -26,20 +26,23 @@ class Updater:
             logger.warning(f"You are not on an update branch. Skipping update check.")
             return
 
-        # Fetch latest changes from remote repository
-        self.run_cmd(["git", "fetch"])
+        try:
+            # Fetch latest changes from remote repository
+            self.run_cmd(["git", "fetch"])
 
-        # Get latest commit hashes for local and remote branches
-        local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
-        remote_commit = self.run_cmd(["git", "rev-parse", f"origin/{self.current_branch}"])
+            # Get latest commit hashes for local and remote branches
+            local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
+            remote_commit = self.run_cmd(["git", "rev-parse", f"origin/{self.current_branch}"])
 
-        # Compare commit hashes
-        if local_commit != remote_commit:
-            logger.info("Updates available!")
-            self.update_available = True
-        else:
-            logger.info("No updates available.")
-            self.update_available = False
+            # Compare commit hashes
+            if local_commit != remote_commit:
+                logger.info("Updates available!")
+                self.update_available = True
+            else:
+                logger.info("No updates available.")
+                self.update_available = False
+        except Exception as e:
+            logger.exception("Failed to check for updates")
     
     def update(self):
         if self.update_available:
@@ -58,5 +61,6 @@ class Updater:
     
     def run(self):
         while True:
-            self.check_for_updates()
+            if not self.update_available:
+                self.check_for_updates()
             time.sleep(3600)    # Check every hour
