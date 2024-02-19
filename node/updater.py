@@ -40,7 +40,7 @@ class Updater:
             if local_commit != remote_commit:
                 logger.info("Updates available!")
                 latest_version = subprocess.check_output(["git", "show", f"origin/{self.current_branch}:VERSION"]).decode("utf-8").strip()
-                self.update_version = latest_version if latest_version != self.version else f"{self.version} Patch"
+                self.update_version = f"v{latest_version}" if latest_version != self.version else f"v{self.version}-patch"
                 self.update_available = True
             else:
                 logger.info("No updates available.")
