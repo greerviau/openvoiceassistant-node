@@ -20,8 +20,6 @@ def create_app(node: Node, updater: Updater):
     def status():
         try:
             updater.check_for_updates()
-            update_available = updater.update_available
-            version = open(os.path.join(BASEDIR, "VERSION")).read()
             status = "online"
             if not node.run_thread.is_alive():
                 status = "crashed"
@@ -29,9 +27,10 @@ def create_app(node: Node, updater: Updater):
                 status = "updating"
             return {
                     "id": config.get("id"),
-                    "version": version,
+                    "version": updater.version,
                     "status": status,
-                    "update_available": update_available
+                    "update_available": updater.update_available,
+                    "update_version": updater.update_version
                     }, 200
         except Exception as e:
             logger.exception("Exception in GET /api")

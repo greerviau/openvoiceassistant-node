@@ -2,6 +2,7 @@ import subprocess
 import threading
 import typing
 import time
+import os
 import logging
 logger = logging.getLogger("updater")
 
@@ -13,13 +14,14 @@ class Updater:
     def __init__(self):
         self.update_available = False
         self.updating = False
-
+        self.version = open(os.path.join(BASEDIR, "VERSION")).read()
+        self.update_version = ""
         # Get current branch
         self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         logger.info(f"Current branch: {self.current_branch}")
 
     def run_cmd(self, command: typing.List[str]) -> str:
-        return subprocess.check_output(command, encoding='utf8').strip()
+        return subprocess.check_output(command, encoding="utf8").strip()
 
     def check_for_updates(self):
         if self.current_branch not in UPDATE_BRANCHES:
@@ -37,6 +39,8 @@ class Updater:
             # Compare commit hashes
             if local_commit != remote_commit:
                 logger.info("Updates available!")
+                latest_version = subprocess.check_output(["git", "show", f"origin/{self.current_branch}:VERSION"]).decode("utf-8").strip()
+                self.update_version = latest_version if latest_version != self.version else f"{self.version} Patch"
                 self.update_available = True
             else:
                 logger.info("No updates available.")
