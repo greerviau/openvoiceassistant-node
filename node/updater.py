@@ -24,29 +24,32 @@ class Updater:
         return subprocess.check_output(command, encoding="utf8").strip()
 
     def check_for_updates(self):
-        if self.current_branch not in UPDATE_BRANCHES:
-            logger.warning(f"You are not on an update branch. Skipping update check.")
-            return
+        if not self.updating:
+            if self.current_branch not in UPDATE_BRANCHES:
+                logger.warning(f"You are not on an update branch. Skipping update check.")
+                return
 
-        try:
-            # Fetch latest changes from remote repository
-            self.run_cmd(["git", "fetch"])
+            try:
+                # Fetch latest changes from remote repository
+                self.run_cmd(["git", "fetch"])
 
-            # Get latest commit hashes for local and remote branches
-            local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
-            remote_commit = self.run_cmd(["git", "rev-parse", f"origin/{self.current_branch}"])
+                # Get latest commit hashes for local and remote branches
+                local_commit = self.run_cmd(["git", "rev-parse", "HEAD"])
+                remote_commit = self.run_cmd(["git", "rev-parse", f"origin/{self.current_branch}"])
 
-            # Compare commit hashes
-            if local_commit != remote_commit:
-                logger.info("Updates available!")
-                latest_version = subprocess.check_output(["git", "show", f"origin/{self.current_branch}:VERSION"]).decode("utf-8").strip()
-                self.update_version = f"v{latest_version}" if latest_version != self.version else f"v{self.version}-patch"
-                self.update_available = True
-            else:
-                logger.info("No updates available.")
-                self.update_available = False
-        except Exception as e:
-            logger.exception("Failed to check for updates")
+                # Compare commit hashes
+                if local_commit != remote_commit:
+                    logger.info("Updates available!")
+                    latest_version = subprocess.check_output(["git", "show", f"origin/{self.current_branch}:VERSION"]).decode("utf-8").strip()
+                    self.update_version = f"v{latest_version}" if latest_version != self.version else f"v{self.version}-patch"
+                    self.update_available = True
+                else:
+                    logger.info("No updates available.")
+                    self.update_available = False
+            except Exception as e:
+                logger.exception("Failed to check for updates")
+        else:
+            logger.warning("Update in progress, cant check for new updates")
     
     def update(self):
         if self.update_available:
@@ -57,10 +60,10 @@ class Updater:
                 self.run_cmd(["./scripts/install.sh"])
             except Exception as e:
                 logger.exception("Exception while updating")
+                self.updating = False
         else:
             logger.warning("Cannot update, no updates available")
             self.updating = False
-            self.update_available = True
 
     def start(self):
         run_thread = threading.Thread(target=self.run, daemon=True)
