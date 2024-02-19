@@ -263,7 +263,8 @@ class Node:
             self.timer.start()
 
     def stop_timer(self):
-        self.timer.cancel()
+        if self.timer:
+            self.timer.cancel()
         self.timer = None
 
     def get_timer(self) -> int:
