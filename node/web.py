@@ -42,6 +42,7 @@ def create_app(node: Node, updater: Updater):
         try:
             updater.check_for_updates()
             if updater.update_available:
+                node.stop()
                 threading.Thread(target=updater.update, daemon=True).start()
                 return {}, 200
             else:

@@ -48,6 +48,7 @@ class Updater:
         if self.update_available:
             try:
                 self.updating = True
+                self.update_available = False
                 self.run_cmd(["git", "pull", "origin", self.current_branch])
                 self.run_cmd(["./scripts/install.sh"])
             except Exception as e:
