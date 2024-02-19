@@ -234,7 +234,6 @@ class Node:
     
     def run(self):
         self.initialize()
-        raise
         logger.info("Mainloop running")
         self.last_time_engaged = time.time()
         while self.running.is_set():

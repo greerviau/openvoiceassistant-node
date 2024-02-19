@@ -59,6 +59,8 @@ class Updater:
                 logger.exception("Exception while updating")
         else:
             logger.warning("Cannot update, no updates available")
+            self.updating = False
+            self.update_available = True
 
     def start(self):
         run_thread = threading.Thread(target=self.run, daemon=True)
