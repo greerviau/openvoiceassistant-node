@@ -16,16 +16,17 @@ from node.web import create_app
 def main(debug, no_sync, sync_up, port, hub_port):
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    log_level = logging.DEBUG if debug else logging.INFO
+    logger.setLevel(log_level)
 
     # Create a file handler and set its level to DEBUG or INFO
     file_handler = TimedRotatingFileHandler(LOGFILE, when='midnight', interval=1, backupCount=10)
     file_handler.suffix = "%Y-%m-%d.log"  # Append date to log file name
-    file_handler.setLevel(logging.DEBUG if debug else logging.INFO)
+    file_handler.setLevel(log_level)
 
     # Create a console handler and set its level to DEBUG or INFO
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG if debug else logging.INFO)
+    console_handler.setLevel(log_level)
 
     # Create a formatter
     formatter = logging.Formatter('%(asctime)s - %(name)-12s - %(levelname)-8s: %(message)s')

@@ -45,20 +45,17 @@ def save_config():
         config_file.write(json.dumps(config, indent=4))
     logger.debug("Config saved")
 
-def verify_config():
-    global config
-    default_config = __default_config()
-    if list(default_config.keys()) == list(config.keys()):
-        return
+def verify_config(config: typing.Dict, default: typing.Dict):
+    if list(default.keys()) == list(config.keys()):
+        return config
     config_clone = config.copy()
-    for key, value in default_config.items():
+    for key, value in default.items():
         if key not in config_clone:
             config_clone[key] = value
-    for key, value in config_clone.items():
-        if key not in default_config:
+    for key, value in config.items():
+        if key not in default:
             config_clone.pop(key)
-    config = config_clone
-    save_config()
+    return config_clone
 
 def load_config() -> typing.Dict:
     global config, config_path
@@ -70,7 +67,7 @@ def load_config() -> typing.Dict:
     else:
         logger.info("Loading existing config")
         config = json.load(open(config_path, "r"))
-        verify_config()
+        config = verify_config(config, __default_config())
 
 def __default_config() -> typing.Dict:
     def check_speex():
