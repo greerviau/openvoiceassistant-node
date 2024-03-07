@@ -17,7 +17,11 @@ class Updater:
         self.version = open(os.path.join(BASEDIR, "VERSION")).read()
         self.update_version = ""
         # Get current branch
-        self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        try:
+            self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        except Exception as e:
+            logger.error("Failed to fetch branch")
+            self.current_branch = "undefined"
         logger.info(f"Current branch: {self.current_branch}")
 
     def run_cmd(self, command: typing.List[str]) -> str:
@@ -26,7 +30,7 @@ class Updater:
     def check_for_updates(self):
         if not self.updating:
             if self.current_branch not in UPDATE_BRANCHES:
-                logger.warning(f"You are not on an update branch. Skipping update check.")
+                logger.warning(f"You are not on an update branch, skipping update check")
                 return
 
             try:
