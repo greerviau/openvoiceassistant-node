@@ -203,7 +203,7 @@ def create_app(node: Node, updater: Updater):
             logger.exception("Exception in GET /api/wake_word_models")
             return {}, 400
     
-    @app.route("/api/wake_word_model/upload", methods=["POST"])
+    @app.route("/api/wake_word_models/upload", methods=["POST"])
     def upload_wake_word():
         try:
             if "file" not in flask.request.files:
