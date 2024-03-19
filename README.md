@@ -73,6 +73,11 @@ This is a percentage value from 0-100% that indicates how confident the VAD Dete
 ### Speex Noise Supression
 This indicates whether or not you want to enable Speex Noise Supression. This setting is only available on linux based systems, including the RPI. If enabled it filters background noise, improving accuracy.
 
+### Omni Directional Wake Word (BETA)
+This enables the ability for the wake word to be detected at any point in the command instead of before issuing the command. Performance may be spotty depending on the quality of the wake word model. If enabled it is recomended to set **VAD Threshold** to 0.
+
+Ex. Disabled: "(wake word), turn on the lights" | Enabled: "turn on the lights (wake word)"
+
 ### Microphone & Speaker
 These options allow you to choose the respective devices to use as Microphones and Speakers. Any new devices should be auto detected.
 

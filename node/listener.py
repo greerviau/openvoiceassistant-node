@@ -41,6 +41,7 @@ class Listener:
     def listen(self): 
         self.wake.reset()
         buffer = queue.Queue()
+        logger.info("Listening...")
 
         def callback(indata, frames, time, status):
             buffer.put(bytes(indata))
@@ -53,7 +54,6 @@ class Listener:
                         dtype="int16"):
             
             if not self.node.engaged:        
-                logger.info("Listening for wake word")
                 while self.node.running.is_set():
                     chunk = buffer.get()
                     if self.wake.listen_for_wake_word(chunk): 
@@ -66,8 +66,6 @@ class Listener:
             
             if self.wakeup_sound:           
                 self.node.audio_player.play_audio_file(os.path.join(SOUNDSDIR, "activate.wav"), asynchronous=True)
-
-            audio_data = []
 
             with wave.open(os.path.join(FILESDIR, "command.wav"), "wb") as wav_file:
                 wav_file.setframerate(self.sample_rate)
@@ -84,9 +82,7 @@ class Listener:
                             chunk = self.noise_suppression.process(chunk)
                         wav_file.writeframes(chunk)
 
-                        audio_data.append(chunk)
                         vad_audio_data += chunk
-
                         is_speech = False
 
                         # Process in chunks of 30ms for webrtcvad
@@ -102,9 +98,73 @@ class Listener:
                         elif not is_speech:
                             if not not_speech_start_time:
                                 not_speech_start_time = time.time()
-                            if time.time() - not_speech_start_time > 0.5:   # Make sure we get at least .5 seconds of no speech
-                                not_speech_start_time = None
+                            elif time.time() - not_speech_start_time > 0.5:   # Make sure we get at least .5 seconds of no speech
                                 if self.wakeup_sound:
                                     self.node.audio_player.interrupt()
                                     self.node.audio_player.play_audio_file(os.path.join(SOUNDSDIR, "deactivate.wav"), asynchronous=True)
                                 return
+                            
+    def listen_omni_directional(self):
+        self.wake.reset()
+        buffer = queue.Queue()
+        wake_word_detected = False
+        logger.info("Listening...")
+
+        def callback(indata, frames, time, status):
+            buffer.put(bytes(indata))
+
+        with sd.InputStream(samplerate=self.sample_rate, 
+                        device=self.mic_idx, 
+                        channels=self.channels, 
+                        blocksize=self.frames_per_buffer,
+                        callback=callback,
+                        dtype="int16"):
+            while self.node.running.is_set():
+                audio_data = []
+                speech_started = False
+                not_speech_start_time = None
+                vad_audio_data = bytes()
+                while self.node.running.is_set():
+                    chunk = buffer.get()
+                    if chunk:
+                        if self.enable_speex and self.noise_suppression:
+                            chunk = self.noise_suppression.process(chunk)
+
+                        vad_audio_data += chunk
+                        is_speech = False
+
+                        # Process in chunks of 30ms for webrtcvad
+                        while len(vad_audio_data) >= self.vad_chunk_size and self.node.running.is_set():
+                            vad_chunk = vad_audio_data[: self.vad_chunk_size]
+                            vad_audio_data = vad_audio_data[self.vad_chunk_size:]
+
+                            # Speech in any chunk counts as speech
+                            is_speech = is_speech or self.vad.is_speech(vad_chunk, self.sample_rate)
+
+                        if not wake_word_detected and self.wake.listen_for_wake_word(chunk): 
+                            logger.info("Wake word!")
+                            wake_word_detected = True   
+
+                        if is_speech:
+                            speech_started = True
+                        if speech_started:
+                            audio_data.append(chunk)
+                            if not is_speech:
+                                if not not_speech_start_time:
+                                    not_speech_start_time = time.time()
+                                elif time.time() - not_speech_start_time > 0.5:   # Make sure we get at least .5 seconds of no speech
+                                    if not wake_word_detected:
+                                        break
+                                    if self.wakeup_sound:
+                                        self.node.audio_player.interrupt()
+                                        self.node.audio_player.play_audio_file(os.path.join(SOUNDSDIR, "deactivate.wav"), asynchronous=True)
+                                   
+                                    with wave.open(os.path.join(FILESDIR, "command.wav"), "wb") as wav_file:
+                                        wav_file.setframerate(self.sample_rate)
+                                        wav_file.setsampwidth(self.sample_width)
+                                        wav_file.setnchannels(self.channels)
+                                        for chunk in audio_data:
+                                            wav_file.writeframes(chunk)
+                                    return
+                
+            

@@ -89,7 +89,8 @@ def __default_config() -> typing.Dict:
         "vad_sensitivity": 3,
         "vad_threshold": 0.0,
         "speex_noise_suppression": False,
-        "speex_available": check_speex(),    
+        "speex_available": check_speex(),   
+        "omni_directional_wake_word": False, 
         "mic_index": list_microphones()[0]["idx"],
         "speaker_index": list_speakers()[0]["idx"],
         "volume": 100

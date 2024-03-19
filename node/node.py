@@ -59,6 +59,7 @@ class Node:
         vad_threshold = config.get("vad_threshold")
         speex_noise_suppression = config.get("speex_noise_suppression")
         speex_available = config.get("speex_available")
+        omni_directional_wake_word = config.get("omni_directional_wake_word")
         mic_index = config.get("mic_index")
         speaker_index = config.get("speaker_index")
         volume = config.get("volume")
@@ -82,6 +83,7 @@ class Node:
                 "vad_threshold": vad_threshold,
                 "speex_noise_suppression": speex_noise_suppression,
                 "speex_available": speex_available,
+                "omni_directional_wake_word": omni_directional_wake_word,
                 "mic_index": mic_index,
                 "speaker_index": speaker_index,
                 "volume": volume,
@@ -120,6 +122,7 @@ class Node:
             config.set("vad_sensitivity", config_json["vad_sensitivity"])
             config.set("vad_threshold", config_json["vad_threshold"])
             config.set("speex_noise_suppression", config_json["speex_noise_suppression"])
+            config.set("omni_directional_wake_word", config_json["omni_directional_wake_word"])
             config.set("mic_index", config_json["mic_index"])
             config.set("speaker_index", config_json["speaker_index"])
             config.set("volume", config_json["volume"])
@@ -145,6 +148,7 @@ class Node:
         self.wakeup_sound = config.get("wakeup_sound")
         self.wake_word_conf_threshold = config.get("wake_word_conf_threshold")
         self.speex_noise_suppression = config.get("speex_noise_suppression") and config.get("speex_available")
+        self.omni_directional_wake_word = config.get("omni_directional_wake_word")
         self.mic_idx = config.get("mic_index")
         self.speaker_idx = config.get("speaker_index")
         self.vad_sensitivity = config.get("vad_sensitivity")
@@ -191,25 +195,26 @@ class Node:
 
         # SETTINGS
         logger.info("Node Info")
-        logger.info(f"- ID:             {self.id}")
-        logger.info(f"- Name:           {self.name}")
-        logger.info(f"- Area:           {self.area}")
-        logger.info(f"- HUB:            {self.hub_ip}")
+        logger.info(f"- ID:               {self.id}")
+        logger.info(f"- Name:             {self.name}")
+        logger.info(f"- Area:             {self.area}")
+        logger.info(f"- HUB:              {self.hub_ip}")
         logger.info("Wakeword Settings")
-        logger.info(f"- Wake Word:      {self.wake_word}")
-        logger.info(f"- Wake Conf:      {self.wake_word_conf_threshold}")
-        logger.info(f"- Vad Thresh:     {self.vad_threshold}")
-        logger.info(f"- Noise Suppress: {self.speex_noise_suppression}")
-        logger.info(f"- Wakeup Sound:   {self.wakeup_sound}")
+        logger.info(f"- Wake Word:        {self.wake_word}")
+        logger.info(f"- Omni Directional: {self.omni_directional_wake_word}")
+        logger.info(f"- Wake Conf:        {self.wake_word_conf_threshold}")
+        logger.info(f"- Vad Thresh:       {self.vad_threshold}")
+        logger.info(f"- Noise Suppress:   {self.speex_noise_suppression}")
+        logger.info(f"- Wakeup Sound:     {self.wakeup_sound}")
         logger.info(f"IO Settings")
-        logger.info(f"- Microphone:     {self.mic_tag}")
-        logger.info(f"- Microphone IDX: {self.mic_idx}")
-        logger.info(f"- Speaker:        {self.speaker_tag}")
-        logger.info(f"- Speaker IDX:    {self.speaker_idx}")
-        logger.info(f"- Sample Rate:    {self.sample_rate}")
-        logger.info(f"- Sample Width:   {self.sample_width}")
-        logger.info(f"- Audio Channels: {self.audio_channels}")
-        logger.info(f"- Volume:         {self.volume}")
+        logger.info(f"- Microphone:       {self.mic_tag}")
+        logger.info(f"- Microphone IDX:   {self.mic_idx}")
+        logger.info(f"- Speaker:          {self.speaker_tag}")
+        logger.info(f"- Speaker IDX:      {self.speaker_idx}")
+        logger.info(f"- Sample Rate:      {self.sample_rate}")
+        logger.info(f"- Sample Width:     {self.sample_width}")
+        logger.info(f"- Audio Channels:   {self.audio_channels}")
+        logger.info(f"- Volume:           {self.volume}")
 
         try:
             from node.utils.leds import Pixels, Respeaker4MicHat
@@ -239,7 +244,10 @@ class Node:
         logger.info("Mainloop running")
         self.last_time_engaged = time.time()
         while self.running.is_set():
-            self.listener.listen()
+            if self.omni_directional_wake_word:
+                self.listener.listen_omni_directional()
+            else:
+                self.listener.listen()
             if not self.running.is_set():
                 break
             self.processor.process_audio()
