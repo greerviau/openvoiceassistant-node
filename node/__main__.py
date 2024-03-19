@@ -11,7 +11,7 @@ from node.web import create_app
 @click.option("--debug", is_flag=True)
 @click.option("--no_sync", is_flag=True)
 @click.option("--sync_up", is_flag=True)
-@click.option("--port", required=False, default = 7234, type=int)
+@click.option("--port", required=False, default = 7321, type=int)
 @click.option("--hub_port", required=False, default = 7123, type=int)
 def main(debug, no_sync, sync_up, port, hub_port):
 
@@ -43,11 +43,11 @@ def main(debug, no_sync, sync_up, port, hub_port):
     updater = Updater()
     updater.start()
     
-    node = Node(no_sync, sync_up, hub_port)
+    node = Node(no_sync, sync_up, port, hub_port)
     node.start()
     
     app = create_app(node, updater)
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=debug)
 
 if __name__ == "__main__":
     main()

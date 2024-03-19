@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger("werkzeug")
 
 from node import config
-from node.dir import BASEDIR, FILESDIR, WAKEWORDMODELSDIR, LOGFILE
+from node.dir import FILESDIR, WAKEWORDMODELSDIR, LOGFILE
 from node.node import Node
 from node.updater import Updater
 from node.utils.hardware import list_microphones, list_speakers
@@ -15,7 +15,7 @@ from node.schemas import NodeConfig
 def create_app(node: Node, updater: Updater):
 
     app = flask.Flask("Node")
-        
+
     @app.route("/api", methods=["GET"])
     def status():
         try:
@@ -214,7 +214,7 @@ def create_app(node: Node, updater: Updater):
             if file.filename == "":
                 raise Exception("No file selected")
 
-            if file and file.filename.rsplit('.')[-1].lower() in ['onnx']:
+            if file and file.filename.rsplit(".")[-1].lower() in ["onnx"]:
                 filename = os.path.join(WAKEWORDMODELSDIR, file.filename)
                 with open(filename, "wb") as file_to_save:
                     file_to_save.write(file.read())
@@ -248,12 +248,20 @@ def create_app(node: Node, updater: Updater):
     @app.route("/api/logs/<n>", methods=["GET"])
     def get_logs(n):
         try:
-           n = int(n)
-           with open(LOGFILE, "r") as file:
-                return file.readlines()[-n:], 200
+            n = int(n)
+            log_lines = []
+            with open(LOGFILE, "r") as file:
+                for line in file.readlines()[-n:]:
+                    if "ERROR" in line:
+                        log_lines.append(f'<pre><span class="text-red-400">{line}</span></pre>')
+                    elif "WARNING" in line:
+                        log_lines.append(f'<pre><span class="text-orange-300">{line}</span></pre>')
+                    else:
+                        log_lines.append(f'<pre>{line}</pre>')
+                return log_lines
         except Exception as e:
             logger.exception("Exception in GET /api/logs")
             return {}, 400
-
+        
     return app
     

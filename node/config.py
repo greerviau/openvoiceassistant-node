@@ -6,7 +6,6 @@ import random
 import logging
 logger = logging.getLogger("config")
 
-from node.utils.network import get_my_ip
 from node.utils.hardware import list_speakers, list_microphones
 
 loc = os.path.realpath(os.path.dirname(__file__))
@@ -76,8 +75,7 @@ def __default_config() -> typing.Dict:
             return True
         except: 
             return False
-    device_ip = get_my_ip()
-    random.seed(device_ip)
+    random.seed(hex(uuid.getnode()))
     node_id = f"{uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4).hex}"
 
     return {

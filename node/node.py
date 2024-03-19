@@ -15,9 +15,10 @@ from node.utils.hardware import list_microphones, select_mic, get_supported_samp
 from node.utils.network import get_my_ip, scan_for_hub
 
 class Node:
-    def __init__(self, no_sync: bool, sync_up: bool, hub_port: int):
+    def __init__(self, no_sync: bool, sync_up: bool, port: int, hub_port: int):
         self.no_sync = no_sync
         self.sync_up = sync_up
+        self.port = port
         self.hub_port = hub_port
         self.running = threading.Event()
         self.running.set()
@@ -44,11 +45,12 @@ class Node:
         # Run Startup Sync with HUB
         logger.info("Node Syncing with HUB...")
 
+        version = open(os.path.join(BASEDIR, "VERSION")).read()
+        device_ip = get_my_ip()
+
         node_id = config.get("id")
         node_name = config.get("name")
         node_area = config.get("area")
-        version = open(os.path.join(BASEDIR, "VERSION")).read()
-        device_ip = get_my_ip()
         hub_ip = config.get("hub_ip")
         wake_word = config.get("wake_word")
         wake_word_conf_threshold = config.get("wake_word_conf_threshold")
@@ -72,7 +74,7 @@ class Node:
                 "name": node_name,
                 "area": node_area,
                 "version": version,
-                "api_url": f"http://{device_ip}:7234/api",
+                "address": f"{device_ip}:{self.port}",
                 "wake_word": wake_word,
                 "wake_word_conf_threshold": wake_word_conf_threshold, 
                 "wakeup_sound": wakeup_sound,
