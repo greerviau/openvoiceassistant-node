@@ -11,9 +11,10 @@ from node.web import create_app
 @click.option("--debug", is_flag=True)
 @click.option("--no_sync", is_flag=True)
 @click.option("--sync_up", is_flag=True)
-@click.option("--port", required=False, default = 7321, type=int)
+@click.option("--hub_ip", required=False, default = 7123, type=int)
 @click.option("--hub_port", required=False, default = 7123, type=int)
-def main(debug, no_sync, sync_up, port, hub_port):
+@click.option("--port", required=False, default = 7321, type=int)
+def main(debug, no_sync, sync_up, hub_ip, hub_port, port):
 
     logger = logging.getLogger()
     log_level = logging.DEBUG if debug else logging.INFO
@@ -43,7 +44,7 @@ def main(debug, no_sync, sync_up, port, hub_port):
     updater = Updater()
     updater.start()
     
-    node = Node(no_sync, sync_up, port, hub_port)
+    node = Node(no_sync, sync_up, hub_ip, hub_port, port)
     node.start()
     
     app = create_app(node, updater)

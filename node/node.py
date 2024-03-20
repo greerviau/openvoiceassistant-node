@@ -15,11 +15,13 @@ from node.utils.hardware import list_microphones, select_mic, get_supported_samp
 from node.utils.network import get_my_ip, scan_for_hub
 
 class Node:
-    def __init__(self, no_sync: bool, sync_up: bool, port: int, hub_port: int):
+    def __init__(self, no_sync: bool, sync_up: bool, hub_ip: str, hub_port: int, port: int):
         self.no_sync = no_sync
         self.sync_up = sync_up
-        self.port = port
+        self.hub_ip = hub_ip
+        config.set("hub_ip", hub_ip)
         self.hub_port = hub_port
+        self.port = port
         self.running = threading.Event()
         self.running.set()
 
