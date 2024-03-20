@@ -86,3 +86,5 @@ These options allow you to choose the respective devices to use as Microphones a
 This is the device volume. You can also adjust it through voice command. 
 
 Ex. "Volume up/down", "Volume 5", "Volume 60 percent".
+
+# [Release Notes](RELEASES.md)
