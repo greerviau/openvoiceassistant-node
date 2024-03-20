@@ -17,7 +17,7 @@ First flash an instance of Raspberry Pi OS, or a similar Raspberry Pi certified 
 Once the OS is flashed, ssh to the device and run the following command:
 ```
 sudo apt install -y git && \
-git clone https://github.com/greerviau/openvoiceassistant-node.git && \
+git clone -b release https://github.com/greerviau/openvoiceassistant-node.git && \
 cd openvoiceassistant-node && \
 sudo ./scripts/install.sh
 ```
