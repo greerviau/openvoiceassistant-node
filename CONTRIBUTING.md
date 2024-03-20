@@ -22,7 +22,7 @@ You should then be able to run the node.
 ```
 python -m node
 ```
-When developing you can utilize some of the aditional flags such as ```--debug```, ```--no_sync```, ```--sync_up```, ```--port``` and ```--hub_port```<br>
+When developing you can utilize some of the aditional flags:<br>
 ```--debug``` will give you more log info.<br>
 ```--no_sync``` will not sync with the hub, this might be usefull if you are not running a hub instance but want to test if the node starts.<br>
 ```--sync_up``` will force push up the configuration present on the node to the hub as opposed to pulling configuration from the hub down to the node.<br>
