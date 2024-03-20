@@ -18,8 +18,9 @@ class Node:
     def __init__(self, no_sync: bool, sync_up: bool, hub_ip: str, hub_port: int, port: int):
         self.no_sync = no_sync
         self.sync_up = sync_up
-        self.hub_ip = hub_ip
-        config.set("hub_ip", hub_ip)
+        if hub_ip:
+            self.hub_ip = hub_ip
+            config.set("hub_ip", hub_ip)
         self.hub_port = hub_port
         self.port = port
         self.running = threading.Event()

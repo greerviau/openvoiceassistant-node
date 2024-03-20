@@ -8,10 +8,10 @@ from node.updater import Updater
 from node.web import create_app
 
 @click.command()
-@click.option("--debug", is_flag=True)
-@click.option("--no_sync", is_flag=True)
-@click.option("--sync_up", is_flag=True)
-@click.option("--hub_ip", required=False, default = 7123, type=int)
+@click.option("--debug", required=False, is_flag=True)
+@click.option("--no_sync", required=False, is_flag=True)
+@click.option("--sync_up", required=False, is_flag=True)
+@click.option("--hub_ip", required=False, default = "", type=str)
 @click.option("--hub_port", required=False, default = 7123, type=int)
 @click.option("--port", required=False, default = 7321, type=int)
 def main(debug, no_sync, sync_up, hub_ip, hub_port, port):
