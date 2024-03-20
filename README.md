@@ -7,24 +7,24 @@ Open Voice Assistant is a fully offline, locally hosted and completely customiza
 OVA Node is designed to be deployed on small embeded computers such as Raspberry Pis, but can also be deployed on standard machines like PCs and Laptops. You can even deploy OVA Node alongside OVA Hub.
 
 ## Installation
-openvoiceassistant-node is tested Raspberry Pi OS with **python >= 3.9**
+openvoiceassistant-node is tested on Raspberry Pi OS with **python >= 3.9**
 
 It is recomended to setup [openvoiceassistant-hub](https://github.com/greerviau/openvoiceassistant-hub) first, before setting up any nodes.
 
 ### Raspberry Pi Install
-First flash an instant of Raspberry Pi OS, or a similar Raspberry Pi certified distro. Recomended to use Raspberry Pi OS Lite in a headless configuration with SSH enabled.
+First flash an instance of Raspberry Pi OS, or a similar Raspberry Pi certified distro. Recomended to use Raspberry Pi OS Lite in a headless configuration with SSH enabled.
 
-Once OS is flashed, ssh to the device and run the following command:
+Once the OS is flashed, ssh to the device and run the following command:
 ```
 sudo apt install -y git && \
-sudo git clone https://github.com/greerviau/openvoiceassistant-node.git && \
+git clone https://github.com/greerviau/openvoiceassistant-node.git && \
 cd openvoiceassistant-node && \
 sudo ./scripts/install.sh
 ```
 
 The installation will automatically create a systemd service.
 
-The node should now be running! If you check your OVA Hub frontend you should see your node has been auto discovered. This can take a few minutes on initial install. If it takes longer than 5 minutes, check the status of the systemd service using ```sudo systemctl status ova_node.service```. 
+The node should now be running! If you check your OVA Hub frontend you should see your node has been auto-discovered. This can take a few minutes on first install. If it takes longer than 5 minutes, check the status of the systemd service using ```sudo systemctl status ova_node```. 
 
 On initial install, the node may show up with an ID name such as ```node_8917a474bc894ccd848780e6a8dfb988```. Use the ```Identify``` button to identify your node, it will announce "Hello World!" confirming which Node it is.
 
@@ -39,6 +39,7 @@ From the configuration page for a Node, there are several settings you can chang
 * VAD Sensitivity
 * VAD Threshold
 * Speex Noise Supression
+* Omni Directional Wake Word
 * Microphone
 * Speaker
 * Volume
