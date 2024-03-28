@@ -2,8 +2,8 @@ import click
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
+from node import Node
 from node.dir import LOGFILE
-from node.node import Node
 from node.updater import Updater
 from node.web import create_app
 

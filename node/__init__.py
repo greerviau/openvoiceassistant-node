@@ -158,7 +158,7 @@ class Node:
         self.vad_threshold = config.get("vad_threshold")
         self.volume = config.get("volume")
 
-        self.hub_api_url = f"http://{self.hub_ip}:{7123}/api"
+        self.hub_api_url = f"http://{self.hub_ip}:{self.hub_port}/api"
 
         # MICROPHONE SETTINGS
         logger.info("Available Microphones:")
@@ -204,7 +204,7 @@ class Node:
         logger.info(f"- HUB:              {self.hub_ip}")
         logger.info("Wakeword Settings")
         logger.info(f"- Wake Word:        {self.wake_word}")
-        logger.info(f"- Omni Directional: {self.omni_directional_wake_word}")
+        logger.info(f"- Omni-Directional: {self.omni_directional_wake_word}")
         logger.info(f"- Wake Conf:        {self.wake_word_conf_threshold}")
         logger.info(f"- Vad Thresh:       {self.vad_threshold}")
         logger.info(f"- Noise Suppress:   {self.speex_noise_suppression}")
