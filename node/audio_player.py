@@ -20,11 +20,11 @@ class AudioPlayer:
         logger.warning("Audio interrupted")
         sd.stop()
 
-    def play_sounddevice(self, file):
+    def play_sounddevice(self, file: str):
         data, fs = sf.read(file, dtype="float32")  
         sd.play(data, fs, device=self.speaker_idx, blocking=True)
 
-    def play_output_stream(self, file):
+    def play_output_stream(self, file: str):
         event = threading.Event()
         
         with sf.SoundFile(file) as wf:
