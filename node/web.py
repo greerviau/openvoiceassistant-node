@@ -5,9 +5,9 @@ import threading
 import logging
 logger = logging.getLogger("werkzeug")
 
+from node import Node
 from node import config
 from node.dir import FILESDIR, WAKEWORDMODELSDIR, LOGFILE
-from node.node import Node
 from node.updater import Updater
 from node.utils.hardware import list_microphones, list_speakers
 from node.schemas import NodeConfig

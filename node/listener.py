@@ -15,24 +15,25 @@ from node.wake import OpenWakeWord
 class Listener:
     def __init__(self, node, frames_per_buffer: int = 1280):
         self.node = node
-        self.wake_word = node.wake_word
         self.mic_idx = node.mic_idx
         self.sample_rate = node.sample_rate
         self.sample_width = node.sample_width
         self.channels = node.audio_channels
         self.frames_per_buffer = frames_per_buffer
-        self.sensitivity = node.vad_sensitivity
         self.wakeup_sound = node.wakeup_sound
-        self.enable_speex = node.speex_noise_suppression
         self.noise_suppression = None
-        if self.enable_speex:
+        if node.speex_noise_suppression:
             from speexdsp_ns import NoiseSuppression
             self.noise_suppression = NoiseSuppression.create(self.frames_per_buffer, self.sample_rate)
         
-        self.wake = OpenWakeWord(node, wake_word=self.wake_word)
+        self.wake = OpenWakeWord(wake_word=node.wake_word,
+                                wake_word_conf_threshold=node.wake_word_conf_threshold,
+                                # set this to false if using omni-directional wake word so to not double up noise supression
+                                speex_noise_suppression=node.speex_noise_suppression if not node.omni_directional_wake_word else False,
+                                vad_threshold=node.vad_threshold)
         
         self.vad = webrtcvad.Vad()
-        self.vad.set_mode(self.sensitivity)
+        self.vad.set_mode(node.vad_sensitivity)
 
         self.vad_chunk_size = 960 # 30ms
 
@@ -78,7 +79,7 @@ class Listener:
                 while self.node.running.is_set():
                     chunk = buffer.get()
                     if chunk:
-                        if self.enable_speex and self.noise_suppression:
+                        if self.noise_suppression:
                             chunk = self.noise_suppression.process(chunk)
                         wav_file.writeframes(chunk)
 
@@ -127,7 +128,7 @@ class Listener:
                 while self.node.running.is_set():
                     chunk = buffer.get()
                     if chunk:
-                        if self.enable_speex and self.noise_suppression:
+                        if self.noise_suppression:
                             chunk = self.noise_suppression.process(chunk)
 
                         vad_audio_data += chunk
